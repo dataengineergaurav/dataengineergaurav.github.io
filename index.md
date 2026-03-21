@@ -35,10 +35,6 @@ My most visible public repositories:
 - **Repo**: [github.com/dataengineergaurav/rental-market-dynamics-dubai](https://github.com/dataengineergaurav/rental-market-dynamics-dubai)  
 - Open-source data processing pipeline in Python.
 
-### smart-data-validator-api
-- **Repo**: [github.com/dataengineergaurav/smart-data-validator-api](https://github.com/dataengineergaurav/smart-data-validator-api)  
-- API for validating and cleaning structured data at scale.
-
 ### personal-finance-assistant
 - **Repo**: [github.com/dataengineergaurav/personal-finance-assistant](https://github.com/dataengineergaurav/personal-finance-assistant)  
 - Tooling for personal data tracking and analysis.
