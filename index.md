@@ -31,7 +31,7 @@ Based in Dubai, UAE. Open-source contributor with multiple public repositories f
 ## Featured Projects
 My most visible public repositories:
 
-### rental-market-dynamics-dubai (pinned)
+### rental-market-dynamics-dubai
 - **Repo**: [github.com/dataengineergaurav/rental-market-dynamics-dubai](https://github.com/dataengineergaurav/rental-market-dynamics-dubai)  
 - Open-source data processing pipeline in Python.
 
