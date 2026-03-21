@@ -25,11 +25,9 @@ My most visible public repositories:
 - **Repo**: [github.com/dataengineergaurav/personal-finance-assistant](https://github.com/dataengineergaurav/personal-finance-assistant)  
 - Tooling for personal data tracking and analysis.
 
-More projects available on [my GitHub](https://github.com/dataengineergaurav) (sorted by stars or recency).
+More projects available on [my GitHub](https://github.com/dataengineergaurav)
 
-## Blog
-I post concise, practical articles about engineering data systems and automation best practices.
-
+## Thoughts (posts)
 {% for post in site.posts %}
 - <a href="{{ post.url }}">{{ post.title }}</a> — {{ post.date | date: "%b %Y" }}
 {% endfor %}
