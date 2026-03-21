@@ -10,19 +10,22 @@ On the surface, the system looked fine.
 Until I followed one simple rule: \> "Never approve a refund over \$500
 without manager review."
 
-That rule---clear, simple, almost obvious---was buried inside an agent
+That rule - clear, simple, almost obvious
+was buried inside an agent
 loop.
 
-Wrapped with: - retry logic\
-- fallback prompts to an LLM\
-- queue timeouts\
+Wrapped with: 
+--
+- retry logic
+- fallback prompts to an LLM
+- queue timeouts
 - conditional branching
 
 I wasn't debugging anymore.
 
 I was negotiating with my own system.
 
-Every change felt risky. Not because of complexity alone---but because I
+Every change felt risky. Not because of complexity alone but because I
 couldn't clearly answer: \> *What does "correct" even mean anymore?*
 
 ------------------------------------------------------------------------
