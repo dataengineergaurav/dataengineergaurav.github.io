@@ -26,7 +26,7 @@ Based in Dubai, UAE. Open-source contributor with multiple public repositories f
 - **Data Engineering**: ETL/ELT pipelines, data automation, orchestration  
 - **Data Quality**: Validation, cleaning, and transformation at scale  
 - **Visualization**: Plotly, Matplotlib, dashboards  
-- **Cloud & Big Data**: (AWS/GCP/Azure, Spark, Airflow, dbt — add any you want highlighted)
+- **Cloud & Big Data**: AWS/GCP/Azure, Spark, Airflow, dbt
 
 ## Featured Projects
 My most visible public repositories:
@@ -45,11 +45,18 @@ My most visible public repositories:
 
 More projects available on [my GitHub](https://github.com/dataengineergaurav) (sorted by stars or recency).
 
-## Let’s Connect
+## Blog
+I post concise, practical articles about engineering data systems and automation best practices.
+
+{% for post in site.posts %}
+- <a href="{{ post.url }}">{{ post.title }}</a> — {{ post.date | date: "%b %Y" }}
+{% endfor %}
+
+## Contact
 - **GitHub**: [dataengineergaurav](https://github.com/dataengineergaurav)  
 - **X**: [@dubaidataguy](https://x.com/dubaidataguy)  
 - **LinkedIn**: [ggurjarsocl](https://www.linkedin.com/in/ggurjarsocl/)  
-- **Email**: [ggurjar333@gmail.com](mailto:ggurjar333@gmail.com)  
+- **Email**: [ggurjar333@gmail.com](mailto:ggurjar333@gmail)  
 - **Calendly**: [Book a 15-min call](https://calendly.com/gauravgurjar/15min)
 
 Open to data engineering discussions, collaboration ideas, or feedback on any repo.
