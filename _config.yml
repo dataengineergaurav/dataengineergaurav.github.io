@@ -3,12 +3,8 @@ description: Data Engineer | Building scalable data pipelines, automation, and a
 url: ""
 baseurl: ""
 github_username: dataengineergaurav
-twitter_username: dubaidataguy
-linkedin_username: ggurjarsocl
 google_analytics:
 theme: jekyll-theme-minimal
 # Optional: better SEO
 author:
   name: Gaurav Gurjar
-  email: ggurjar333@gmail.com
-  phone: +971 50 963 6801
