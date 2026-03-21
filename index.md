@@ -3,48 +3,55 @@ layout: default
 title: Gaurav Gurjar - Data Engineer
 ---
 
-<div style="text-align: center; margin-bottom: 40px;">
-  <h1 style="font-size: 3rem;">Gaurav Gurjar</h1>
-  <p style="font-size: 1.5rem; color: #555;">Data Engineer | Dubai Real Estate Analytics Specialist<br>
-  <strong>Turning rent contracts & property data into actionable market intelligence</strong></p>
+<div style="text-align: center; margin: 60px 0 40px;">
+  <h1 style="font-size: 3.2rem; margin-bottom: 0.2rem;">Gaurav Gurjar</h1>
+  <p style="font-size: 1.6rem; color: #555; margin: 0.5rem 0 1.5rem;">
+    Data Engineer
+  </p>
   
-  <p>
-    <a href="https://github.com/dataengineergaurav" target="_blank">GitHub</a> • 
-    <a href="https://x.com/dubaidataguy" target="_blank">X @dubaidataguy</a> • 
-    <a href="YOUR_LINKEDIN_URL_HERE" target="_blank">LinkedIn</a>
+  <p style="font-size: 1.2rem;">
+    <a href="https://github.com/dataengineergaurav" target="_blank" rel="noopener">GitHub</a> • 
+    <a href="https://x.com/dubaidataguy" target="_blank" rel="noopener">X @dubaidataguy</a> • 
+    <a href="https://www.linkedin.com/in/ggurjarsocl/" target="_blank" rel="noopener">LinkedIn</a>
   </p>
 </div>
 
-## About Me
-Hi, I'm Gaurav Gurjar — a Data Engineer passionate about Dubai's dynamic real estate market. I automate end-to-end data pipelines: extraction from contracts, cleaning, analysis, and visualization. Currently based in Ahmedabad with a strong Dubai focus through my open-source projects.
+## About
+Data Engineer focused on building reliable, scalable data systems. I design ETL/ELT pipelines, automate data workflows, write clean Python/SQL code, and turn raw data into usable insights.
 
-(Pro tip: Paste your exact LinkedIn “About” summary here for 100% alignment — I’ll update it instantly if you share it.)
+Based in Ahmedabad, Gujarat. Open-source contributor with multiple public repositories for tools, validators, assistants, and data-processing pipelines.
 
-## Skills
+## Key Skills
 - **Languages & Tools**: Python, SQL, Pandas, NumPy  
-- **Data Engineering**: ETL pipelines, web scraping, data automation  
-- **Analytics**: Market dynamics, rental trends, real-estate modeling  
+- **Data Engineering**: ETL/ELT pipelines, data automation, orchestration  
+- **Data Quality**: Validation, cleaning, and transformation at scale  
 - **Visualization**: Plotly, Matplotlib, dashboards  
-- **Cloud & Big Data**: (add your stack — AWS/GCP/Azure, Spark, Airflow, etc.)
+- **Cloud & Big Data**: (AWS/GCP/Azure, Spark, Airflow, dbt — add any you want highlighted)
 
 ## Featured Projects
-These are my most visible open-source repos and perfectly match my professional brand:
+My most visible public repositories:
 
-### Rental Market Dynamics Dubai (RMDD)
+### rental-market-dynamics-dubai (pinned)
 - **Repo**: [github.com/dataengineergaurav/rental-market-dynamics-dubai](https://github.com/dataengineergaurav/rental-market-dynamics-dubai)  
-- Automates extraction, cleaning, and analysis of Dubai rent contracts. Full dataset + code for real estate property insights.
+- Open-source data processing pipeline in Python.
 
-### Real Estate Analysis Dubai (READ)
-- **Repo**: [github.com/dataengineergaurav/real-estate-analysis-dubai](https://github.com/dataengineergaurav/real-estate-analysis-dubai)  
-- Comprehensive Dubai real estate market analysis platform.
+### smart-data-validator-api
+- **Repo**: [github.com/dataengineergaurav/smart-data-validator-api](https://github.com/dataengineergaurav/smart-data-validator-api)  
+- API for validating and cleaning structured data at scale.
 
-(If you have other starred repos you want featured — e.g. any Python ETL, Spark, or cloud projects — just list their names and I’ll add them with descriptions.)
+### personal-finance-assistant
+- **Repo**: [github.com/dataengineergaurav/personal-finance-assistant](https://github.com/dataengineergaurav/personal-finance-assistant)  
+- Tooling for personal data tracking and analysis.
+
+More projects available on [my GitHub](https://github.com/dataengineergaurav) (sorted by stars or recency).
 
 ## Let’s Connect
-- **GitHub**: [dataengineergaurav](https://github.com/dataengineergaurav) (47 repos & growing)  
-- **X/Twitter**: [@dubaidataguy](https://x.com/dubaidataguy)  
-- **LinkedIn**: [@ggurjarsocl](https://www.linkedin.com/in/ggurjarsocl/)
-- [Email](ggurjar333@gmail.com) / [Calendly](https://calendly.com/gauravgurjar/15min)
+- **GitHub**: [dataengineergaurav](https://github.com/dataengineergaurav)  
+- **X**: [@dubaidataguy](https://x.com/dubaidataguy)  
+- **LinkedIn**: [ggurjarsocl](https://www.linkedin.com/in/ggurjarsocl/)  
+- **Email**: [ggurjar333@gmail.com](mailto:ggurjar333@gmail.com)  
+- **Calendly**: [Book a 15-min call](https://calendly.com/gauravgurjar/15min)
 
+Open to data engineering discussions, collaboration ideas, or feedback on any repo.
 
----
+Thanks for visiting!
