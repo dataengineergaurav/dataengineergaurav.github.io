@@ -37,8 +37,7 @@ I post concise, practical articles about engineering data systems and automation
 ## Contact
 - **GitHub**: [dataengineergaurav](https://github.com/dataengineergaurav)  
 - **X**: [@dubaidataguy](https://x.com/dubaidataguy)  
-- **LinkedIn**: [ggurjarsocl](https://www.linkedin.com/in/ggurjarsocl/)  
-- **Email**: [ggurjar333@gmail.com](mailto:ggurjar333@gmail)  
+- **LinkedIn**: [ggurjarsocl](https://www.linkedin.com/in/ggurjarsocl/)    
 - **Calendly**: [Book a 15-min call](https://calendly.com/gauravgurjar/15min)
 
 Open to data engineering discussions, collaboration ideas, or feedback on any repo.
