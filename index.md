@@ -5,8 +5,6 @@ title: Gaurav Gurjar - Data Engineer
 ## About
 Data Engineer focused on building reliable, scalable data systems. I design ETL/ELT pipelines, automate data workflows, write clean Python/SQL code, and turn raw data into usable insights.
 
-Based in Dubai, UAE.
-
 ## Key Skills
 - **Languages & Tools**: English, Python, SQL
 - **Data Engineering**: ETL/ELT pipelines, data automation, orchestration, AI pipelines  
