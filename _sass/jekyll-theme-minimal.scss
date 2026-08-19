@@ -302,18 +302,19 @@ main.container {
 }
 
 /* Sections */
-section h2 {
+h2 {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-section h2::before {
+h2::before {
   content: "";
   width: 5px;
   height: 1.3em;
   background: var(--accent);
   border-radius: 3px;
+  flex-shrink: 0;
 }
 
 /* Experience */

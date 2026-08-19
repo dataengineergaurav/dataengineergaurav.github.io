@@ -13,7 +13,6 @@ title: Gaurav Gurjar — Data Engineer
   </div>
 </div>
 
-<section id="about">
 ## About
 
 I focus on delivering autonomous value through robust analytics, reliable data infrastructure, and strong governance. By fostering a small, high-leverage team, I prioritize quality, documentation, and long-term client relationships over quick fixes. I actively contribute to high-stakes projects involving AI agents, data pipelines, and BI models, while promoting data quality, observability, and governance from the outset. My work emphasizes transforming complex data into actionable insights through scalable pipelines, reusable components, and cutting-edge frameworks — building sustainable, reliable systems that enable confident, data-driven decisions.
@@ -22,9 +21,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 
 - IT Consulting, Data Reporting, Business Analytics
 - SaaS Development, Database Development, Custom Software Development
-</section>
 
-<section id="experience">
 ## Experience
 
 <div class="experience">
@@ -34,7 +31,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
   <span class="org">ISHIR</span>
   <div class="meta">April 2024 – January 2026 · Dubai, UAE</div>
   <ul>
-    <li>Owned the Redshift-based analytics platform for a large US Property & Casualty insurer: scalable ELT pipelines with dbt, S3, Lambda, and AWS Glue for high-volume policy and claims data</li>
+    <li>Owned the Redshift-based analytics platform for a large US Property &amp; Casualty insurer: scalable ELT pipelines with dbt, S3, Lambda, and AWS Glue for high-volume policy and claims data</li>
     <li>Led delivery of autonomous AI agent systems and governed AWS Bedrock-based data pipelines for Policy and Claims datasets, with measurable efficiency gains and compliance-ready architecture</li>
     <li>Implemented automated data validation and contract testing, significantly reducing data quality incidents and downstream rework</li>
     <li>Designed reusable agent templates, data quality frameworks, and governance patterns for production AI deployments</li>
@@ -47,7 +44,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
   <span class="org">SageSure</span>
   <div class="meta">April 2024 – January 2026</div>
   <ul>
-    <li>Owned the Redshift analytics platform for a US Property & Casualty insurer: ELT pipelines in dbt, S3, Lambda, and AWS Glue for policy and claims data; Python (PySpark) and SQL in Glue jobs</li>
+    <li>Owned the Redshift analytics platform for a US Property &amp; Casualty insurer: ELT pipelines in dbt, S3, Lambda, and AWS Glue for policy and claims data; Python (PySpark) and SQL in Glue jobs</li>
   </ul>
 </div>
 
@@ -82,9 +79,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 </div>
 
 </div>
-</section>
 
-<section id="projects">
 ## Projects
 
 {% assign visible = site.projects | where: "draft", false | sort: "order" %}
@@ -94,7 +89,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 <div class="project">
   <h3>{{ project.title }}</h3>
   {% if project.tools %}<span class="tools">{{ project.tools }}</span>{% endif %}
-  {{ project.content }}
+  {{ project.content | markdownify }}
 </div>
 {% endfor %}
 </div>
@@ -104,14 +99,12 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 
 ## Skills
 
-<ul class="skill-list">
-  <li><strong>Languages &amp; Tools</strong> — Python, SQL, R, Excel, Streamlit</li>
-  <li><strong>Data Engineering</strong> — ETL/ELT pipelines, data automation, orchestration, real-time data, data lakes &amp; warehousing</li>
-  <li><strong>Data Quality</strong> — Validation, contract testing, cleaning, and transformation at scale</li>
-  <li><strong>Cloud &amp; Big Data</strong> — AWS (Glue, S3, RDS, Aurora, Redshift, Lambda, Athena, Bedrock), GCP, PySpark, Airflow, Dagster, dbt, MongoDB</li>
-  <li><strong>AI &amp; Agents</strong> — Autonomous AI agent systems, AWS Bedrock pipelines, agent templates, governance patterns</li>
-  <li><strong>Languages</strong> — Gujarati (native), English (native/bilingual), Hindi (full professional), Arabic (elementary)</li>
-</ul>
+- **Languages & Tools** — Python, SQL, R, Excel, Streamlit
+- **Data Engineering** — ETL/ELT pipelines, data automation, orchestration, real-time data, data lakes &amp; warehousing
+- **Data Quality** — Validation, contract testing, cleaning, and transformation at scale
+- **Cloud & Big Data** — AWS (Glue, S3, RDS, Aurora, Redshift, Lambda, Athena, Bedrock), GCP, PySpark, Airflow, Dagster, dbt, MongoDB
+- **AI & Agents** — Autonomous AI agent systems, AWS Bedrock pipelines, agent templates, governance patterns
+- **Languages** — Gujarati (native), English (native/bilingual), Hindi (full professional), Arabic (elementary)
 
 ## Certifications & Education
 
@@ -121,9 +114,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 - **Dagster & dbt**
 - **UAE AI Camp Certificate 2024**
 - **Bachelor of Computer Applications** — Dr. Babasaheb Ambedkar Open University (2013–2017)
-</section>
 
-<section id="recommendations">
 ## Recommendations
 
 <div class="rec">
@@ -174,9 +165,7 @@ I focus on delivering autonomous value through robust analytics, reliable data i
   </blockquote>
   <cite><strong>Ivette Basterrechea</strong> — Senior Litigation Support Specialist · senior to Gaurav</cite>
 </div>
-</section>
 
-<section id="contact">
 ## Contact
 
 <div class="contact-grid">
@@ -207,4 +196,3 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 {% for post in site.posts %}
 - <a href="{{ post.url }}">{{ post.title }}</a> — {{ post.date | date: "%b %Y" }}
 {% endfor %}
-</section>
