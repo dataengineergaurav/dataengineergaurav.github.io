@@ -1,10 +1,25 @@
 title: Gaurav Gurjar
-description: Data Engineer | Dubai, UAE
-url: ""
+description: Data Engineer building reliable, scalable data systems. ETL/ELT pipelines, data automation, and AI pipelines in Python, SQL, AWS, PySpark, Airflow, Dagster, and dbt.
+url: "https://dataengineergaurav.github.io"
 baseurl: ""
 github_username: dataengineergaurav
 google_analytics:
-theme: jekyll-theme-minimal
-# Optional: better SEO
 author:
   name: Gaurav Gurjar
+  url: https://dataengineergaurav.github.io
+  github: dataengineergaurav
+  twitter: dubaidataguy
+  linkedin: ggurjarsocl
+logo: /assets/img/logo.png
+social:
+  links:
+    - https://github.com/dataengineergaurav
+    - https://x.com/dubaidataguy
+    - https://www.linkedin.com/in/ggurjarsocl/
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+exclude:
+  - docs/superpowers
+  - Gemfile
+  - README.md
