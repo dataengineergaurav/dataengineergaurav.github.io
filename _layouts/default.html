@@ -1,35 +1,47 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: "en-US" }}">
+<html lang="{{ site.lang | default: "en" }}">
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
 
 {% seo title=false %}
     <title>{% if page.title and page.title != site.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+
     <link rel="stylesheet" href="{{ "/assets/css/style.css" | relative_url }}">
     {% include head-custom.html %}
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1><a href="{{ "/" | relative_url }}">{{ site.title | default: site.github.repository_name }}</a></h1>
-
-        {% if site.logo %}
-          <img src="{{ site.logo | relative_url }}" alt="Logo" />
-        {% endif %}
-
-        <p>{{ site.description }}</p>
-      </header>
-      <section>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container nav">
+        <a class="brand" href="{{ "/" | relative_url }}">{{ site.title | split: " —" | first }}</a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="{{ "/" | relative_url }}#about">About</a>
+          <a href="{{ "/" | relative_url }}#experience">Experience</a>
+          <a href="{{ "/" | relative_url }}#projects">Projects</a>
+          <a href="{{ "/" | relative_url }}#recommendations">Recommendations</a>
+          <a href="{{ "/" | relative_url }}#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="container">
 
       {{ content }}
 
-      </section>
-      <footer>
-        <p><small>Hosted on GitHub Pages</small></p>
-      </footer>
-    </div>
-    <script src="{{ "/assets/js/scale.fix.js" | relative_url }}"></script>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-links">
+          <a href="https://github.com/dataengineergaurav">GitHub</a>
+          <a href="https://x.com/dubaidataguy">X</a>
+          <a href="https://www.linkedin.com/in/ggurjarsocl/">LinkedIn</a>
+          <a href="https://gauravgurjar.medium.com/">Medium</a>
+        </div>
+        <p>&copy; {{ site.time | date: "%Y" }} {{ site.title | split: " —" | first }} · Built with Jekyll on GitHub Pages</p>
+      </div>
+    </footer>
   </body>
 </html>

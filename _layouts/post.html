@@ -2,13 +2,16 @@
 layout: default
 ---
 
-<small>{{ page.date | date: "%-d %B %Y" }}</small>
+<div class="post-meta">{{ page.date | date: "%-d %B %Y" }}</div>
 <h1>{{ page.title }}</h1>
 
-<p class="view">by {{ page.author | default: site.author }}</p>
-
-{{content}}
+{{ content }}
 
 {% if page.tags %}
-  <small>tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
+<div class="post-tags">
+  tags:
+  {% for tag in page.tags %}
+  <a href="#">{{ tag }}</a>
+  {% endfor %}
+</div>
 {% endif %}
