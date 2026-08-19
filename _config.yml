@@ -28,6 +28,8 @@ collections:
   projects:
     output: false
 exclude:
+  - vendor
+  - .github
   - docs/superpowers
   - Gemfile
   - README.md
