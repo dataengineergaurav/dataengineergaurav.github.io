@@ -83,11 +83,31 @@ I focus on delivering autonomous value through robust analytics, reliable data i
 
 > "Gaurav Gurjar is a fantastic Cross-Cloud Data Engineer and an even better teammate. I had the opportunity to work with Gaurav on building scalable data pipelines using AWS Glue and Redshift. He brings deep expertise in data engineering, a strong understanding of cloud technologies, and excellent problem-solving skills. As my Team Lead, Gaurav has been a great mentor and leader."
 >
-> — Raja Ram S, AWS Glue & Redshift pipelines
+> — Raja Ram S, AWS Data Engineer · worked with Gaurav on the same team
 
 > "I worked with Gaurav on several projects, he has strong technical skills and is also a good team player. He was able to deliver high-quality work and found solutions to difficult problems. Being collaborative, communicative, and always willing to jump in and help."
 >
-> — Le Z., project collaboration
+> — Le Zhang, Data Engineering · worked with Gaurav on the same team
+
+> "Knowing Gaurav for years, I've seen firsthand how exceptional he's in data science and business. He has a rare talent for turning complex data into actionable insights that drive real results. On top of that, his communication skills are outstanding — he makes sure everyone's on the same page, from analysts to executives. What sets him apart is his proactive nature; he's always ahead, spotting opportunities and solving problems before they even arise. Gaurav is a true asset to any team."
+>
+> — Krunal Parikh, TeamGrid AI · studied together
+
+> "I had a pleasure of working and collaborating with Gaurav on a cross functional data engineering project. His expertise and excellent project management skills were top notch. As a team member he always brought a positive energy and a can-do attitude. He was very quick to lend a helping hand to support anyone when needed."
+>
+> — John Bassey, Data and Software Professional · worked with Gaurav on the same team
+
+> "Gaurav is a very diligent, hardworking and proactive person. He is a very reliable technical guy with expertise in data sciences area. Keen learner and comes up with good ideas."
+>
+> — Stanly Thomas, Co-Founder & Managing Director, Stanra Tech Solutions
+
+> "I have worked with Gaurav for close to a year and he is a very well rounded, skilled, and innovative data scientist. He has helped me in the development of statistical methods, backend server infrastructure, and data science tasks. Gaurav is not only a great developer but also a great communicator. He has always been very prompt, responsive, and completes tasks on time. He goes above and beyond to ensure that the customer requirements and needs are met. I recommend him to anyone seeking expert level data science services."
+>
+> — Benjamin Harvey, Ph.D., Founder of AI Squared · managed Gaurav directly
+
+> "Gaurav is a thoughtful person with a very creative mind. He is intellectually curious and looks for efficient solutions to any problems. I enjoyed my time working with him and appreciate the collegial relationship we developed. I have great faith that he will achieve success in any career path he pursues."
+>
+> — Ivette Basterrechea, Senior Litigation Support Specialist · senior to Gaurav
 
 ## Thoughts (posts)
 
