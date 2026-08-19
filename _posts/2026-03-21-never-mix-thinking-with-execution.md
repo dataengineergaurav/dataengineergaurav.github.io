@@ -1,5 +1,3 @@
-# Never Mix Thinking with Execution
-
 A few years ago, I was staring at production alerts at 2 a.m.
 
 Not the noisy kind you can silence with a quick fix. The kind that force
