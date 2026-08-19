@@ -11,6 +11,11 @@ author:
   twitter: dubaidataguy
   linkedin: ggurjarsocl
 logo: /assets/img/logo.png
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/img/og.png
 social:
   links:
     - https://github.com/dataengineergaurav
