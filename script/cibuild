@@ -4,4 +4,4 @@ set -e
 
 bundle exec jekyll build
 bundle exec htmlproofer ./_site --checks Links,Images,Scripts --disable-external --ignore-empty-alt
-python scripts/test_public_content.py --root _site
+python3 scripts/test_public_content.py --root _site

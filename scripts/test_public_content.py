@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+import re
 from tempfile import TemporaryDirectory
 import unittest
 
@@ -9,9 +10,15 @@ FORBIDDEN_NAMES = (
     "tradetips", "casepoint", "nhs", "archetypal ai", "6overn.ai",
 )
 
-SOURCE_PATHS = (
-    Path("index.md"), Path("work.md"), Path("_config.yml"),
-    Path("_layouts"), Path("_projects"),
+SOURCE_EXCLUDED_DIRS = {
+    ".git", ".github", ".pytest_cache", ".superdesign", ".superpowers", "_site",
+    "automation", "docs", "script", "scripts", "vendor",
+}
+
+TESTIMONIAL_NAMES = (
+    ("ai squared", "Benjamin Harvey, Ph.D.", "Founder of AI Squared"),
+    ("department of justice", "Ivette Basterrechea", "Department of Justice"),
+    ("google", "Le Zhang", "Google"),
 )
 
 HOMEPAGE_PROOF = (
@@ -21,8 +28,13 @@ HOMEPAGE_PROOF = (
 
 def public_text_files(root: Path) -> list[Path]:
     if (root / "index.md").exists():
-        paths = SOURCE_PATHS
         suffixes = {".md", ".html", ".yml", ".yaml"}
+        return sorted(
+            path for path in root.rglob("*")
+            if path.suffix in suffixes
+            and not SOURCE_EXCLUDED_DIRS.intersection(path.relative_to(root).parts)
+            and path.relative_to(root) not in {Path("README.md"), Path("_projects/README.md")}
+        )
     else:
         paths = (Path("."),)
         suffixes = {".html", ".xml", ".txt"}
@@ -40,7 +52,14 @@ def find_forbidden_names(root: Path) -> list[str]:
     findings = []
     for path in public_text_files(root):
         text = path.read_text(encoding="utf-8").casefold()
-        for name in FORBIDDEN_NAMES:
+        for name, author, attribution in TESTIMONIAL_NAMES:
+            text = re.sub(
+                rf"<cite\b[^>]*>.*?{re.escape(author.casefold())}.*? · {re.escape(attribution.casefold())}\s*</cite>",
+                lambda match: match.group().replace(name, ""),
+                text,
+                flags=re.DOTALL,
+            )
+        for name in FORBIDDEN_NAMES + tuple(name for name, _, _ in TESTIMONIAL_NAMES):
             if name in text:
                 findings.append(f"{path}: {name}")
     return findings
@@ -71,9 +90,22 @@ class PublicContentTests(unittest.TestCase):
             (root / "index.md").write_text("home", encoding="utf-8")
             (root / "_layouts").mkdir()
             (root / "_layouts" / "default.html").write_text("layout", encoding="utf-8")
+            (root / "_includes").mkdir()
+            (root / "_includes" / "head.html").write_text("include", encoding="utf-8")
+            (root / "_posts").mkdir()
+            (root / "_posts" / "post.md").write_text("post", encoding="utf-8")
+            (root / "docs").mkdir()
+            (root / "docs" / "private.md").write_text("private", encoding="utf-8")
+            (root / "scripts").mkdir()
+            (root / "scripts" / "private.md").write_text("private", encoding="utf-8")
             (root / "ignored.txt").write_text("ignored", encoding="utf-8")
 
-            self.assertEqual(public_text_files(root), [root / "_layouts" / "default.html", root / "index.md"])
+            self.assertEqual(public_text_files(root), [
+                root / "_includes" / "head.html",
+                root / "_layouts" / "default.html",
+                root / "_posts" / "post.md",
+                root / "index.md",
+            ])
 
     def test_finds_forbidden_names_case_insensitively(self):
         with TemporaryDirectory() as temporary:
@@ -88,6 +120,42 @@ class PublicContentTests(unittest.TestCase):
             (root / "index.md").write_text("Independent data leader.", encoding="utf-8")
 
             self.assertEqual(find_forbidden_names(root), [])
+
+    def test_allows_approved_testimonial_attribution_only(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            page = root / "index.md"
+            page.write_text("<cite>Jane Doe · Founder of AI Squared</cite>", encoding="utf-8")
+
+            self.assertEqual(find_forbidden_names(root), [f"{page}: ai squared"])
+
+            page.write_text(
+                "<cite>Benjamin Harvey, Ph.D. · Founder of AI Squared</cite>",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(find_forbidden_names(root), [])
+
+            page.write_text(
+                "<cite>Benjamin Harvey, Ph.D. · Founder of AI Squared</cite>\nAI Squared engagement",
+                encoding="utf-8",
+            )
+            self.assertEqual(find_forbidden_names(root), [f"{page}: ai squared"])
+
+    def test_generated_site_requires_proof_and_scans_nested_pages(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "index.html").write_text(
+                "300+ 2M+ 7+ years Open to select strategic leadership roles",
+                encoding="utf-8",
+            )
+            (root / "blog").mkdir()
+            (root / "blog" / "index.html").write_text("ISHIR", encoding="utf-8")
+
+            self.assertEqual(
+                find_public_content_findings(root),
+                [f"{root / 'blog' / 'index.html'}: ishir"],
+            )
 
 
 if __name__ == "__main__":
