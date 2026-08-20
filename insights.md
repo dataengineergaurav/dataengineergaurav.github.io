@@ -30,7 +30,7 @@ permalink: /insights/
 
 <section aria-labelledby="all-insights-heading">
   <h2 id="all-insights-heading">All insights</h2>
-  <div class="topic-filters" aria-label="Filter insights by topic">
+  <div class="topic-filters" role="group" aria-label="Filter insights by topic">
     <button type="button" data-topic-filter="all" aria-pressed="true">All</button>
     {% for topic in topics %}
       <button type="button" data-topic-filter="{{ topic | slugify }}" aria-pressed="false">{{ topic }}</button>

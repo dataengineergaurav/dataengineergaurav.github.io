@@ -60,12 +60,15 @@ Create a file in `_posts/` with the naming convention `YYYY-MM-DD-title.md`. Art
 layout: post
 title: "Your Post Title"
 date: 2026-08-19
+topic: Leadership
 summary: "A concise, card-ready summary."
 description: "A search and social description for the article."
 ---
 
 Your content here...
 ```
+
+Choose one topic from `Data Platforms`, `AI Governance`, `Analytics Delivery`, or `Leadership`.
 
 ## CI
 
