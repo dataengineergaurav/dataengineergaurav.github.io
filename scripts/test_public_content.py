@@ -18,6 +18,7 @@ SOURCE_EXCLUDED_DIRS = {
 TESTIMONIAL_NAMES = (
     ("ai squared", "Benjamin Harvey, Ph.D.", "Founder of AI Squared"),
     ("department of justice", "Ivette Basterrechea", "Department of Justice"),
+    ("google", "Le Zhang", ""),
 )
 
 HOMEPAGE_PROOF = (
@@ -51,6 +52,7 @@ def find_forbidden_names(root: Path) -> list[str]:
     findings = []
     for path in public_text_files(root):
         text = path.read_text(encoding="utf-8").casefold()
+        text = re.sub(r"google[ _-](analytics|cloud|maps)", r"\1", text)
         for name, author, attribution in TESTIMONIAL_NAMES:
             text = re.sub(
                 rf"(<cite\b[^>]*>\s*<strong>\s*<a\b[^>]*>{re.escape(author.casefold())}</a>\s*</strong>\s*·\s*{re.escape(attribution.casefold()[:-len(name)])}){re.escape(name)}(?=\s*</cite>)",
@@ -123,9 +125,17 @@ class PublicContentTests(unittest.TestCase):
     def test_allows_google_technology_references(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "index.md").write_text("Google Analytics, Google Cloud, and Google Research", encoding="utf-8")
+            page = root / "index.md"
+            page.write_text("<cite><strong><a>Le Zhang</a></strong> · Google</cite>", encoding="utf-8")
 
             self.assertEqual(find_forbidden_names(root), [])
+
+            page.write_text("Google Analytics, Google Cloud, and Google Maps", encoding="utf-8")
+
+            self.assertEqual(find_forbidden_names(root), [])
+
+            page.write_text("Google engagement", encoding="utf-8")
+            self.assertEqual(find_forbidden_names(root), [f"{page}: google"])
 
     def test_allows_approved_testimonial_attribution_only(self):
         with TemporaryDirectory() as temporary:
@@ -185,6 +195,16 @@ class PublicContentTests(unittest.TestCase):
                 find_public_content_findings(root),
                 [f"{homepage}: missing Open to select strategic leadership roles"],
             )
+
+    def test_generated_site_rejects_google_engagement(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "index.html").write_text(
+                "300+ 2M+ 7+ years Open to select strategic leadership roles Google engagement",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(find_public_content_findings(root), [f"{root / 'index.html'}: google"])
 
 
 if __name__ == "__main__":
