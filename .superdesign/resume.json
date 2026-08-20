@@ -1,6 +1,39 @@
 {
   "schemaVersion": 1,
   "targets": {
+    "/": {
+      "targetKind": "existing-ui",
+      "projectId": "3936e291-d59c-434e-9a1c-ac5594456ddc",
+      "baselineDraftId": "48e597d5-f70d-4c15-8a8a-a16bdec2b5c5",
+      "activeDraftId": "5c8422e3-0ba6-4df4-be4c-4bf4dcc4b2a3",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        "index.md",
+        "_layouts/default.html",
+        "_sass/jekyll-theme-minimal.scss",
+        ".superdesign/design-system.md"
+      ],
+      "fingerprints": {
+        "index.md": "0129f7a2c0464a00e62c6ea8fde3e9402317d478df91ca4976f45585abe82aef",
+        "_layouts/default.html": "a590313971d41365e944a7280740e4e0189139c433ef037792248cc34358f8f8",
+        "_sass/jekyll-theme-minimal.scss": "7bb7424af8923d99330e3e5f375220c6cb91e2907e0fb242515c61cc29ab1740",
+        ".superdesign/design-system.md": "af95220d93d1a9e9d7b51181e7e6d154ac993c053daa54d1d89dbf0c59c4db60"
+      },
+      "drafts": {
+        "48e597d5-f70d-4c15-8a8a-a16bdec2b5c5": {
+          "title": "Gaurav Gurjar — Fractional Data Engineering Lead",
+          "visualDirection": "proof-led Editorial Authority for consulting with a secondary strategic-role signal",
+          "currentVersion": 4
+        },
+        "5c8422e3-0ba6-4df4-be4c-4bf4dcc4b2a3": {
+          "title": "Editorial Experience Ledger Layout",
+          "visualDirection": "split hero, vertical proof ledger, editorial case-study rows, and featured testimonial",
+          "parentDraftId": "48e597d5-f70d-4c15-8a8a-a16bdec2b5c5",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-08-20T15:02:00Z"
+    },
     "/insights/": {
       "targetKind": "existing-ui",
       "projectId": "31509a9b-132f-4726-b29c-99f2a105d3f4",

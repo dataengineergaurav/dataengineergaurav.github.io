@@ -6,6 +6,7 @@ Gemfile.lock
 .bundle/
 vendor/
 .superpowers/
+.superdesign/tmp/
 .worktrees/
 .article-generator/
 __pycache__/
