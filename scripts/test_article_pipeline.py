@@ -18,14 +18,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 import article_pipeline as pipeline
 
 
-@unittest.skip("Hermes approval plugin is adapted in Task 3")
 class HermesApprovalPluginTests(unittest.TestCase):
     plugin_path = (Path(__file__).resolve().parents[1]
                    / "automation/hermes-article-approval/__init__.py")
 
     def load_plugin(self):
         spec = importlib.util.spec_from_file_location(
-            "metteyya_article_approval_test", self.plugin_path,
+            "personal_article_approval_test", self.plugin_path,
             submodule_search_locations=[str(self.plugin_path.parent)],
         )
         module = importlib.util.module_from_spec(spec)
@@ -85,10 +84,19 @@ class HermesApprovalPluginTests(unittest.TestCase):
         raw = "APPROVE draft-AbC_123$(touch /tmp/pwn)"
         self.assertEqual(plugin._coordinator_argv(raw), (
             "/usr/bin/python3",
-            "/root/blog-metteyyaanalytics/scripts/article_pipeline.py",
+            "/root/dataengineergaurav.github.io/scripts/article_pipeline.py",
             "decision-hex",
             raw.encode("utf-8").hex(),
         ))
+
+    def test_plugin_routes_to_the_personal_coordinator(self):
+        hook = self.load_plugin()
+        self.assertEqual(
+            hook._coordinator_argv("APPROVE AbC_123"),
+            ("/usr/bin/python3",
+             "/root/dataengineergaurav.github.io/scripts/article_pipeline.py",
+             "decision-hex", "415050524f5645204162435f313233"),
+        )
 
     def test_plugin_reports_coordinator_failure_through_existing_gateway(self):
         plugin = self.load_plugin()

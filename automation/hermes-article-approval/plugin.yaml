@@ -1,0 +1,6 @@
+name: personal_article_approval
+version: 1.0.0
+description: Deterministic Telegram approval dispatch for personal-site article drafts
+kind: standalone
+provides_hooks:
+  - pre_gateway_dispatch
