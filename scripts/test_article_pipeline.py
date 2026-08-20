@@ -632,6 +632,8 @@ class PipelineCoreTests(unittest.TestCase):
         for key in ("title", "summary", "description"):
             for payload, rule in (("{{ site.title }}", "Liquid"),
                                   ("<script>alert(1)</script>", "HTML"),
+                                  ("<svg/onload=alert(1)>", "HTML"),
+                                  ("<img/src=x onerror=alert(1)>", "HTML"),
                                   ("first\nsecond", "control")):
                 article = self.valid_article()
                 article[key] = payload
@@ -687,6 +689,7 @@ class PipelineCoreTests(unittest.TestCase):
         for payload in (
             '<script>alert(1)</script>',
             '<img src="x" onerror="alert(1)">',
+            '<svg/onload=alert(1)>',
             '[click](javascript:alert(1))',
             '[click](java&#x73;cript:alert(1))',
             '[download](data:text/html;base64,PHNjcmlwdD4=)',

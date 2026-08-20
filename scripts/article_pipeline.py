@@ -58,7 +58,7 @@ ARTICLE_TEXT_LIMITS = {
 TELEGRAM_MESSAGE_LIMIT = 4096
 TELEGRAM_CAPTION_LIMIT = 1024
 RAW_HTML_RE = re.compile(
-    r"(?is)<!--|<\?|<![A-Z]|<\s*/?\s*[A-Za-z][\w-]*(?:\s[^<>]*?)?\s*/?>")
+    r"(?is)<!--|<\?|<![A-Z]|<\s*/?\s*[A-Za-z]")
 
 SELECTION_SCHEMA = {
     "type": "object",
