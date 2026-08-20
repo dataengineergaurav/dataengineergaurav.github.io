@@ -266,7 +266,6 @@ main.container {
 
 .hero {
   max-width: var(--reading-width);
-  padding-bottom: clamp(3rem, 8vw, 6rem);
 }
 
 .hero-copy {
@@ -274,6 +273,78 @@ main.container {
   font-family: var(--font-display);
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   line-height: 1.35;
+}
+
+.hero-ledger {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+.proof-ledger {
+  border-top: 3px solid var(--color-accent);
+}
+
+.proof-ledger p,
+.capability-row,
+.work-row {
+  margin: 0;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.proof-ledger strong,
+.proof-ledger span {
+  display: block;
+}
+
+.proof-ledger strong {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.proof-ledger span {
+  margin-top: 0.4rem;
+  color: var(--color-ink-muted);
+}
+
+.capability-row,
+.work-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(0, 2fr);
+  gap: clamp(1rem, 4vw, 3rem);
+}
+
+.capability-row > *,
+.work-row > * {
+  margin-bottom: 0;
+}
+
+.testimonial-feature {
+  max-width: var(--reading-width);
+  margin-bottom: 1rem;
+}
+
+.endorsement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.authority-about {
+  max-width: var(--reading-width);
+}
+
+.technology-line {
+  padding-block: 1rem;
+  border-block: 1px solid var(--color-rule);
+}
+
+.secondary-link {
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
 }
 
 .proof-grid,
@@ -598,6 +669,10 @@ th, td {
   .project-grid,
   .architecture-flow,
   .featured-insights,
+  .hero-ledger,
+  .capability-row,
+  .work-row,
+  .endorsement-grid,
   .proof-grid,
   .service-grid,
   .testimonial-grid,
