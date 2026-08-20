@@ -18,13 +18,13 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="container nav">
-        <a class="brand" href="{{ "/" | relative_url }}">{{ site.title | split: " —" | first }}</a>
+        <a class="brand" href="{{ '/' | relative_url }}">Gaurav Gurjar</a>
         <nav class="nav-links" aria-label="Primary">
-          <a href="{{ "/" | relative_url }}#about">About</a>
-          <a href="{{ "/" | relative_url }}#experience">Experience</a>
-          <a href="{{ "/" | relative_url }}#projects">Projects</a>
-          <a href="{{ "/" | relative_url }}#recommendations">Recommendations</a>
-          <a href="{{ "/" | relative_url }}#contact">Contact</a>
+          <a href="{{ '/' | relative_url }}#services">Services</a>
+          <a href="{{ '/work/' | relative_url }}">Work</a>
+          <a href="{{ '/insights/' | relative_url }}">Insights</a>
+          <a href="{{ '/' | relative_url }}#about">About</a>
+          <a class="nav-cta" href="https://calendly.com/gauravgurjar/15min">Book a call</a>
         </nav>
       </div>
     </header>
@@ -35,11 +35,12 @@
     </main>
     <footer class="site-footer">
       <div class="container">
+        <p class="footer-positioning">Fractional data engineering leadership for reliable platforms, governed AI, and analytics.</p>
         <div class="footer-links">
           <a href="https://github.com/dataengineergaurav">GitHub</a>
-          <a href="https://x.com/dubaidataguy">X</a>
           <a href="https://www.linkedin.com/in/ggurjarsocl/">LinkedIn</a>
           <a href="https://gauravgurjar.medium.com/">Medium</a>
+          <a href="https://x.com/dubaidataguy">X</a>
         </div>
         <p>&copy; {{ site.time | date: "%Y" }} {{ site.title | split: " —" | first }} · Built with Jekyll on GitHub Pages</p>
       </div>
