@@ -508,6 +508,14 @@ class PipelineCoreTests(unittest.TestCase):
             with self.subTest(payload=payload):
                 self.assert_invalid_article(article, rule="unsafe Markdown")
 
+    def test_article_validation_rejects_liquid_directives_even_in_code_fences(self):
+        for payload in ("{{ site.title }}", "{% assign title = 'unsafe' %}",
+                        "```liquid\n{{ site.title }}\n```"):
+            article = self.valid_article()
+            article["body"] += "\n\n" + payload
+            with self.subTest(payload=payload):
+                self.assert_invalid_article(article, rule="Liquid")
+
     def test_article_validation_allows_html_examples_inside_code_fences(self):
         article = self.valid_article()
         article["body"] += "\n\n```html\n<script>example()</script>\n```"
@@ -816,6 +824,7 @@ class ReviewAndPublicationTests(unittest.TestCase):
             "branch": "main", "remote": "origin", "upstream_branch": "main",
             "generated_at": self.now.isoformat(), "commit_head": None,
             "linkedin_post": "LinkedIn copy", "newsletter_intro": "Newsletter copy",
+            "telegram_delivered": True,
         }
         pipeline.save_state(state_path, state)
         return repository, remote, state_path, draft, base_head
@@ -921,6 +930,24 @@ class ReviewAndPublicationTests(unittest.TestCase):
             with mock.patch.object(pipeline, "STATE_PATH", state_path):
                 with self.assertRaisesRegex(ValueError, "pending draft"):
                     pipeline.approve("wrong-id")
+
+    def test_approve_rejects_undelivered_draft_before_build_or_commit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repository, remote, state_path, draft, base_head = self.make_repository(directory)
+            state = pipeline.load_state(state_path)
+            state["pending"]["telegram_delivered"] = False
+            pipeline.save_state(state_path, state)
+            with mock.patch.object(pipeline, "REPO_ROOT", repository), \
+                 mock.patch.object(pipeline, "STATE_PATH", state_path), \
+                 mock.patch.object(pipeline, "_build_site") as build, \
+                 mock.patch.object(pipeline, "send_message"), \
+                 self.assertRaisesRegex(ValueError, "Telegram delivery"):
+                pipeline.approve("correct-id")
+            self.assertTrue(draft.is_file())
+            self.assertEqual(self.git(remote, "--git-dir", str(remote), "rev-parse", "HEAD"),
+                             base_head)
+            self.assertIsNotNone(pipeline.load_state(state_path)["pending"])
+            build.assert_not_called()
 
     def test_generate_notifies_below_threshold_without_drafting(self):
         with tempfile.TemporaryDirectory() as directory:

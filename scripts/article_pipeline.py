@@ -183,6 +183,8 @@ def _markdown_prose(body):
 
 
 def _validate_safe_markdown(body):
+    if "{{" in body or "{%" in body:
+        raise ValueError("unsafe Markdown contains Liquid directives")
     prose = _markdown_prose(body)
     if re.search(r"(?is)<!--|<\?|<![A-Z]|<\s*/?\s*[A-Za-z][\w-]*(?:\s[^<>]*?)?\s*/?>", prose):
         raise ValueError("unsafe Markdown contains raw HTML")
@@ -955,6 +957,8 @@ def decision_hex(encoded_message: str):
 
 def _approve(draft_id, dry_run):
     state, pending = _matching_pending(draft_id)
+    if pending.get("telegram_delivered") is not True:
+        raise ValueError("Telegram delivery is required before approval")
     if pending.get("phase") == "distribution":
         return "approval dry run" if dry_run else _deliver_distribution(state, pending)
     if pending.get("phase") == "requeueing":
