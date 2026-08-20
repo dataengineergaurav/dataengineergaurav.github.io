@@ -2,6 +2,7 @@
 layout: post
 title: "Why Reliable AI Systems Separate Policy from Execution"
 date: 2026-03-21
+topic: Leadership
 summary: "A practical architecture rule for keeping governed AI workflows understandable, testable, and safe to change."
 description: "Separate business policy from orchestration to make AI-agent workflows easier to govern and operate."
 ---
