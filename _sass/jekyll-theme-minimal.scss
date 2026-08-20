@@ -251,6 +251,102 @@ main.container {
   border-color: var(--color-accent);
 }
 
+.hero {
+  max-width: var(--reading-width);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+.hero-copy {
+  color: var(--color-ink-muted);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  line-height: 1.35;
+}
+
+.proof-grid,
+.service-grid,
+.testimonial-grid,
+.post-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.proof-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+.proof-grid p,
+.service-card,
+.post-card,
+.rec {
+  margin: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--color-paper-deep);
+  border-top: 3px solid var(--color-accent);
+}
+
+.proof-grid strong,
+.proof-grid span {
+  display: block;
+}
+
+.proof-grid strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1;
+}
+
+.proof-grid span {
+  margin-top: 0.5rem;
+  color: var(--color-ink-muted);
+}
+
+.service-grid,
+.testimonial-grid,
+.post-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.service-card h3,
+.post-card h3,
+.rec blockquote {
+  margin-bottom: 0.75rem;
+}
+
+.service-card p:last-child,
+.post-card p:last-child,
+.rec:last-child {
+  margin-bottom: 0;
+}
+
+.rec cite {
+  color: var(--color-ink-muted);
+  font-size: 0.9rem;
+  font-style: normal;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero,
+  .proof-grid,
+  .section,
+  .cta-panel {
+    animation: reveal 240ms ease-out both;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .prose {
   max-width: var(--reading-width);
 }
@@ -449,7 +545,11 @@ th, td {
 
   .project-grid,
   .architecture-flow,
-  .insights-list { grid-template-columns: 1fr; }
+  .insights-list,
+  .proof-grid,
+  .service-grid,
+  .testimonial-grid,
+  .post-grid { grid-template-columns: 1fr; }
 
   .architecture-flow span:not(:last-child)::after {
     top: auto;
