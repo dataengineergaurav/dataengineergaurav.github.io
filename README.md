@@ -32,7 +32,9 @@ bundle exec jekyll serve
 
 ## Adding A Case Study
 
-Create a file in `_projects/`. Case studies appear under `/work/`; entries with `featured: true` can appear on the homepage, which shows at most two in ascending `order`.
+Create a file in `_projects/`. Case studies appear under `/work/`; exactly three `featured: true` engagements appear on the homepage in ascending `order`.
+
+Never include a client or employer name in a case-study filename, front matter, body, URL, image name, or alternative text. Describe the engagement through industry, scale, role, architecture, and outcome. Named testimonial attributions are the only exception.
 
 ```markdown
 ---
@@ -42,8 +44,10 @@ sector: Industry or practice area
 role: Your delivery role
 tools: Python, Airflow, AWS
 outcome: "Specific result or operational improvement."
-featured: true
-order: 1
+client_work: true
+scale: A defensible scale statement
+featured: false
+order: 4
 ---
 
 ## Problem
