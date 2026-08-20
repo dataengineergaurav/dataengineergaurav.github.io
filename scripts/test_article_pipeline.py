@@ -119,9 +119,9 @@ class HermesApprovalPluginTests(unittest.TestCase):
 
 
 class SetupScriptTests(unittest.TestCase):
-    canonical_checkout = Path(__file__).resolve().parents[1] == Path("/root/dataengineergaurav.github.io")
+    canonical_root = Path("/root/dataengineergaurav.github.io")
 
-    def fake_environment(self, root, crontab_text="MAILTO=ops@example.com\n"):
+    def fake_environment(self, root, crontab_text="MAILTO=ops@example.com\n", canonical=True):
         script = Path(__file__).with_name("setup_article_pipeline.sh")
         self.assertTrue(script.is_file(), "setup script must exist")
         bin_dir = root / "bin"
@@ -136,6 +136,22 @@ class SetupScriptTests(unittest.TestCase):
         python_log = root / "python.log"
         systemctl_log = root / "systemctl.log"
         crontab_log = root / "crontab.log"
+        runtime_dir = root / "article-generator"
+        approval_source_dir = root / "approval-source"
+        approval_source_dir.mkdir()
+        pwd_flag = root / "canonical-pwd-used"
+        bash_env = root / "bash_env"
+        bash_env.write_text('''pwd() {
+    if [ "$1" = "-P" ] && [ ! -e "$FAKE_CANONICAL_PWD_USED" ]; then
+        : > "$FAKE_CANONICAL_PWD_USED"
+        printf '%s\\n' "$FAKE_CANONICAL_SCRIPT_DIR"
+    elif [ "$(builtin pwd -P)" = "$FAKE_APPROVAL_SOURCE_DIR" ]; then
+        printf '%s\\n' "$FAKE_CANONICAL_APPROVAL_SOURCE"
+    else
+        builtin pwd "$@"
+    fi
+}
+''', encoding="utf-8")
         fakes = {
             "crontab": '''#!/bin/sh
 printf '%s\n' "$*" >> "$FAKE_CRONTAB_LOG"
@@ -172,8 +188,36 @@ if [ -n "${FAKE_DOCTOR_ERROR:-}" ]; then
 fi
 ''',
             "systemctl": '''#!/bin/sh
+if [ "$1" = "show" ]; then
+    case "$4" in
+        personal-article-generator.service) printf '%s\\n' "${FAKE_SYSTEMCTL_SERVICE_FRAGMENT:-}" ;;
+        personal-article-generator.timer) printf '%s\\n' "${FAKE_SYSTEMCTL_TIMER_FRAGMENT:-}" ;;
+    esac
+    exit 0
+fi
 printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
 ''',
+            "mkdir": '''#!/bin/sh
+if [ "$2" = "/root/dataengineergaurav.github.io/.article-generator" ]; then
+    exec /bin/mkdir -p "$FAKE_RUNTIME_DIR"
+fi
+exec /bin/mkdir "$@"
+''',
+            "chmod": '''#!/bin/sh
+if [ "$2" = "/root/dataengineergaurav.github.io/.article-generator" ]; then
+    exec /bin/chmod "$1" "$FAKE_RUNTIME_DIR"
+fi
+exec /bin/chmod "$@"
+''',
+            "ln": '''#!/bin/sh
+if [ "$1" = "-s" ] && [ "$2" = "/root/dataengineergaurav.github.io/automation/hermes-article-approval" ]; then
+    exec /bin/ln -s "$FAKE_APPROVAL_SOURCE_DIR" "$3"
+fi
+exec /bin/ln "$@"
+''',
+            "codex": "#!/bin/sh\nexit 0\n",
+            "npm": "#!/bin/sh\nexit 0\n",
+            "git": "#!/bin/sh\nexit 0\n",
         }
         for name, contents in fakes.items():
             executable = bin_dir / name
@@ -187,10 +231,19 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
             "FAKE_GATEWAY_LOG": str(gateway_log),
             "FAKE_PYTHON_LOG": str(python_log),
             "FAKE_SYSTEMCTL_LOG": str(systemctl_log),
+            "FAKE_RUNTIME_DIR": str(runtime_dir),
+            "FAKE_APPROVAL_SOURCE_DIR": str(approval_source_dir),
         }
+        if canonical:
+            env |= {
+                "BASH_ENV": str(bash_env),
+                "FAKE_CANONICAL_PWD_USED": str(pwd_flag),
+                "FAKE_CANONICAL_SCRIPT_DIR": str(self.canonical_root / "scripts"),
+                "FAKE_CANONICAL_APPROVAL_SOURCE": str(
+                    self.canonical_root / "automation/hermes-article-approval"),
+            }
         return script, env, crontab, config, gateway_log, python_log
 
-    @unittest.skipUnless(canonical_checkout, "installer intentionally refuses this worktree")
     def test_install_is_idempotent_and_refuses_non_symlink_skill(self):
         with tempfile.TemporaryDirectory() as directory:
             backup = "0 0 * * * backup # unrelated-job\n"
@@ -199,45 +252,53 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
                 Path(directory), original.decode("utf-8"))
 
             for _ in range(2):
-                subprocess.run([str(script), "install"], env=env, text=True,
-                               capture_output=True, check=True)
+                Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+                result = subprocess.run([str(script), "install"], env=env, text=True,
+                                        capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
 
             self.assertEqual(crontab.read_bytes(), original)
             self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
             systemctl_log = Path(env["FAKE_SYSTEMCTL_LOG"])
             self.assertEqual(systemctl_log.read_text(encoding="utf-8").splitlines(), [
-                f"link --force {script.parents[1]}/scripts/personal-article-generator.service "
-                f"{script.parents[1]}/scripts/personal-article-generator.timer",
+                f"link --force {self.canonical_root}/scripts/personal-article-generator.service "
+                f"{self.canonical_root}/scripts/personal-article-generator.timer",
                 "daemon-reload",
                 "enable --now personal-article-generator.timer",
-                f"link --force {script.parents[1]}/scripts/personal-article-generator.service "
-                f"{script.parents[1]}/scripts/personal-article-generator.timer",
+                f"link --force {self.canonical_root}/scripts/personal-article-generator.service "
+                f"{self.canonical_root}/scripts/personal-article-generator.timer",
                 "daemon-reload",
                 "enable --now personal-article-generator.timer",
             ])
             plugin = config.parent / "plugins/personal_article_approval"
             self.assertTrue(plugin.is_symlink())
-            self.assertEqual(plugin.resolve(), script.parents[1] / "automation/hermes-article-approval")
-            self.assertEqual((script.parents[1] / ".article-generator").stat().st_mode & 0o777, 0o700)
+            self.assertEqual(plugin.resolve(), Path(env["FAKE_APPROVAL_SOURCE_DIR"]))
+            self.assertEqual(Path(env["FAKE_RUNTIME_DIR"]).stat().st_mode & 0o777, 0o700)
             self.assertEqual(gateway_log.read_text(encoding="utf-8").splitlines(),
                              ["plugins enable", "restart", "plugins enable", "restart"])
             self.assertEqual(python_log.read_text(encoding="utf-8").splitlines(), [
-                f"{script.parents[1]}/scripts/article_pipeline.py doctor",
-                f"{script.parents[1]}/scripts/article_pipeline.py doctor",
+                f"{self.canonical_root}/scripts/article_pipeline.py doctor",
+                f"{self.canonical_root}/scripts/article_pipeline.py doctor",
             ])
 
-            subprocess.run([str(script), "remove"], env=env, text=True,
-                           capture_output=True, check=True)
+            for _ in range(2):
+                Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+                subprocess.run([str(script), "remove"], env=env, text=True,
+                               capture_output=True, check=True)
             self.assertEqual(crontab.read_bytes(), original)
             self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
             self.assertFalse(plugin.exists())
-            self.assertEqual(systemctl_log.read_text(encoding="utf-8").splitlines()[-3:], [
+            self.assertEqual(systemctl_log.read_text(encoding="utf-8").splitlines()[-6:], [
+                "disable --now personal-article-generator.timer",
+                "disable personal-article-generator.service",
+                "daemon-reload",
                 "disable --now personal-article-generator.timer",
                 "disable personal-article-generator.service",
                 "daemon-reload",
             ])
 
             crontab.unlink()
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
             subprocess.run([str(script), "install"], env=env, text=True,
                            capture_output=True, check=True)
             self.assertFalse(crontab.exists())
@@ -245,31 +306,73 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
             plugin.mkdir()
             sentinel = plugin / "owned-elsewhere"
             sentinel.write_text("keep\n", encoding="utf-8")
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
             failed = subprocess.run([str(script), "install"], env=env, text=True,
                                     capture_output=True)
             self.assertNotEqual(failed.returncode, 0)
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep\n")
 
-    @unittest.skipUnless(canonical_checkout, "installer intentionally refuses this worktree")
-    def test_install_and_remove_do_not_read_or_rewrite_crontab(self):
+    def test_install_and_remove_do_not_read_or_rewrite_crontab_or_conflicts(self):
         with tempfile.TemporaryDirectory() as directory:
             script, env, crontab, config, _, _ = self.fake_environment(Path(directory))
             before = crontab.read_bytes()
             failing_env = env | {"FAKE_CRONTAB_LIST_ERROR": "permission denied"}
             for action in ("install", "remove"):
                 with self.subTest(action=action):
+                    Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
                     result = subprocess.run([str(script), action], env=failing_env,
                                             text=True, capture_output=True)
                     self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertEqual(crontab.read_bytes(), before)
                     self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
 
-    @unittest.skipUnless(canonical_checkout, "installer intentionally refuses this worktree")
+            plugin = config.parent / "plugins/personal_article_approval"
+            plugin.mkdir(parents=True)
+            before_systemctl = Path(env["FAKE_SYSTEMCTL_LOG"])
+            before_systemctl_text = before_systemctl.read_text(encoding="utf-8")
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+            result = subprocess.run([str(script), "remove"], env=env, text=True,
+                                    capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("existing plugin destination", result.stderr)
+            self.assertEqual(before_systemctl.read_text(encoding="utf-8"), before_systemctl_text)
+            plugin.rmdir()
+
+            plugin.symlink_to(Path(directory) / "someone-elses-plugin")
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+            result = subprocess.run([str(script), "remove"], env=env, text=True,
+                                    capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("conflicting plugin symlink", result.stderr)
+            self.assertEqual(before_systemctl.read_text(encoding="utf-8"), before_systemctl_text)
+            plugin.unlink()
+
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+            result = subprocess.run(
+                [str(script), "remove"],
+                env=env | {"FAKE_SYSTEMCTL_TIMER_FRAGMENT": "/tmp/other.timer"},
+                text=True, capture_output=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("conflicting systemd unit", result.stderr)
+            self.assertEqual(before_systemctl.read_text(encoding="utf-8"), before_systemctl_text)
+
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+            result = subprocess.run(
+                [str(script), "install"],
+                env=env | {"FAKE_SYSTEMCTL_SERVICE_FRAGMENT": "/tmp/other.service"},
+                text=True, capture_output=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("conflicting systemd unit", result.stderr)
+            self.assertEqual(before_systemctl.read_text(encoding="utf-8"), before_systemctl_text)
+
     def test_install_classifies_no_upstream_doctor_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             script, env, crontab, config, _, _ = self.fake_environment(Path(directory))
             error = ("Command '['/usr/bin/git', 'rev-parse', '--abbrev-ref', "
                      "'--symbolic-full-name', '@{upstream}']' returned non-zero exit status 128.")
+            Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
             result = subprocess.run([str(script), "install"],
                                     env=env | {"FAKE_DOCTOR_ERROR": error},
                                     text=True, capture_output=True)
@@ -285,21 +388,21 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
                           Path(env["FAKE_SYSTEMCTL_LOG"]).read_text(encoding="utf-8"))
 
     def test_install_refuses_noncanonical_checkout_without_changes(self):
-        if self.canonical_checkout:
-            self.skipTest("this regression exercises a noncanonical checkout")
         with tempfile.TemporaryDirectory() as directory:
             original = "MAILTO=ops@example.com\n"
             script, env, crontab, config, gateway_log, python_log = self.fake_environment(
-                Path(directory), original)
-            result = subprocess.run([str(script), "install"], env=env,
-                                    text=True, capture_output=True)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("canonical checkout", result.stderr)
-            self.assertEqual(crontab.read_text(encoding="utf-8"), original)
-            self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
-            self.assertFalse((config.parent / "plugins/personal_article_approval").exists())
-            self.assertFalse(gateway_log.exists())
-            self.assertFalse(python_log.exists())
+                Path(directory), original, canonical=False)
+            for action in ("install", "remove"):
+                with self.subTest(action=action):
+                    result = subprocess.run([str(script), action], env=env,
+                                            text=True, capture_output=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("canonical checkout", result.stderr)
+                    self.assertEqual(crontab.read_text(encoding="utf-8"), original)
+                    self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
+                    self.assertFalse((config.parent / "plugins/personal_article_approval").exists())
+                    self.assertFalse(gateway_log.exists())
+                    self.assertFalse(python_log.exists())
 
 
 class PipelineCoreTests(unittest.TestCase):

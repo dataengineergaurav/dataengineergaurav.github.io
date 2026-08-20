@@ -4,10 +4,14 @@ set -euo pipefail
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 repo_root=$(dirname -- "$script_dir")
 
-if [ "${1:-}" = install ] && [ "$repo_root" != /root/dataengineergaurav.github.io ]; then
-    printf 'refusing installation outside the canonical checkout: %s\n' "$repo_root" >&2
-    exit 1
-fi
+case "${1:-}" in
+    install|remove)
+        if [ "$repo_root" != /root/dataengineergaurav.github.io ]; then
+            printf 'refusing operation outside the canonical checkout: %s\n' "$repo_root" >&2
+            exit 1
+        fi
+        ;;
+esac
 
 resolve_executable() {
     local name=$1 path
@@ -41,6 +45,37 @@ hermes_dir=$(dirname -- "$hermes_config")
 approval_source="$repo_root/automation/hermes-article-approval"
 plugin_destination="$hermes_dir/plugins/personal_article_approval"
 
+ensure_owned_plugin_destination() {
+    if [ -L "$plugin_destination" ]; then
+        resolved_destination=$(CDPATH= cd -- "$plugin_destination" 2>/dev/null && pwd -P) || {
+            printf 'refusing conflicting plugin symlink: %s\n' "$plugin_destination" >&2
+            exit 1
+        }
+        [ "$resolved_destination" = "$approval_source" ] || {
+            printf 'refusing conflicting plugin symlink: %s\n' "$plugin_destination" >&2
+            exit 1
+        }
+    elif [ -e "$plugin_destination" ]; then
+        printf 'refusing existing plugin destination: %s\n' "$plugin_destination" >&2
+        exit 1
+    fi
+}
+
+ensure_owned_unit() {
+    local unit=$1 source=$2 fragment
+    if fragment=$("$systemctl_bin" show --value --property=FragmentPath "$unit" 2>/dev/null); then
+        [ -z "$fragment" ] || [ "$fragment" = "$source" ] || {
+            printf 'refusing conflicting systemd unit: %s=%s\n' "$unit" "$fragment" >&2
+            exit 1
+        }
+    fi
+}
+
+ensure_owned_units() {
+    ensure_owned_unit personal-article-generator.service "$script_dir/personal-article-generator.service"
+    ensure_owned_unit personal-article-generator.timer "$script_dir/personal-article-generator.timer"
+}
+
 install_timer() {
     "$systemctl_bin" link --force \
         "$script_dir/personal-article-generator.service" \
@@ -63,22 +98,11 @@ case "${1:-}" in
         "$hermes_bin" gateway status
         ;;
     install)
+        ensure_owned_plugin_destination
+        ensure_owned_units
         mkdir -p "$repo_root/.article-generator"
         chmod 700 "$repo_root/.article-generator"
         mkdir -p "$(dirname -- "$plugin_destination")"
-        if [ -L "$plugin_destination" ]; then
-            resolved_destination=$(CDPATH= cd -- "$plugin_destination" 2>/dev/null && pwd -P) || {
-                printf 'refusing conflicting plugin symlink: %s\n' "$plugin_destination" >&2
-                exit 1
-            }
-            [ "$resolved_destination" = "$approval_source" ] || {
-                printf 'refusing conflicting plugin symlink: %s\n' "$plugin_destination" >&2
-                exit 1
-            }
-        elif [ -e "$plugin_destination" ]; then
-            printf 'refusing existing plugin destination: %s\n' "$plugin_destination" >&2
-            exit 1
-        fi
         [ -L "$plugin_destination" ] || ln -s "$approval_source" "$plugin_destination"
         "$hermes_bin" plugins enable personal_article_approval
         install_timer
@@ -98,16 +122,13 @@ case "${1:-}" in
         fi
         ;;
     remove)
+        ensure_owned_plugin_destination
+        ensure_owned_units
         remove_timer
         if [ -L "$plugin_destination" ]; then
-            resolved_destination=$(CDPATH= cd -- "$plugin_destination" 2>/dev/null && pwd -P) || resolved_destination=
-            if [ "$resolved_destination" = "$approval_source" ]; then
-                "$hermes_bin" plugins disable personal_article_approval
-                rm "$plugin_destination"
-                "$hermes_bin" gateway restart
-            else
-                printf 'leaving non-matching plugin symlink: %s\n' "$plugin_destination" >&2
-            fi
+            "$hermes_bin" plugins disable personal_article_approval
+            rm "$plugin_destination"
+            "$hermes_bin" gateway restart
         fi
         ;;
     *)
