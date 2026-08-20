@@ -135,6 +135,7 @@ class SetupScriptTests(unittest.TestCase):
         gateway_log = root / "gateway.log"
         python_log = root / "python.log"
         systemctl_log = root / "systemctl.log"
+        systemctl_state = root / "systemctl-state"
         crontab_log = root / "crontab.log"
         runtime_dir = root / "article-generator"
         approval_source_dir = root / "approval-source"
@@ -195,6 +196,31 @@ if [ "$1" = "show" ]; then
     esac
     exit 0
 fi
+case "$1" in
+    link)
+        : > "$FAKE_SYSTEMCTL_STATE.timer-linked"
+        ;;
+    enable)
+        [ "$2" = "--now" ] && [ "$3" = "personal-article-generator.timer" ] || exit 2
+        [ -f "$FAKE_SYSTEMCTL_STATE.timer-linked" ] || exit 3
+        : > "$FAKE_SYSTEMCTL_STATE.timer-enabled"
+        printf 'timer=enabled\n' >> "$FAKE_SYSTEMCTL_STATE"
+        ;;
+    disable)
+        if [ "$2" = "--now" ] && [ "$3" = "personal-article-generator.timer" ]; then
+            if [ -f "$FAKE_SYSTEMCTL_STATE.timer-enabled" ]; then
+                rm "$FAKE_SYSTEMCTL_STATE.timer-enabled"
+                printf 'timer=disabled\n' >> "$FAKE_SYSTEMCTL_STATE"
+            else
+                printf 'timer=already-disabled\n' >> "$FAKE_SYSTEMCTL_STATE"
+            fi
+        elif [ "$2" = "personal-article-generator.service" ]; then
+            printf 'service=already-disabled\n' >> "$FAKE_SYSTEMCTL_STATE"
+        else
+            exit 2
+        fi
+        ;;
+esac
 printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
 ''',
             "mkdir": '''#!/bin/sh
@@ -231,6 +257,7 @@ exec /bin/ln "$@"
             "FAKE_GATEWAY_LOG": str(gateway_log),
             "FAKE_PYTHON_LOG": str(python_log),
             "FAKE_SYSTEMCTL_LOG": str(systemctl_log),
+            "FAKE_SYSTEMCTL_STATE": str(systemctl_state),
             "FAKE_RUNTIME_DIR": str(runtime_dir),
             "FAKE_APPROVAL_SOURCE_DIR": str(approval_source_dir),
         }
@@ -296,6 +323,15 @@ exec /bin/ln "$@"
                 "disable personal-article-generator.service",
                 "daemon-reload",
             ])
+            systemctl_state = Path(env["FAKE_SYSTEMCTL_STATE"])
+            self.assertTrue(systemctl_state.is_file())
+            self.assertEqual(systemctl_state.read_text(encoding="utf-8").splitlines()[-4:], [
+                "timer=disabled",
+                "service=already-disabled",
+                "timer=already-disabled",
+                "service=already-disabled",
+            ])
+            self.assertFalse(Path(f"{systemctl_state}.timer-enabled").exists())
 
             crontab.unlink()
             Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
