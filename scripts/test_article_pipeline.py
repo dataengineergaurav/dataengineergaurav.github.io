@@ -124,6 +124,12 @@ class SetupScriptTests(unittest.TestCase):
     def fake_environment(self, root, crontab_text="MAILTO=ops@example.com\n", canonical=True):
         script = Path(__file__).with_name("setup_article_pipeline.sh")
         self.assertTrue(script.is_file(), "setup script must exist")
+        if not canonical:
+            copied_script = root / "noncanonical/scripts/setup_article_pipeline.sh"
+            copied_script.parent.mkdir(parents=True)
+            copied_script.write_bytes(script.read_bytes())
+            copied_script.chmod(script.stat().st_mode & 0o777)
+            script = copied_script
         bin_dir = root / "bin"
         bin_dir.mkdir()
         crontab = root / "crontab"
