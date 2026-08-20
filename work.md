@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Selected Work
+title: Proof of Work
 description: Selected data engineering and AI consulting case studies covering platform modernization, automation, and reliable delivery.
 permalink: /work/
 ---
@@ -13,7 +13,7 @@ permalink: /work/
   </header>
   {% assign client_projects = site.projects | where: "client_work", true | sort: "order" %}
   <section aria-labelledby="client-engagements-heading">
-    <h2 id="client-engagements-heading">Selected engagements</h2>
+    <h2 id="client-engagements-heading">Client work</h2>
     <div class="work-ledger">
     {% for project in client_projects %}
       <article class="work-row">
