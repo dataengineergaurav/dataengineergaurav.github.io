@@ -63,9 +63,9 @@ title: Gaurav Gurjar — Fractional Data Engineering Lead
     </div>
     <div class="rec">
       <blockquote>
-        <p>"Gaurav Gurjar is a fantastic Cross-Cloud Data Engineer and an even better teammate. He brings deep expertise in data engineering, a strong understanding of cloud technologies, and excellent problem-solving skills."</p>
+        <p>"Gaurav is a thoughtful person with a very creative mind. He is intellectually curious and looks for efficient solutions to any problems. I enjoyed my time working with him and appreciate the collegial relationship we developed. I have great faith that he will achieve success in any career path he pursues."</p>
       </blockquote>
-      <cite><strong>Raja Ram S</strong> · AWS Data Engineer · worked with Gaurav on the same team</cite>
+      <cite><strong>Ivette Basterrechea</strong></cite>
     </div>
     <div class="rec">
       <blockquote>
