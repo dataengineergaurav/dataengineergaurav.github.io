@@ -259,6 +259,44 @@ main.container {
   margin-bottom: 0;
 }
 
+.article-header,
+.insights-intro {
+  max-width: var(--reading-width);
+  margin-bottom: clamp(3rem, 7vw, 5rem);
+}
+
+.article-header .lede,
+.insights-intro .lede {
+  margin-bottom: 0;
+}
+
+.prose pre {
+  max-width: 100%;
+}
+
+.insights-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.insight-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--color-paper-deep);
+  border-top: 3px solid var(--color-accent);
+}
+
+.insight-card h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.insight-card .button {
+  margin-top: auto;
+}
+
 .case-study-header,
 .work-intro {
   max-width: var(--reading-width);
@@ -410,7 +448,8 @@ th, td {
   .case-study-meta > div { grid-template-columns: 1fr; gap: 0.25rem; }
 
   .project-grid,
-  .architecture-flow { grid-template-columns: 1fr; }
+  .architecture-flow,
+  .insights-list { grid-template-columns: 1fr; }
 
   .architecture-flow span:not(:last-child)::after {
     top: auto;

@@ -1,17 +1,12 @@
 ---
 layout: default
 ---
-
-<div class="post-meta">{{ page.date | date: "%-d %B %Y" }}</div>
-<h1>{{ page.title }}</h1>
-
-{{ content }}
-
-{% if page.tags %}
-<div class="post-tags">
-  tags:
-  {% for tag in page.tags %}
-  <a href="#">{{ tag }}</a>
-  {% endfor %}
-</div>
-{% endif %}
+<article class="article">
+  <header class="article-header">
+    <p class="eyebrow">Insight · {{ page.date | date: "%-d %B %Y" }}</p>
+    <h1>{{ page.title }}</h1>
+    {% if page.summary %}<p class="lede">{{ page.summary }}</p>{% endif %}
+  </header>
+  <div class="prose">{{ content }}</div>
+  <aside class="cta-panel"><h2>Need this kind of clarity in your data or AI platform?</h2><a class="button button-primary" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge</a></aside>
+</article>

@@ -1,50 +1,26 @@
-A few years ago, I was staring at production alerts at 2 a.m.
+---
+layout: post
+title: "Why Reliable AI Systems Separate Policy from Execution"
+date: 2026-03-21
+summary: "A practical architecture rule for keeping governed AI workflows understandable, testable, and safe to change."
+description: "Separate business policy from orchestration to make AI-agent workflows easier to govern and operate."
+---
 
-Not the noisy kind you can silence with a quick fix. The kind that force
-you to slow down... because something deeper feels off.
+In a governed AI workflow, a rule such as "never approve a refund over $500 without manager review" is not just implementation detail. It is business policy that needs to be understood, tested, and audited.
 
-On the surface, the system looked fine.
-
-Until I followed one simple rule: \> "Never approve a refund over \$500
-without manager review."
-
-That rule - clear, simple, almost obvious
-was buried inside an agent
-loop.
-
-Wrapped with: 
---
-- retry logic
-- fallback prompts to an LLM
-- queue timeouts
-- conditional branching
-
-I wasn't debugging anymore.
-
-I was negotiating with my own system.
-
-Every change felt risky. Not because of complexity alone but because I
-couldn't clearly answer: \> *What does "correct" even mean anymore?*
-
-------------------------------------------------------------------------
+The risk starts when that rule is hidden inside agent retries, fallback prompts, queue timeouts, and conditional orchestration. A team can no longer answer a simple question with confidence: what is the system allowed to approve, and where is that decision defined?
 
 ## The Real Problem
 
-Over time, one pattern became undeniable:
+Mixing policy with execution makes both fragile. A change intended to improve a retry or prompt can alter a business decision. A policy review requires tracing workflow mechanics instead of examining a clear rule.
 
-> When you mix thinking with execution, you lose control of both.
+The result is an AI system that is difficult to govern and risky to change.
 
-In life, this shows up as confusion.
+## Separate The Layers
 
-In systems, it shows up as fragility.
+Keep policy in a domain layer that expresses the decision directly:
 
-------------------------------------------------------------------------
-
-## Systems Work the Same Way
-
-### Thinking Layer (Domain)
-
-``` python
+```python
 class RefundPolicy:
     MAX_AUTO_APPROVAL = 500
 
@@ -53,9 +29,9 @@ class RefundPolicy:
         return amount > RefundPolicy.MAX_AUTO_APPROVAL
 ```
 
-### Execution Layer (Orchestration)
+Let orchestration call that policy and handle the work around it:
 
-``` python
+```python
 def process_refund(refund_request):
     if RefundPolicy.requires_manual_review(refund_request.amount):
         send_to_manager(refund_request)
@@ -63,17 +39,10 @@ def process_refund(refund_request):
         approve_refund(refund_request)
 ```
 
-------------------------------------------------------------------------
+This boundary makes the policy independently testable and reviewable. The workflow can evolve without redefining the business rule, and governance teams have one reliable place to inspect the decision.
 
-## The Rule
+## The Practical Rule
 
-Execution depends on thinking.\
-Thinking must never depend on execution.
+Execution depends on policy. Policy must never depend on execution.
 
-------------------------------------------------------------------------
-
-## One Line to Remember
-
-Let the system think in one place.\
-Let it act from another.\
-Never confuse the two.
+Keep the system's decisions in one place and its actions in another.
