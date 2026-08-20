@@ -8,6 +8,7 @@ layout: default
     <p class="lede">{{ page.summary }}</p>
     <dl class="case-study-meta">
       <div><dt>Role</dt><dd>{{ page.role }}</dd></div>
+      {% if page.scale %}<div><dt>Scale</dt><dd>{{ page.scale }}</dd></div>{% endif %}
       <div><dt>Tools</dt><dd>{{ page.tools }}</dd></div>
       <div><dt>Outcome</dt><dd>{{ page.outcome }}</dd></div>
     </dl>

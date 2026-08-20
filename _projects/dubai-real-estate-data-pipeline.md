@@ -5,8 +5,9 @@ sector: Real estate data
 role: Data architecture and pipeline delivery
 tools: Python, MongoDB, REST API
 outcome: "Turned changing listing data into a timestamped dataset ready for repeatable analysis."
-featured: true
-order: 1
+client_work: false
+featured: false
+order: 20
 ---
 
 ## Problem
