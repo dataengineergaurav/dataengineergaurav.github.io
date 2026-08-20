@@ -3,5 +3,6 @@ _site
 Gemfile.lock
 *.gem
 .jekyll-cache
+.bundle/
 .superpowers/
 .worktrees/
