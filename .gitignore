@@ -4,5 +4,6 @@ Gemfile.lock
 *.gem
 .jekyll-cache
 .bundle/
+vendor/
 .superpowers/
 .worktrees/
