@@ -1,6 +1,6 @@
-# Gaurav Gurjar — Data Engineer
+# Gaurav Gurjar — Fractional Data Engineering Lead
 
-A clean, minimalist personal portfolio and blog built with Jekyll and GitHub Pages.
+A Jekyll consulting site for fractional data engineering leadership, reliable platforms, governed AI, and analytics.
 
 ## Project Structure
 
@@ -30,35 +30,42 @@ bundle exec jekyll serve
 # Site will be at http://localhost:4000
 ```
 
-## Adding a Project
+## Adding A Case Study
 
-Create a file in `_projects/` with front matter:
+Create a file in `_projects/`. Case studies appear under `/work/`; entries with `featured: true` can appear on the homepage, which shows at most two in ascending `order`.
 
 ```markdown
 ---
-title: "Project Name"
+title: "Case Study Title"
+summary: "One-sentence overview of the work."
+sector: Industry or practice area
+role: Your delivery role
 tools: Python, Airflow, AWS
+outcome: "Specific result or operational improvement."
+featured: true
+order: 1
 ---
 
-Short case study — context, your role, what you built, and the outcome.
+## Problem
+
+Describe the client or operational challenge.
 ```
 
-## Adding a Blog Post
+## Adding An Article
 
-Create a file in `_posts/` with the naming convention `YYYY-MM-DD-title.md`:
+Create a file in `_posts/` with the naming convention `YYYY-MM-DD-title.md`. Articles are listed under `/insights/`; the homepage features at most two recent articles.
 
 ```markdown
 ---
 layout: post
 title: "Your Post Title"
 date: 2026-08-19
-categories: [blog, tag-here]
+summary: "A concise, card-ready summary."
+description: "A search and social description for the article."
 ---
 
 Your content here...
 ```
-
-Posts appear on the homepage in reverse chronological order.
 
 ## CI
 
