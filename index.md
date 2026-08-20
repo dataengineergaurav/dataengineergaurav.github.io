@@ -59,19 +59,19 @@ title: Gaurav Gurjar — Fractional Data Engineering Lead
       <blockquote>
         <p>"I have worked with Gaurav for close to a year and he is a very well rounded, skilled, and innovative data scientist. He has helped me in the development of statistical methods, backend server infrastructure, and data science tasks. Gaurav is not only a great developer but also a great communicator. He has always been very prompt, responsive, and completes tasks on time. He goes above and beyond to ensure that the customer requirements and needs are met. I recommend him to anyone seeking expert level data science services."</p>
       </blockquote>
-      <cite><strong>Benjamin Harvey, Ph.D.</strong> · Founder of AI Squared · managed Gaurav directly</cite>
+      <cite><strong><a href="https://www.linkedin.com/in/benjaminsharvey/">Benjamin Harvey, Ph.D.</a></strong> · Founder of AI Squared · managed Gaurav directly</cite>
     </div>
     <div class="rec">
       <blockquote>
         <p>"Gaurav is a thoughtful person with a very creative mind. He is intellectually curious and looks for efficient solutions to any problems. I enjoyed my time working with him and appreciate the collegial relationship we developed. I have great faith that he will achieve success in any career path he pursues."</p>
       </blockquote>
-      <cite><strong>Ivette Basterrechea</strong> · Department of Justice</cite>
+      <cite><strong><a href="https://www.linkedin.com/in/ivette-basterrechea-a17ab23/">Ivette Basterrechea</a></strong> · Department of Justice</cite>
     </div>
     <div class="rec">
       <blockquote>
         <p>"I worked with Gaurav on several projects, he has strong technical skills and is also a good team player. He was able to deliver high-quality work and found solutions to difficult problems."</p>
       </blockquote>
-      <cite><strong>Le Zhang</strong> · Google</cite>
+      <cite><strong><a href="https://www.linkedin.com/in/lzhang149/">Le Zhang</a></strong> · Google</cite>
     </div>
   </div>
 </section>
