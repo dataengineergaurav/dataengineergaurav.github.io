@@ -11,7 +11,7 @@ title: Gaurav Gurjar — Fractional Data Engineering Lead
 </section>
 
 <section class="proof-grid" aria-label="Selected experience">
-  <p><strong>$1M+</strong><span>in data projects delivered</span></p>
+  <p><strong>$3B+</strong><span>worth of data projects delivered</span></p>
   <p><strong>2M+</strong><span>users supported by shipped systems</span></p>
   <p><strong>7+ years</strong><span>across data, analytics, and AI</span></p>
 </section>
