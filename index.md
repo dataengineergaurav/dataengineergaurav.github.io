@@ -106,5 +106,5 @@ title: Gaurav Gurjar — Fractional Data Engineering Lead
 <section class="cta-panel">
   <p class="eyebrow">Start a conversation</p>
   <h2>Have a data challenge that has outgrown quick fixes?</h2>
-  <a class="button button-primary" href="https://calendly.com/gauravgurjar/15min">Book a 15-minute call</a>
+  <a class="button button-primary" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge</a>
 </section>

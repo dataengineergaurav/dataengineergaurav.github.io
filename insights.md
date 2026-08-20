@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Insights
+description: Practical guidance for leaders modernizing data platforms, governing AI systems, and improving analytics delivery.
 permalink: /insights/
 ---
 

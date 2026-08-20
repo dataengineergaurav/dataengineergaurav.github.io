@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Selected Work
+description: Selected data engineering and AI consulting case studies covering platform modernization, automation, and reliable delivery.
 permalink: /work/
 ---
 

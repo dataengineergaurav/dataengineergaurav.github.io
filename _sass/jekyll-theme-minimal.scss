@@ -71,6 +71,13 @@ a:hover {
   text-decoration: underline;
 }
 
+.prose a,
+.project-feature h2 a,
+.post-card h3 a,
+.insight-card h2 a {
+  text-decoration: underline;
+}
+
 a:focus-visible,
 button:focus-visible {
   outline: 3px solid var(--color-ink);
@@ -211,6 +218,12 @@ pre code {
 main.container {
   padding-top: clamp(2.5rem, 7vw, 6rem);
   padding-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+#main,
+#services,
+#about {
+  scroll-margin-top: 5rem;
 }
 
 .section {
@@ -533,6 +546,12 @@ th, td {
 
   .nav-links {
     gap: 0.125rem;
+  }
+
+  #main,
+  #services,
+  #about {
+    scroll-margin-top: 12rem;
   }
 
   .container { padding-inline: 1rem; }
