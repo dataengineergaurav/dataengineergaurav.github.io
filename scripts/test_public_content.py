@@ -52,6 +52,7 @@ def find_forbidden_names(root: Path) -> list[str]:
     findings = []
     for path in public_text_files(root):
         text = path.read_text(encoding="utf-8").casefold()
+        text = re.sub(r"(?<![\w.-])(?:www\.)?googletagmanager\.com(?![\w.-])|(?<![\w.-])maps\.googleapis\.com(?![\w.-])", "", text)
         text = re.sub(r"google[ _-](analytics|cloud|maps)", r"\1", text)
         for name, author, attribution in TESTIMONIAL_NAMES:
             text = re.sub(
@@ -136,6 +137,48 @@ class PublicContentTests(unittest.TestCase):
 
             page.write_text("Google engagement", encoding="utf-8")
             self.assertEqual(find_forbidden_names(root), [f"{page}: google"])
+
+    def test_allows_exact_google_service_hosts_only(self):
+        with TemporaryDirectory() as temporary:
+            source_root = Path(temporary) / "source"
+            source_root.mkdir()
+            source_page = source_root / "index.md"
+            source_page.write_text(
+                "https://www.googletagmanager.com/gtag/js\n"
+                "https://maps.googleapis.com/maps/api/js",
+                encoding="utf-8",
+            )
+            self.assertEqual(find_forbidden_names(source_root), [])
+
+            source_page.write_text(
+                "https://notgoogletagmanager.com/gtag/js\n"
+                "https://maps.googleapis.com.example/maps/api/js",
+                encoding="utf-8",
+            )
+            self.assertEqual(find_forbidden_names(source_root), [f"{source_page}: google"])
+
+            source_page.write_text("Google migration", encoding="utf-8")
+            self.assertEqual(find_forbidden_names(source_root), [f"{source_page}: google"])
+
+            generated_root = Path(temporary) / "generated"
+            generated_root.mkdir()
+            generated_page = generated_root / "index.html"
+            generated_page.write_text(
+                "300+ 2M+ 7+ years Open to select strategic leadership roles "
+                "https://www.googletagmanager.com/gtag/js "
+                "https://maps.googleapis.com/maps/api/js",
+                encoding="utf-8",
+            )
+            self.assertEqual(find_public_content_findings(generated_root), [])
+
+            generated_page.write_text(
+                "300+ 2M+ 7+ years Open to select strategic leadership roles Google migration",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                find_public_content_findings(generated_root),
+                [f"{generated_page}: google"],
+            )
 
     def test_allows_approved_testimonial_attribution_only(self):
         with TemporaryDirectory() as temporary:
