@@ -8,3 +8,4 @@ vendor/
 .superpowers/
 .worktrees/
 .article-generator/
+__pycache__/
