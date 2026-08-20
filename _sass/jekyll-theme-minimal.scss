@@ -74,7 +74,7 @@ a:hover {
 .prose a,
 .project-feature h3 a,
 .post-card h3 a,
-.insight-card h2 a {
+.insight-card h3 a {
   text-decoration: underline;
 }
 
@@ -323,6 +323,7 @@ main.container {
 
 .service-card h3,
 .post-card h3,
+.insight-card h3,
 .rec blockquote {
   margin-bottom: 0.75rem;
 }
@@ -379,7 +380,7 @@ main.container {
   margin-bottom: 0;
 }
 
-.insights-list {
+.featured-insights {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
@@ -394,13 +395,48 @@ main.container {
   border-top: 3px solid var(--color-accent);
 }
 
-.insight-card h2 {
+.insight-card h3 {
   font-size: clamp(1.6rem, 3vw, 2.4rem);
 }
 
 .insight-card .button {
   margin-top: auto;
 }
+
+.topic-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.topic-filters button {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--color-rule);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.topic-filters button[aria-pressed="true"] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.archive-entry {
+  display: grid;
+  grid-template-columns: 10rem minmax(0, 1fr) minmax(14rem, 2fr);
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.archive-entry > * { margin: 0; }
+.archive-entry h3 { font-size: 1.25rem; }
+.archive-meta { color: var(--color-ink-muted); font-size: 0.85rem; }
+.archive-entry[hidden] { display: none; }
 
 .case-study-header,
 .work-intro {
@@ -560,11 +596,13 @@ th, td {
 
   .project-grid,
   .architecture-flow,
-  .insights-list,
+  .featured-insights,
   .proof-grid,
   .service-grid,
   .testimonial-grid,
   .post-grid { grid-template-columns: 1fr; }
+
+  .archive-entry { grid-template-columns: 1fr; gap: 0.35rem; }
 
   .architecture-flow span:not(:last-child)::after {
     top: auto;
