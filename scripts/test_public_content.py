@@ -18,7 +18,6 @@ SOURCE_EXCLUDED_DIRS = {
 TESTIMONIAL_NAMES = (
     ("ai squared", "Benjamin Harvey, Ph.D.", "Founder of AI Squared"),
     ("department of justice", "Ivette Basterrechea", "Department of Justice"),
-    ("google", "Le Zhang", "Google"),
 )
 
 HOMEPAGE_PROOF = (
@@ -54,8 +53,8 @@ def find_forbidden_names(root: Path) -> list[str]:
         text = path.read_text(encoding="utf-8").casefold()
         for name, author, attribution in TESTIMONIAL_NAMES:
             text = re.sub(
-                rf"<cite\b[^>]*>.*?{re.escape(author.casefold())}.*? · {re.escape(attribution.casefold())}\s*</cite>",
-                lambda match: match.group().replace(name, ""),
+                rf"(<cite\b[^>]*>\s*<strong>\s*<a\b[^>]*>{re.escape(author.casefold())}</a>\s*</strong>\s*·\s*{re.escape(attribution.casefold()[:-len(name)])}){re.escape(name)}(?=\s*</cite>)",
+                lambda match: match.group(1),
                 text,
                 flags=re.DOTALL,
             )
@@ -121,6 +120,13 @@ class PublicContentTests(unittest.TestCase):
 
             self.assertEqual(find_forbidden_names(root), [])
 
+    def test_allows_google_technology_references(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "index.md").write_text("Google Analytics, Google Cloud, and Google Research", encoding="utf-8")
+
+            self.assertEqual(find_forbidden_names(root), [])
+
     def test_allows_approved_testimonial_attribution_only(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -133,11 +139,23 @@ class PublicContentTests(unittest.TestCase):
                 "<cite>Benjamin Harvey, Ph.D. · Founder of AI Squared</cite>",
                 encoding="utf-8",
             )
+            self.assertEqual(find_forbidden_names(root), [f"{page}: ai squared"])
+
+            page.write_text(
+                "<cite><strong><a>Benjamin Harvey, Ph.D.</a></strong> · Founder of AI Squared</cite>",
+                encoding="utf-8",
+            )
 
             self.assertEqual(find_forbidden_names(root), [])
 
             page.write_text(
-                "<cite>Benjamin Harvey, Ph.D. · Founder of AI Squared</cite>\nAI Squared engagement",
+                "<cite><strong><a>Benjamin Harvey, Ph.D.</a></strong> advised the AI Squared engagement · Founder of AI Squared</cite>",
+                encoding="utf-8",
+            )
+            self.assertEqual(find_forbidden_names(root), [f"{page}: ai squared"])
+
+            page.write_text(
+                "<cite><strong><a>Benjamin Harvey, Ph.D.</a></strong> · Founder of AI Squared</cite>\nAI Squared engagement",
                 encoding="utf-8",
             )
             self.assertEqual(find_forbidden_names(root), [f"{page}: ai squared"])
@@ -155,6 +173,17 @@ class PublicContentTests(unittest.TestCase):
             self.assertEqual(
                 find_public_content_findings(root),
                 [f"{root / 'blog' / 'index.html'}: ishir"],
+            )
+
+    def test_generated_site_reports_missing_homepage_proof(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            homepage = root / "index.html"
+            homepage.write_text("300+ 2M+ 7+ years", encoding="utf-8")
+
+            self.assertEqual(
+                find_public_content_findings(root),
+                [f"{homepage}: missing Open to select strategic leadership roles"],
             )
 
 
