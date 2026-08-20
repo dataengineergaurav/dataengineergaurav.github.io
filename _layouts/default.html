@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#f5f0e5">
 
 {% seo title=false %}
-    <title>{% if page.title and page.title != site.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <title>{% if page.title and page.title != site.title %}{{ page.title | escape }} | {% endif %}{{ site.title }}</title>
 
     {% assign cache_bust = site.github.build_revision | default: site.time %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: cache_bust | relative_url }}">

@@ -33,7 +33,6 @@ resolve_executable() {
 python3_bin=$(resolve_executable python3)
 codex_bin=$(resolve_executable codex)
 hermes_bin=$(resolve_executable hermes)
-npm_bin=$(resolve_executable npm)
 git_bin=$(resolve_executable git)
 systemctl_bin=$(resolve_executable systemctl)
 hermes_config=$("$hermes_bin" config path)
@@ -92,8 +91,8 @@ remove_timer() {
 
 case "${1:-}" in
     check)
-        printf 'python3=%s\ncodex=%s\nhermes=%s\nnpm=%s\ngit=%s\nsystemctl=%s\nhermes-config=%s\n' \
-            "$python3_bin" "$codex_bin" "$hermes_bin" "$npm_bin" "$git_bin" \
+        printf 'python3=%s\ncodex=%s\nhermes=%s\ngit=%s\nsystemctl=%s\nhermes-config=%s\n' \
+            "$python3_bin" "$codex_bin" "$hermes_bin" "$git_bin" \
             "$systemctl_bin" "$hermes_config"
         "$hermes_bin" gateway status
         ;;

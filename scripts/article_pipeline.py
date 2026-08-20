@@ -51,6 +51,14 @@ CODEX_ENV_KEYS = (
     "OPENAI_API_KEY", "OPENAI_BASE_URL", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY",
     "NO_PROXY", "http_proxy", "https_proxy", "all_proxy", "no_proxy",
 )
+ARTICLE_TEXT_LIMITS = {
+    "title": 200, "summary": 300, "description": 300,
+    "linkedin_post": 2000, "newsletter_intro": 2000,
+}
+TELEGRAM_MESSAGE_LIMIT = 4096
+TELEGRAM_CAPTION_LIMIT = 1024
+RAW_HTML_RE = re.compile(
+    r"(?is)<!--|<\?|<![A-Z]|<\s*/?\s*[A-Za-z][\w-]*(?:\s[^<>]*?)?\s*/?>")
 
 SELECTION_SCHEMA = {
     "type": "object",
@@ -73,8 +81,12 @@ ARTICLE_SCHEMA = {
     "type": "object", "additionalProperties": False,
     "required": ["title", "summary", "description", "body", "linkedin_post", "newsletter_intro"],
     "properties": {
-        "title": {"type": "string"}, "summary": {"type": "string"}, "description": {"type": "string"}, "body": {"type": "string"},
-        "linkedin_post": {"type": "string"}, "newsletter_intro": {"type": "string"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 200},
+        "summary": {"type": "string", "minLength": 1, "maxLength": 300},
+        "description": {"type": "string", "minLength": 1, "maxLength": 300},
+        "body": {"type": "string"},
+        "linkedin_post": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "newsletter_intro": {"type": "string", "minLength": 1, "maxLength": 2000},
     },
 }
 
@@ -186,7 +198,7 @@ def _validate_safe_markdown(body):
     if "{{" in body or "{%" in body:
         raise ValueError("unsafe Markdown contains Liquid directives")
     prose = _markdown_prose(body)
-    if re.search(r"(?is)<!--|<\?|<![A-Z]|<\s*/?\s*[A-Za-z][\w-]*(?:\s[^<>]*?)?\s*/?>", prose):
+    if RAW_HTML_RE.search(prose):
         raise ValueError("unsafe Markdown contains raw HTML")
     decoded = prose
     for _ in range(3):
@@ -198,13 +210,25 @@ def _validate_safe_markdown(body):
         raise ValueError("unsafe Markdown URL scheme")
 
 
+def _validate_plain_text(name, value):
+    if re.search(r"[\x00-\x1f\x7f-\x9f]", value):
+        raise ValueError(f"{name} contains control characters")
+    if "{{" in value or "{%" in value:
+        raise ValueError(f"{name} contains Liquid directives")
+    if RAW_HTML_RE.search(value):
+        raise ValueError(f"{name} contains HTML")
+
+
 def validate_article(article, selection):
     for key in ("title", "summary", "description", "body", "linkedin_post", "newsletter_intro"):
         if key not in article:
             raise ValueError(f"missing {key}")
-    if not all(isinstance(article[key], str) and article[key].strip()
-               for key in ("title", "summary", "description")):
-        raise ValueError("title, summary, and description must be nonempty")
+    for key, limit in ARTICLE_TEXT_LIMITS.items():
+        value = article[key]
+        if not isinstance(value, str) or not value.strip() or len(value) > limit:
+            raise ValueError(f"{key} must be nonempty and at most {limit} characters")
+    for key in ("title", "summary", "description"):
+        _validate_plain_text(key, article[key])
     body = article["body"]
     if not isinstance(body, str) or not 1200 <= len(body.split()) <= 1800:
         raise ValueError("body must contain 1,200-1,800 words")
@@ -429,8 +453,12 @@ def _repository_snapshot():
     if not branch or "/" not in upstream:
         raise ValueError("Git branch must have an upstream")
     remote, upstream_branch = upstream.split("/", 1)
+    base_head = git("rev-parse", "HEAD")
+    git("fetch", remote, upstream_branch)
+    if git("rev-parse", "FETCH_HEAD") != base_head:
+        raise ValueError("Git branch must be synchronized with its upstream")
     return {
-        "base_head": git("rev-parse", "HEAD"), "branch": branch,
+        "base_head": base_head, "branch": branch,
         "remote": remote, "upstream_branch": upstream_branch,
         "remote_fingerprint": _remote_fingerprint(remote),
     }
@@ -474,6 +502,8 @@ def _telegram_response(request):
 
 
 def send_message(text: str):
+    if not isinstance(text, str) or not text or _telegram_length(text) > TELEGRAM_MESSAGE_LIMIT:
+        raise ValueError("Telegram message exceeds the 4,096-character limit")
     token, chat_id = _hermes_telegram_config()
     request = Request(
         f"https://api.telegram.org/bot{token}/sendMessage",
@@ -488,6 +518,9 @@ def send_message(text: str):
 
 
 def send_document(path: Path, caption: str):
+    if (not isinstance(caption, str) or not caption
+            or _telegram_length(caption) > TELEGRAM_CAPTION_LIMIT):
+        raise ValueError("Telegram document caption exceeds the 1,024-character limit")
     token, chat_id = _hermes_telegram_config()
     boundary = "ArticleGenerator" + secrets.token_hex(12)
     safe_name = re.sub(r"[\r\n\"\\]", "_", path.name)
@@ -527,8 +560,8 @@ def _review_brief(article, selection, paper, draft_id):
 
 
 def _send_brief(brief):
-    for start in range(0, len(brief), 4000):
-        send_message(brief[start:start + 4000])
+    for chunk in _telegram_chunks(brief):
+        send_message(chunk)
 
 
 @contextmanager
@@ -731,13 +764,33 @@ def _fetch_unchanged_upstream(pending):
         raise ValueError("upstream changed since draft generation")
 
 
-def _distribution_message(pending):
+def _telegram_length(text):
+    return sum(2 if ord(character) > 0xffff else 1 for character in text)
+
+
+def _telegram_chunks(text, limit=TELEGRAM_MESSAGE_LIMIT):
+    chunks, start, length = [], 0, 0
+    for index, character in enumerate(text):
+        units = 2 if ord(character) > 0xffff else 1
+        if length + units > limit:
+            chunks.append(text[start:index])
+            start, length = index, 0
+        length += units
+    if start < len(text):
+        chunks.append(text[start:])
+    return chunks
+
+
+def _distribution_messages(pending):
     stem = Path(pending["path"]).stem
     date, slug = stem[:10], stem[11:]
     year, month, day = date.split("-")
-    return (f"Published: https://dataengineergaurav.github.io/{year}/{month}/{day}/{slug}.html\n\n"
-            f"LinkedIn:\n{pending['linkedin_post']}\n\n"
-            f"Newsletter:\n{pending['newsletter_intro']}")
+    components = (
+        f"Published: https://dataengineergaurav.github.io/{year}/{month}/{day}/{slug}.html",
+        f"LinkedIn:\n{pending['linkedin_post']}",
+        f"Newsletter:\n{pending['newsletter_intro']}",
+    )
+    return [chunk for component in components for chunk in _telegram_chunks(component)]
 
 
 def _staged_sha256(relative):
@@ -821,7 +874,8 @@ def _is_ancestor(ancestor, descendant):
 
 
 def _deliver_distribution(state, pending):
-    send_message(_distribution_message(pending))
+    for message in _distribution_messages(pending):
+        send_message(message)
     state["pending"] = None
     save_state(STATE_PATH, state)
     return "published"

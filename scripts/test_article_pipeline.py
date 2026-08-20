@@ -152,6 +152,12 @@ class SetupScriptTests(unittest.TestCase):
         builtin pwd "$@"
     fi
 }
+command() {
+    if [ "$1" = "-v" ] && [ "${2:-}" = "npm" ]; then
+        return 1
+    fi
+    builtin command "$@"
+}
 ''', encoding="utf-8")
         fakes = {
             "crontab": '''#!/bin/sh
@@ -175,6 +181,8 @@ if [ "$1 $2" = "config path" ]; then
     printf '%s\n' "$FAKE_HERMES_CONFIG"
 elif [ "$1 $2" = "gateway restart" ]; then
     printf 'restart\n' >> "$FAKE_GATEWAY_LOG"
+elif [ "$1 $2" = "gateway status" ]; then
+    printf 'running\n'
 elif [ "$1 $2" = "plugins enable" ] || [ "$1 $2" = "plugins disable" ]; then
     printf '%s %s\n' "$1" "$2" >> "$FAKE_GATEWAY_LOG"
 else
@@ -242,7 +250,6 @@ fi
 exec /bin/ln "$@"
 ''',
             "codex": "#!/bin/sh\nexit 0\n",
-            "npm": "#!/bin/sh\nexit 0\n",
             "git": "#!/bin/sh\nexit 0\n",
         }
         for name, contents in fakes.items():
@@ -270,6 +277,17 @@ exec /bin/ln "$@"
                     self.canonical_root / "automation/hermes-article-approval"),
             }
         return script, env, crontab, config, gateway_log, python_log
+
+    def test_check_and_remove_do_not_require_npm(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script, env, _, _, _, _ = self.fake_environment(Path(directory))
+            for action in ("check", "remove"):
+                with self.subTest(action=action):
+                    Path(env["FAKE_CANONICAL_PWD_USED"]).unlink(missing_ok=True)
+                    result = subprocess.run([str(script), action], env=env, text=True,
+                                            capture_output=True)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertNotIn("npm=", result.stdout)
 
     def test_install_is_idempotent_and_refuses_non_symlink_skill(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -609,6 +627,44 @@ class PipelineCoreTests(unittest.TestCase):
             article[key] = ""
             with self.subTest(key=key):
                 self.assert_invalid_article(article, rule=key)
+
+    def test_article_validation_rejects_active_frontmatter_content(self):
+        for key in ("title", "summary", "description"):
+            for payload, rule in (("{{ site.title }}", "Liquid"),
+                                  ("<script>alert(1)</script>", "HTML"),
+                                  ("first\nsecond", "control")):
+                article = self.valid_article()
+                article[key] = payload
+                with self.subTest(key=key, payload=payload):
+                    self.assert_invalid_article(article, rule=rule)
+
+    def test_article_schema_and_runtime_bound_telegram_text(self):
+        limits = {"title": 200, "linkedin_post": 2000, "newsletter_intro": 2000}
+        for key, limit in limits.items():
+            self.assertEqual(pipeline.ARTICLE_SCHEMA["properties"][key].get("maxLength"), limit)
+            article = self.valid_article()
+            article[key] = "x" * (limit + 1)
+            with self.subTest(key=key):
+                self.assert_invalid_article(article, rule=key)
+
+    def test_telegram_chunks_preserve_text_within_utf16_limit(self):
+        text = "a" * 4095 + "😀" + "b"
+        chunks = getattr(pipeline, "_telegram_chunks", lambda value: [value])(text)
+        self.assertEqual("".join(chunks), text)
+        self.assertEqual(len(chunks), 2)
+        length = getattr(pipeline, "_telegram_length", len)
+        self.assertTrue(all(length(chunk) <= 4096 for chunk in chunks))
+
+    def test_document_caption_rejects_telegram_overflow_before_network_access(self):
+        with mock.patch.object(pipeline, "_hermes_telegram_config") as config:
+            try:
+                pipeline.send_document(Path("unused.md"), "😀" * 513)
+            except Exception as error:
+                self.assertIsInstance(error, ValueError)
+                self.assertRegex(str(error), "caption")
+            else:
+                self.fail("oversized caption was accepted")
+        config.assert_not_called()
 
     def test_article_validation_enforces_body_word_limits(self):
         for words in (1199, 1801):
@@ -1008,6 +1064,31 @@ class ReviewAndPublicationTests(unittest.TestCase):
                  mock.patch.object(pipeline, "fetch_candidates") as fetch:
                 self.assertEqual(pipeline.generate(now=now), "not due")
                 fetch.assert_not_called()
+
+    def test_generate_fetches_and_rejects_stale_upstream_before_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repository, remote, state_path, draft, _ = self.make_repository(directory)
+            draft.unlink()
+            pipeline.save_state(state_path, pipeline.default_state())
+            writer = Path(directory) / "writer"
+            self.git(Path(directory), "clone", str(remote), str(writer))
+            self.git(writer, "config", "user.name", "Remote Writer")
+            self.git(writer, "config", "user.email", "writer@example.com")
+            (writer / "REMOTE.md").write_text("remote\n", encoding="utf-8")
+            self.git(writer, "add", "REMOTE.md")
+            self.git(writer, "commit", "-m", "advance remote")
+            self.git(writer, "push", "origin", "main")
+
+            with mock.patch.object(pipeline, "REPO_ROOT", repository), \
+                 mock.patch.object(pipeline, "RUNTIME_DIR", Path(directory) / "runtime"), \
+                 mock.patch.object(pipeline, "STATE_PATH", state_path), \
+                 mock.patch.object(pipeline, "fetch_candidates", return_value=[]) as fetch, \
+                 mock.patch.object(pipeline, "select_candidate",
+                                   return_value={"publish": False, "score": {}}), \
+                 mock.patch.object(pipeline, "send_message"), \
+                 self.assertRaisesRegex(ValueError, "synchronized"):
+                pipeline.generate(now=self.now)
+            fetch.assert_not_called()
 
     def test_generate_resends_pending_undelivered_draft(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1806,11 +1887,18 @@ class ReviewAndPublicationTests(unittest.TestCase):
     def test_distribution_failure_stays_pending_and_generate_retries_only_delivery(self):
         with tempfile.TemporaryDirectory() as directory:
             repository, remote, state_path, _, base_head = self.make_repository(directory)
+            state = pipeline.load_state(state_path)
+            state["pending"].update({
+                "linkedin_post": "L" * 5000,
+                "newsletter_intro": "N" * 5000,
+            })
+            pipeline.save_state(state_path, state)
             with mock.patch.object(pipeline, "REPO_ROOT", repository), \
                  mock.patch.object(pipeline, "RUNTIME_DIR", Path(directory) / "runtime"), \
                  mock.patch.object(pipeline, "STATE_PATH", state_path), \
                  mock.patch.object(pipeline, "_build_site"), \
-                 mock.patch.object(pipeline, "send_message", side_effect=RuntimeError("Telegram down")), \
+                 mock.patch.object(pipeline, "send_message",
+                                   side_effect=(None, RuntimeError("Telegram down"))), \
                  self.assertRaisesRegex(RuntimeError, "Telegram down"):
                 pipeline.approve("correct-id")
             pending = pipeline.load_state(state_path)["pending"]
@@ -1825,7 +1913,12 @@ class ReviewAndPublicationTests(unittest.TestCase):
                  mock.patch.object(pipeline, "send_message") as send:
                 self.assertEqual(pipeline.generate(now=self.now), "published")
             snapshot.assert_not_called()
-            send.assert_called_once()
+            messages = [call.args[0] for call in send.call_args_list]
+            self.assertEqual(len(messages), 5)
+            self.assertTrue(all(len(message) <= 4096 for message in messages))
+            self.assertTrue(messages[0].startswith("Published: https://"))
+            self.assertEqual("".join(messages[1:3]), "LinkedIn:\n" + "L" * 5000)
+            self.assertEqual("".join(messages[3:]), "Newsletter:\n" + "N" * 5000)
             self.assertIsNone(pipeline.load_state(state_path)["pending"])
 
     def test_distribution_dry_run_does_not_send_or_mutate_state(self):
