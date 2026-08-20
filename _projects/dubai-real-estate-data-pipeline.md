@@ -1,7 +1,33 @@
 ---
 title: "Dubai Real Estate Data Pipeline"
+summary: "A repeatable ingestion pipeline for collecting and analyzing daily Dubai property listings."
+sector: Real estate data
+role: Data architecture and pipeline delivery
 tools: Python, MongoDB, REST API
+outcome: "Turned changing listing data into a timestamped dataset ready for repeatable analysis."
+featured: true
 order: 1
 ---
 
-An end-to-end ETL process for Dubai real estate data analysis. Property listings are collected daily from a real estate listing API and dumped to MongoDB with a timestamp. The pipeline uses a data factory abstraction over services like a data crawler, file writer, and MongoDB dumper — built for repeatable daily ingestion.
+## Problem
+
+Dubai property listings change daily, making one-off collection unsuitable for ongoing analysis.
+
+## Approach
+
+The pipeline collects listings from a real estate API each day and records a timestamp with every collection. This establishes a repeatable ingestion process rather than a single static export.
+
+## Architecture
+
+<div class="architecture-flow" role="img" aria-label="Real estate listing API flows through crawler, file writer, and MongoDB dumper services">
+  <span>Listing API</span>
+  <span>Crawler</span>
+  <span>File writer</span>
+  <span>MongoDB dumper</span>
+</div>
+
+The data factory coordinates the crawler, file-writer, and MongoDB dumper services. Collected listing data is stored in MongoDB with its timestamp.
+
+## Outcome
+
+Changing listing data became a timestamped dataset ready for repeatable analysis.

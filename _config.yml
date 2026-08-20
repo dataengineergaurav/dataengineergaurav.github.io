@@ -1,5 +1,5 @@
 title: Gaurav Gurjar — Data Engineer
-description: Socio-technical data engineer delivering autonomous value through robust analytics and reliable data. ETL/ELT pipelines, data automation, and AI pipelines in Python, SQL, AWS, PySpark, Airflow, Dagster, and dbt.
+description: Fractional data engineering consulting for reliable platforms, governed AI, and analytics. ETL/ELT pipelines, data automation, and AI pipelines in Python, SQL, AWS, PySpark, Airflow, Dagster, and dbt.
 url: "https://dataengineergaurav.github.io"
 baseurl: ""
 github_username: dataengineergaurav
@@ -14,6 +14,12 @@ logo: /assets/img/logo.png
 defaults:
   - scope:
       path: ""
+      type: projects
+    values:
+      layout: project
+      image: /assets/img/og.png
+  - scope:
+      path: ""
     values:
       image: /assets/img/og.png
 social:
@@ -26,10 +32,12 @@ plugins:
   - jekyll-sitemap
 collections:
   projects:
-    output: false
+    output: true
+    permalink: /work/:name/
 exclude:
   - vendor
   - .github
   - docs/superpowers
   - Gemfile
   - README.md
+  - _projects/README.md

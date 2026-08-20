@@ -259,6 +259,94 @@ main.container {
   margin-bottom: 0;
 }
 
+.case-study-header,
+.work-intro {
+  max-width: var(--reading-width);
+  margin-bottom: clamp(3rem, 7vw, 5rem);
+}
+
+.lede {
+  color: var(--color-ink-muted);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  line-height: 1.35;
+}
+
+.case-study-meta {
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+.case-study-meta > div {
+  display: grid;
+  grid-template-columns: minmax(6rem, 1fr) minmax(0, 3fr);
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.case-study-meta dt {
+  color: var(--color-ink-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.case-study-meta dd { margin: 0; }
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.project-feature {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--color-paper-deep);
+  border-top: 3px solid var(--color-accent);
+}
+
+.project-feature h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.project-feature p:last-child { margin-bottom: 0; }
+
+.project-outcome {
+  color: var(--color-ink-muted);
+  font-weight: 700;
+}
+
+.architecture-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.architecture-flow span {
+  position: relative;
+  display: grid;
+  min-height: 5rem;
+  place-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--color-ink);
+  background: var(--color-paper-deep);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.architecture-flow span:not(:last-child)::after {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 0.25rem);
+  width: 1rem;
+  border-top: 1px solid var(--color-ink);
+  content: "";
+}
+
 .cta-panel {
   margin: clamp(3rem, 8vw, 6rem) 0 0;
   padding: clamp(1.5rem, 5vw, 3rem);
@@ -318,4 +406,19 @@ th, td {
   }
 
   .container { padding-inline: 1rem; }
+
+  .case-study-meta > div { grid-template-columns: 1fr; gap: 0.25rem; }
+
+  .project-grid,
+  .architecture-flow { grid-template-columns: 1fr; }
+
+  .architecture-flow span:not(:last-child)::after {
+    top: auto;
+    bottom: -0.8rem;
+    left: 50%;
+    width: 0;
+    height: 0.6rem;
+    border-top: 0;
+    border-left: 1px solid var(--color-ink);
+  }
 }
