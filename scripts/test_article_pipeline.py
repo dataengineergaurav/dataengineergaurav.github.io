@@ -118,9 +118,8 @@ class HermesApprovalPluginTests(unittest.TestCase):
             "Article approval failed. Check the local pipeline log.")])
 
 
-@unittest.skip("installer is adapted in Task 3")
 class SetupScriptTests(unittest.TestCase):
-    canonical_checkout = Path(__file__).resolve().parents[1] == Path("/root/blog-metteyyaanalytics")
+    canonical_checkout = Path(__file__).resolve().parents[1] == Path("/root/dataengineergaurav.github.io")
 
     def fake_environment(self, root, crontab_text="MAILTO=ops@example.com\n"):
         script = Path(__file__).with_name("setup_article_pipeline.sh")
@@ -136,8 +135,10 @@ class SetupScriptTests(unittest.TestCase):
         gateway_log = root / "gateway.log"
         python_log = root / "python.log"
         systemctl_log = root / "systemctl.log"
+        crontab_log = root / "crontab.log"
         fakes = {
             "crontab": '''#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_CRONTAB_LOG"
 if [ "$1" = "-l" ]; then
     if [ -n "${FAKE_CRONTAB_LIST_ERROR:-}" ]; then
         printf '%s\n' "$FAKE_CRONTAB_LIST_ERROR" >&2
@@ -181,6 +182,7 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
         env = os.environ | {
             "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
             "FAKE_CRONTAB": str(crontab),
+            "FAKE_CRONTAB_LOG": str(crontab_log),
             "FAKE_HERMES_CONFIG": str(config),
             "FAKE_GATEWAY_LOG": str(gateway_log),
             "FAKE_PYTHON_LOG": str(python_log),
@@ -191,34 +193,31 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
     @unittest.skipUnless(canonical_checkout, "installer intentionally refuses this worktree")
     def test_install_is_idempotent_and_refuses_non_symlink_skill(self):
         with tempfile.TemporaryDirectory() as directory:
-            backup = "0 0 * * * backup # metteyya-article-generator-backup\n"
+            backup = "0 0 * * * backup # unrelated-job\n"
+            original = ("MAILTO=ops@example.com\n" + backup).encode("utf-8")
             script, env, crontab, config, gateway_log, python_log = self.fake_environment(
-                Path(directory), "MAILTO=ops@example.com\n" + backup)
+                Path(directory), original.decode("utf-8"))
 
             for _ in range(2):
                 subprocess.run([str(script), "install"], env=env, text=True,
                                capture_output=True, check=True)
 
-            lines = crontab.read_text(encoding="utf-8").splitlines()
-            self.assertEqual(lines[0], "MAILTO=ops@example.com")
-            self.assertEqual(lines[1], backup.rstrip())
-            self.assertEqual(len(lines), 2)
+            self.assertEqual(crontab.read_bytes(), original)
+            self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
             systemctl_log = Path(env["FAKE_SYSTEMCTL_LOG"])
             self.assertEqual(systemctl_log.read_text(encoding="utf-8").splitlines(), [
-                f"link --force {script.parents[1]}/scripts/metteyya-article-generator.service "
-                f"{script.parents[1]}/scripts/metteyya-article-generator.timer",
+                f"link --force {script.parents[1]}/scripts/personal-article-generator.service "
+                f"{script.parents[1]}/scripts/personal-article-generator.timer",
                 "daemon-reload",
-                "enable --now metteyya-article-generator.timer",
-                f"link --force {script.parents[1]}/scripts/metteyya-article-generator.service "
-                f"{script.parents[1]}/scripts/metteyya-article-generator.timer",
+                "enable --now personal-article-generator.timer",
+                f"link --force {script.parents[1]}/scripts/personal-article-generator.service "
+                f"{script.parents[1]}/scripts/personal-article-generator.timer",
                 "daemon-reload",
-                "enable --now metteyya-article-generator.timer",
+                "enable --now personal-article-generator.timer",
             ])
-            plugin = config.parent / "plugins/metteyya_article_approval"
-            legacy_skill = config.parent / "skills/content/metteyya-article-approval"
+            plugin = config.parent / "plugins/personal_article_approval"
             self.assertTrue(plugin.is_symlink())
             self.assertEqual(plugin.resolve(), script.parents[1] / "automation/hermes-article-approval")
-            self.assertFalse(legacy_skill.exists())
             self.assertEqual((script.parents[1] / ".article-generator").stat().st_mode & 0o777, 0o700)
             self.assertEqual(gateway_log.read_text(encoding="utf-8").splitlines(),
                              ["plugins enable", "restart", "plugins enable", "restart"])
@@ -227,18 +226,14 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
                 f"{script.parents[1]}/scripts/article_pipeline.py doctor",
             ])
 
-            unrelated_skill = legacy_skill.parent / "unrelated"
-            unrelated_skill.parent.mkdir(parents=True, exist_ok=True)
-            unrelated_skill.write_text("keep\n", encoding="utf-8")
             subprocess.run([str(script), "remove"], env=env, text=True,
                            capture_output=True, check=True)
-            self.assertEqual(crontab.read_text(encoding="utf-8"),
-                             "MAILTO=ops@example.com\n" + backup)
+            self.assertEqual(crontab.read_bytes(), original)
+            self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
             self.assertFalse(plugin.exists())
-            self.assertEqual(unrelated_skill.read_text(encoding="utf-8"), "keep\n")
             self.assertEqual(systemctl_log.read_text(encoding="utf-8").splitlines()[-3:], [
-                "disable --now metteyya-article-generator.timer",
-                "disable metteyya-article-generator.service",
+                "disable --now personal-article-generator.timer",
+                "disable personal-article-generator.service",
                 "daemon-reload",
             ])
 
@@ -256,21 +251,18 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep\n")
 
     @unittest.skipUnless(canonical_checkout, "installer intentionally refuses this worktree")
-    def test_crontab_list_errors_abort_install_and_remove_without_changes(self):
+    def test_install_and_remove_do_not_read_or_rewrite_crontab(self):
         with tempfile.TemporaryDirectory() as directory:
             script, env, crontab, config, _, _ = self.fake_environment(Path(directory))
-            subprocess.run([str(script), "install"], env=env, text=True,
-                           capture_output=True, check=True)
-            plugin = config.parent / "plugins/metteyya_article_approval"
             before = crontab.read_bytes()
             failing_env = env | {"FAKE_CRONTAB_LIST_ERROR": "permission denied"}
             for action in ("install", "remove"):
                 with self.subTest(action=action):
                     result = subprocess.run([str(script), action], env=failing_env,
                                             text=True, capture_output=True)
-                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertEqual(crontab.read_bytes(), before)
-                    self.assertTrue(plugin.is_symlink())
+                    self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
 
     @unittest.skipUnless(canonical_checkout, "installer intentionally refuses this worktree")
     def test_install_classifies_no_upstream_doctor_failure(self):
@@ -286,10 +278,10 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
             self.assertIn("push the branch", result.stderr)
             self.assertIn("set its upstream", result.stderr)
             self.assertIn("installation was left intact", result.stderr)
-            self.assertTrue((config.parent / "plugins/metteyya_article_approval").is_symlink())
-            self.assertNotIn("# metteyya-article-generator",
-                             crontab.read_text(encoding="utf-8"))
-            self.assertIn("enable --now metteyya-article-generator.timer",
+            self.assertTrue((config.parent / "plugins/personal_article_approval").is_symlink())
+            self.assertEqual(crontab.read_text(encoding="utf-8"), "MAILTO=ops@example.com\n")
+            self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
+            self.assertIn("enable --now personal-article-generator.timer",
                           Path(env["FAKE_SYSTEMCTL_LOG"]).read_text(encoding="utf-8"))
 
     def test_install_refuses_noncanonical_checkout_without_changes(self):
@@ -304,7 +296,8 @@ printf '%s\n' "$*" >> "$FAKE_SYSTEMCTL_LOG"
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("canonical checkout", result.stderr)
             self.assertEqual(crontab.read_text(encoding="utf-8"), original)
-            self.assertFalse((config.parent / "plugins/metteyya_article_approval").exists())
+            self.assertFalse(Path(env["FAKE_CRONTAB_LOG"]).exists())
+            self.assertFalse((config.parent / "plugins/personal_article_approval").exists())
             self.assertFalse(gateway_log.exists())
             self.assertFalse(python_log.exists())
 

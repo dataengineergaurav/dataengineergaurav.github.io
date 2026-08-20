@@ -1,0 +1,11 @@
+[Unit]
+Description=Generate a personal authority article draft weekly
+
+[Timer]
+OnCalendar=Mon *-*-* 03:30:00 UTC
+Persistent=true
+AccuracySec=1m
+Unit=personal-article-generator.service
+
+[Install]
+WantedBy=timers.target
