@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/insights/": {
+      "targetKind": "existing-ui",
+      "projectId": "31509a9b-132f-4726-b29c-99f2a105d3f4",
+      "baselineDraftId": "ef1d68e8-4ef6-4210-b180-cff30009395e",
+      "activeDraftId": "85d67a49-19db-4cba-9873-a53e107f1965",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        "insights.md",
+        "_layouts/default.html",
+        "_sass/jekyll-theme-minimal.scss",
+        ".superdesign/design-system.md"
+      ],
+      "fingerprints": {
+        "insights.md": "02796efdacfb8d949af9d75002ea6f1163ba588aa8a0f6808cfdfac351fa31b0",
+        "_layouts/default.html": "a590313971d41365e944a7280740e4e0189139c433ef037792248cc34358f8f8",
+        "_sass/jekyll-theme-minimal.scss": "ee009891e69ba76828b1e38db7f4e2abad6f0f4545e3bd2b56bbabf2dd035555",
+        ".superdesign/design-system.md": "af95220d93d1a9e9d7b51181e7e6d154ac993c053daa54d1d89dbf0c59c4db60"
+      },
+      "drafts": {
+        "ef1d68e8-4ef6-4210-b180-cff30009395e": {
+          "title": "Insights Page Reproduction",
+          "visualDirection": "faithful current-state Editorial Authority reproduction",
+          "currentVersion": 1
+        },
+        "85d67a49-19db-4cba-9873-a53e107f1965": {
+          "title": "Gaurav Gurjar - Insights Archive",
+          "visualDirection": "Editorial Authority with six featured posts, topic filters, and compact archive",
+          "parentDraftId": "ef1d68e8-4ef6-4210-b180-cff30009395e",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-08-20T13:46:40Z"
+    }
+  }
+}
