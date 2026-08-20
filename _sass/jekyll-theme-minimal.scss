@@ -73,7 +73,7 @@ a:hover {
 
 a:focus-visible,
 button:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-ink);
   outline-offset: 3px;
 }
 
@@ -161,6 +161,9 @@ pre code {
 }
 
 .brand {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
