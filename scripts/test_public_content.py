@@ -97,7 +97,7 @@ def find_forbidden_names(root: Path) -> list[str]:
         searchable_texts = (unescape(text).casefold(), rendered_text(text).casefold())
         searchable_texts = tuple(
             re.sub(
-                r"google[ _-](analytics|cloud|maps)",
+                r"google[ _-](analytics|cloud|maps|sheets)",
                 r"\1",
                 re.sub(
                     r"https?://[^\s\"'<>]+",
@@ -133,6 +133,25 @@ def main() -> int:
 
 
 class PublicContentTests(unittest.TestCase):
+    def test_work_page_distinguishes_maintained_and_contributed_projects(self):
+        root = Path(__file__).resolve().parents[1]
+        work = (root / "work.md").read_text(encoding="utf-8")
+
+        maintained = work.index("Maintained projects")
+        contributed = work.index("Open-source contributions")
+        self.assertLess(maintained, contributed)
+        for repository in (
+            "rental-market-dynamics-dubai", "hermes-gsheets", "setu",
+            "sportsdataverse/sportsdataverse-py/pull/82",
+            "catalyst-cooperative/pudl/pull/3931",
+            "catalyst-cooperative/pudl/pull/3983",
+            "catalyst-cooperative/pudl/pull/2951",
+            "catalyst-cooperative/pudl/pull/2953",
+        ):
+            with self.subTest(repository=repository):
+                self.assertIn(repository, work)
+        self.assertIn("closed without merge", work)
+
     def test_discovers_source_files(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -179,7 +198,10 @@ class PublicContentTests(unittest.TestCase):
 
             self.assertEqual(find_forbidden_names(root), [])
 
-            page.write_text("Google Analytics, Google Cloud, and Google Maps", encoding="utf-8")
+            page.write_text(
+                "Google Analytics, Google Cloud, Google Maps, and Google Sheets",
+                encoding="utf-8",
+            )
 
             self.assertEqual(find_forbidden_names(root), [])
 
