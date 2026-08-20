@@ -1,4 +1,6 @@
 import argparse
+from html import unescape
+from html.parser import HTMLParser
 from pathlib import Path
 import re
 from tempfile import TemporaryDirectory
@@ -26,7 +28,25 @@ HOMEPAGE_PROOF = (
     "300+", "2M+", "7+ years", "Open to select strategic leadership roles",
 )
 
+RETIRED_CLAIMS = ("$3b+",)
+
 GOOGLE_SERVICE_HOSTS = {"www.googletagmanager.com", "maps.googleapis.com"}
+
+
+class RenderedTextParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+
+    def handle_data(self, data):
+        self.parts.append(data)
+
+
+def rendered_text(markup):
+    parser = RenderedTextParser()
+    parser.feed(markup)
+    parser.close()
+    return "".join(parser.parts)
 
 
 def mask_approved_google_service_host(match):
@@ -48,7 +68,7 @@ def public_text_files(root: Path) -> list[Path]:
             path for path in root.rglob("*")
             if path.suffix in suffixes
             and not SOURCE_EXCLUDED_DIRS.intersection(path.relative_to(root).parts)
-            and path.relative_to(root) not in {Path("README.md"), Path("_projects/README.md")}
+            and path.relative_to(root) not in {Path("README.md"), Path("final-review.md")}
         )
     else:
         paths = (Path("."),)
@@ -67,12 +87,6 @@ def find_forbidden_names(root: Path) -> list[str]:
     findings = []
     for path in public_text_files(root):
         text = path.read_text(encoding="utf-8").casefold()
-        text = re.sub(
-            r"https?://[^\s\"'<>]+",
-            mask_approved_google_service_host,
-            text,
-        )
-        text = re.sub(r"google[ _-](analytics|cloud|maps)", r"\1", text)
         for name, author, attribution in TESTIMONIAL_NAMES:
             text = re.sub(
                 rf"(<cite\b[^>]*>\s*<strong>\s*<a\b[^>]*>{re.escape(author.casefold())}</a>\s*</strong>\s*·\s*{re.escape(attribution.casefold()[:-len(name)])}){re.escape(name)}(?=\s*</cite>)",
@@ -80,8 +94,22 @@ def find_forbidden_names(root: Path) -> list[str]:
                 text,
                 flags=re.DOTALL,
             )
-        for name in FORBIDDEN_NAMES + tuple(name for name, _, _ in TESTIMONIAL_NAMES):
-            if name in text:
+        searchable_texts = (unescape(text).casefold(), rendered_text(text).casefold())
+        searchable_texts = tuple(
+            re.sub(
+                r"google[ _-](analytics|cloud|maps)",
+                r"\1",
+                re.sub(
+                    r"https?://[^\s\"'<>]+",
+                    mask_approved_google_service_host,
+                    searchable,
+                ),
+            )
+            for searchable in searchable_texts
+        )
+        forbidden = FORBIDDEN_NAMES + tuple(name for name, _, _ in TESTIMONIAL_NAMES) + RETIRED_CLAIMS
+        for name in forbidden:
+            if any(name in searchable for searchable in searchable_texts):
                 findings.append(f"{path}: {name}")
     return findings
 
@@ -119,6 +147,7 @@ class PublicContentTests(unittest.TestCase):
             (root / "docs" / "private.md").write_text("private", encoding="utf-8")
             (root / "scripts").mkdir()
             (root / "scripts" / "private.md").write_text("private", encoding="utf-8")
+            (root / "final-review.md").write_text("review", encoding="utf-8")
             (root / "ignored.txt").write_text("ignored", encoding="utf-8")
 
             self.assertEqual(public_text_files(root), [
@@ -248,6 +277,40 @@ class PublicContentTests(unittest.TestCase):
                 find_public_content_findings(root),
                 [f"{root / 'blog' / 'index.html'}: ishir"],
             )
+
+    def test_generated_site_scans_normalized_rendered_text(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            homepage = root / "index.html"
+            proof = "300+ 2M+ 7+ years Open to select strategic leadership roles "
+            for case, content, finding in (
+                ("HTML entity", "ISH&#73;R", "ishir"),
+                ("element boundary", "Case<strong>point</strong>", "casepoint"),
+            ):
+                with self.subTest(case=case):
+                    homepage.write_text(proof + content, encoding="utf-8")
+                    self.assertEqual(
+                        find_public_content_findings(root),
+                        [f"{homepage}: {finding}"],
+                    )
+
+    def test_rejects_retired_claim_in_source_and_generated_content(self):
+        with TemporaryDirectory() as temporary:
+            for mode, suffix, scanner, prefix in (
+                ("source", "index.md", find_forbidden_names, ""),
+                (
+                    "generated",
+                    "index.html",
+                    find_public_content_findings,
+                    "300+ 2M+ 7+ years Open to select strategic leadership roles ",
+                ),
+            ):
+                with self.subTest(mode=mode):
+                    root = Path(temporary) / mode
+                    root.mkdir()
+                    page = root / suffix
+                    page.write_text(prefix + "$3B+ worth of data projects delivered", encoding="utf-8")
+                    self.assertEqual(scanner(root), [f"{page}: $3b+"])
 
     def test_generated_site_reports_missing_homepage_proof(self):
         with TemporaryDirectory() as temporary:

@@ -29,7 +29,7 @@ Built statistical components and data pipelines with R, Python, AWS Lambda, and 
 
 ## Validation
 
-Validated the data-service outputs used by the public application.
+Wrapped iCARE R functions in Python and supported the application's backend data services.
 
 ## Outcome
 

@@ -29,7 +29,7 @@ Built cloud-based pipelines with Python, SQL, AWS Glue, PySpark, and GCP to coll
 
 ## Validation
 
-Validated transformed data for reliable downstream analytics use.
+Operated production pipelines across APIs, geospatial sources, regulated-business data, and PDFs.
 
 ## Outcome
 

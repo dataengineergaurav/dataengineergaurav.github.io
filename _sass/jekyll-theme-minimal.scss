@@ -72,7 +72,7 @@ a:hover {
 }
 
 .prose a,
-.project-feature h3 a,
+.work-row h3 a,
 .post-card h3 a,
 .insight-card h3 a {
   text-decoration: underline;
@@ -343,25 +343,18 @@ main.container {
 }
 
 .secondary-link {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
   text-decoration: underline;
   text-decoration-color: var(--color-accent);
 }
 
-.proof-grid,
-.service-grid,
-.testimonial-grid,
 .post-grid {
   display: grid;
   gap: 1rem;
 }
 
-.proof-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: clamp(3rem, 8vw, 6rem);
-}
-
-.proof-grid p,
-.service-card,
 .post-card,
 .rec {
   margin: 0;
@@ -370,36 +363,16 @@ main.container {
   border-top: 3px solid var(--color-accent);
 }
 
-.proof-grid strong,
-.proof-grid span {
-  display: block;
-}
-
-.proof-grid strong {
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
-  line-height: 1;
-}
-
-.proof-grid span {
-  margin-top: 0.5rem;
-  color: var(--color-ink-muted);
-}
-
-.service-grid,
-.testimonial-grid,
 .post-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.service-card h3,
 .post-card h3,
 .insight-card h3,
 .rec blockquote {
   margin-bottom: 0.75rem;
 }
 
-.service-card p:last-child,
 .post-card p:last-child,
 .rec:last-child {
   margin-bottom: 0;
@@ -413,7 +386,6 @@ main.container {
 
 @media (prefers-reduced-motion: no-preference) {
   .hero,
-  .proof-grid,
   .section,
   .cta-panel {
     animation: reveal 240ms ease-out both;
@@ -546,24 +518,6 @@ main.container {
 
 .case-study-meta dd { margin: 0; }
 
-.project-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 1rem;
-}
-
-.project-feature {
-  padding: clamp(1.25rem, 3vw, 2rem);
-  background: var(--color-paper-deep);
-  border-top: 3px solid var(--color-accent);
-}
-
-.project-feature h2 {
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-}
-
-.project-feature p:last-child { margin-bottom: 0; }
-
 .project-outcome {
   color: var(--color-ink-muted);
   font-weight: 700;
@@ -666,16 +620,12 @@ th, td {
 
   .case-study-meta > div { grid-template-columns: 1fr; gap: 0.25rem; }
 
-  .project-grid,
   .architecture-flow,
   .featured-insights,
   .hero-ledger,
   .capability-row,
   .work-row,
   .endorsement-grid,
-  .proof-grid,
-  .service-grid,
-  .testimonial-grid,
   .post-grid { grid-template-columns: 1fr; }
 
   .archive-entry { grid-template-columns: 1fr; gap: 0.35rem; }

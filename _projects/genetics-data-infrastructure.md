@@ -29,7 +29,7 @@ Contributed architecture and access tooling with Python, Kafka, and NoSQL.
 
 ## Validation
 
-Validated the architecture and access approach against research-data needs.
+Contributed Python access tooling and Kafka/NoSQL ingestion.
 
 ## Outcome
 

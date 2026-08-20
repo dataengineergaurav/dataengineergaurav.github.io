@@ -1,6 +1,5 @@
 ---
 layout: default
-title: Gaurav Gurjar — Fractional Data Engineering Lead
 ---
 
 <section class="hero-ledger">

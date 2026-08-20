@@ -1,6 +1,6 @@
-# Gaurav Gurjar — Fractional Data Engineering Lead
+# Gaurav Gurjar — Senior Data Engineer & AI Data Platform Architect
 
-A Jekyll consulting site for fractional data engineering leadership, reliable platforms, governed AI, and analytics.
+A Jekyll consulting site for senior data engineering, reliable platforms, governed AI, and production delivery.
 
 ## Project Structure
 
@@ -31,6 +31,8 @@ bundle exec jekyll serve
 ```
 
 ## Adding A Case Study
+
+This section is the canonical project-authoring guide for the repository.
 
 Create a file in `_projects/`. Case studies appear under `/work/`; exactly three `featured: true` engagements appear on the homepage in ascending `order`.
 

@@ -38,6 +38,6 @@ exclude:
   - vendor
   - .github
   - docs/superpowers
+  - final-review.md
   - Gemfile
   - README.md
-  - _projects/README.md

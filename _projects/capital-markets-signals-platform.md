@@ -29,7 +29,7 @@ Delivered storage, warehouse, ingestion, and signal-processing services using AW
 
 ## Validation
 
-Validated ingestion and signal-processing outputs for downstream analytics.
+Guided three junior data engineers and coordinated delivery across the platform work.
 
 ## Outcome
 
