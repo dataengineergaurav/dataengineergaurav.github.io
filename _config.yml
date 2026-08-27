@@ -41,3 +41,5 @@ exclude:
   - final-review.md
   - Gemfile
   - README.md
+  - index.md.bak
+  - scrollcraft

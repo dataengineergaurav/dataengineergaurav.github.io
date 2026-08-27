@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gaurav Gurjar · Reliable data and governed AI systems</title>
+<meta name="description" content="Senior data engineer and AI data platform architect in Dubai. Reliable data platforms and governed AI systems from architecture through production.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2318372a'/><text x='50%25' y='56%25' text-anchor='middle' font-family='Georgia,serif' font-size='16' font-weight='700' fill='%23f5f0e5'>G</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas:     #f5f0e5;
+    --sc-surface:    #ebe3d3;
+    --sc-ink:        #18372a;
+    --sc-ink-soft:   #5a6d62;
+    --sc-accent:     #efb34e;
+    --sc-accent-ink: #18372a;
+    --sc-font-display: "Instrument Sans", system-ui, sans-serif;
+    --sc-font-text:    "Geist", system-ui, sans-serif;
+    --sc-font-mono:    "Geist Mono", ui-monospace, monospace;
+    --sc-hairline: rgba(24,55,42,0.14);
+    --sc-hairline-strong: rgba(24,55,42,0.24);
+    --sc-shadow-color: 38 18% 18%;
+    --sc-edge: inset 0 1px 0 rgba(255,255,255,0.65);
+    --ledger-rule: rgba(24,55,42,0.13);
+    --ledger-rule-strong: rgba(24,55,42,0.22);
+  }
+
+  html { scrollbar-color: rgba(24,55,42,0.22) transparent; }
+
+  /* Chaptered editorial wants paper throughout; we add an ink slab only for the pin act */
+  body {
+    background: var(--sc-canvas);
+    color: var(--sc-ink);
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: -1;
+    opacity: 0.55;
+    background-image: radial-gradient(rgba(24,55,42,0.06) 0.7px, transparent 0.7px);
+    background-size: 14px 14px;
+  }
+
+  /* ---- folio: margin chapter index ------------------------------------- */
+  .folio {
+    position: fixed;
+    right: clamp(0.75rem, 2vw, 1.5rem);
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-end;
+  }
+  .folio a {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.55rem;
+    align-items: center;
+    text-decoration: none;
+    opacity: 0.35;
+    transition: opacity 180ms var(--sc-ease-out), transform 180ms var(--sc-ease-out);
+    padding: 0.2rem 0;
+  }
+  .folio a.is-active { opacity: 1; }
+  .folio a:hover { opacity: 0.85; }
+  .folio__num {
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--sc-ink-soft);
+  }
+  .folio__title {
+    font-family: var(--sc-font-text);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sc-ink);
+  }
+  .folio__bar {
+    width: 1.5rem; height: 1px;
+    background: var(--ledger-rule-strong);
+    transform-origin: right;
+    scale: 0.45 1;
+    transition: scale 220ms var(--sc-ease-out), background 220ms;
+  }
+  .folio a.is-active .folio__bar { scale: 1 1; background: var(--sc-accent); height: 2px; }
+  @media (max-width: 860px) {
+    .folio { display: none; }
+  }
+
+  /* ---- trace rail: signature move -------------------------------------- */
+  .trace {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 59;
+    height: 42px;
+    background: color-mix(in oklab, var(--sc-canvas) 92%, transparent);
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    border-top: 1px solid var(--ledger-rule);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 clamp(1rem, 4vw, 2.5rem);
+    overflow: hidden;
+  }
+  .trace__label {
+    font-family: var(--sc-font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sc-ink-soft);
+    white-space: nowrap;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  .trace__line {
+    flex: 1;
+    height: 1px;
+    background: var(--ledger-rule-strong);
+    position: relative;
+    min-width: 60px;
+  }
+  .trace__fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 100%;
+    background: var(--sc-accent);
+    transform-origin: left;
+    scale: var(--trace-p, 0) 1;
+    height: 2px;
+    top: -0.5px;
+  }
+  .trace__marks {
+    position: absolute; inset: 0;
+    display: flex;
+    align-items: center;
+  }
+  .trace__mark {
+    position: absolute;
+    top: 50%;
+    translate: -50% -50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 420ms var(--sc-ease-out), transform 420ms var(--sc-ease-out);
+  }
+  .trace__mark.is-lit { opacity: 1; transform: translateY(0); }
+  .trace__dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--sc-canvas);
+    border: 1.5px solid var(--ledger-rule-strong);
+    transition: background 300ms, border-color 300ms, scale 300ms;
+  }
+  .trace__mark.is-lit .trace__dot { background: var(--sc-accent); border-color: var(--sc-accent); scale: 1.15; }
+  .trace__mark span {
+    font-family: var(--sc-font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sc-ink-soft);
+    white-space: nowrap;
+  }
+  @media (max-width: 860px) {
+    .trace { height: 36px; }
+    .trace__label { display: none; }
+  }
+
+  /* ---- title page (hero) ------------------------------------------------ */
+  .title-page {
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-content: center;
+    padding: clamp(5rem, 10vh, 7rem) var(--sc-gutter) clamp(3rem, 8vh, 5rem);
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    border-bottom: 1px solid var(--ledger-rule);
+    position: relative;
+  }
+  .title-page::before {
+    content: "";
+    position: absolute; left: var(--sc-gutter); right: var(--sc-gutter); top: 1.25rem;
+    height: 1px; background: var(--ledger-rule);
+  }
+  .title-kicker {
+    font-family: var(--sc-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sc-ink-soft);
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .title-kicker::before {
+    content: ""; width: 1.75rem; height: 1px; background: var(--sc-accent); flex-shrink: 0;
+  }
+  .title-page h1 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(2.6rem, 6vw, 4.8rem);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .title-page h1 em {
+    font-family: "Newsreader", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+  }
+  .title-lede {
+    margin-top: 1.25rem;
+    max-width: 34rem;
+    font-size: clamp(1.08rem, 1.6vw, 1.28rem);
+    line-height: 1.45;
+    color: var(--sc-ink-soft);
+    text-wrap: pretty;
+  }
+  .title-cta {
+    margin-top: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    padding: 0.65rem 1.15rem;
+    background: var(--sc-accent);
+    color: var(--sc-accent-ink);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform 160ms var(--sc-ease-out), background 160ms, border-color 160ms;
+  }
+  .title-cta:hover { transform: translateY(-1px); background: #f0bc66; text-decoration: none; }
+  .title-cta:active { transform: translateY(0) scale(0.98); }
+  .title-meta {
+    border-top: 3px solid var(--sc-accent);
+    padding-top: 1rem;
+    align-self: end;
+  }
+  .title-meta p {
+    margin: 0;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--ledger-rule);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .title-meta strong { font-family: var(--sc-font-display); font-weight: 700; color: var(--sc-ink); }
+  .title-meta span { display: block; color: var(--sc-ink-soft); font-size: 0.78rem; margin-top: 0.15rem; }
+  @media (max-width: 860px) {
+    .title-page { grid-template-columns: 1fr; padding-top: 5.5rem; }
+    .title-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1rem; }
+    .title-meta p { border-bottom: none; padding: 0.5rem 0; }
+  }
+  @media (max-width: 520px) {
+    .title-meta { grid-template-columns: 1fr; }
+    .title-meta p { border-bottom: 1px solid var(--ledger-rule); }
+  }
+
+  /* ---- chapter intertitles ------------------------------------------------ */
+  .intertitle {
+    padding: 1.1rem var(--sc-gutter);
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid var(--ledger-rule);
+    border-bottom: 1px solid var(--ledger-rule);
+    background: var(--sc-canvas);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .intertitle__num {
+    font-family: var(--sc-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    color: var(--sc-ink-soft);
+    white-space: nowrap;
+  }
+  .intertitle__rule { flex: 1; height: 1px; background: var(--ledger-rule); }
+  .intertitle__name {
+    font-family: var(--sc-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sc-ink);
+    white-space: nowrap;
+  }
+
+  /* ---- proof strip (counts) ---------------------------------------------- */
+  .proof-strip {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4rem) var(--sc-gutter);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-bottom: 1px solid var(--ledger-rule);
+  }
+  .proof-cell {
+    padding: 1.5rem 1.5rem 1.5rem 1.25rem;
+    border-right: 1px solid var(--ledger-rule);
+    position: relative;
+    overflow: clip;
+  }
+  .proof-cell:last-child { border-right: none; }
+  .proof-cell::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--sc-accent);
+    scale: 1 0; transform-origin: top;
+    transition: scale 700ms var(--sc-ease-out);
+  }
+  .proof-cell.sc-in::before { scale: 1 1; }
+  .proof-num {
+    font-family: var(--sc-font-display);
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    display: block;
+  }
+  .proof-num small { font-size: 0.55em; letter-spacing: -0.02em; color: var(--sc-ink-soft); font-weight: 500; }
+  .proof-label {
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--sc-ink-soft);
+  }
+  @media (max-width: 640px) {
+    .proof-strip { grid-template-columns: 1fr; }
+    .proof-cell { border-right: none; border-bottom: 1px solid var(--ledger-rule); }
+    .proof-cell:last-child { border-bottom: none; }
+  }
+
+  /* ---- capabilities ------------------------------------------------------- */
+  .cap-section {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(3rem, 7vw, 5rem) var(--sc-gutter) clamp(3rem, 7vw, 5.5rem);
+    border-bottom: 1px solid var(--ledger-rule);
+  }
+  .cap-head {
+    max-width: 42rem;
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+  }
+  .cap-head h2 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .cap-head p { margin-top: 0.85rem; color: var(--sc-ink-soft); max-width: 38rem; text-wrap: pretty; }
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ledger-rule);
+    border: 1px solid var(--ledger-rule);
+  }
+  .cap-card {
+    background: var(--sc-canvas);
+    padding: 1.6rem 1.5rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    position: relative;
+  }
+  .cap-card::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+    background: var(--sc-accent);
+    scale: 0 1; transform-origin: left;
+    transition: scale 600ms var(--sc-ease-out);
+  }
+  .cap-card.sc-in::after { scale: 1 1; }
+  .cap-card__idx {
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--sc-ink-soft);
+  }
+  .cap-card h3 {
+    font-family: var(--sc-font-display);
+    font-size: 1.18rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .cap-card p { margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--sc-ink-soft); }
+  .cap-card__tools {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--ledger-rule);
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sc-ink-soft);
+    line-height: 1.6;
+  }
+  @media (max-width: 860px) {
+    .cap-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---- WORK: pinned ledger (the peak) ----------------------------------- */
+  .work-pin .sc-stage {
+    background: #0f1f18;
+    color: #f5f0e5;
+    --sc-ink: #f5f0e5;
+    --sc-ink-soft: #a8b8ae;
+  }
+  .work-pin .sc-stage::before {
+    content: "";
+    position: absolute; inset: 0;
+    opacity: 0.06;
+    background-image: radial-gradient(rgba(245,240,229,0.9) 0.7px, transparent 0.7px);
+    background-size: 14px 14px;
+    pointer-events: none;
+  }
+  .work-inner {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr) 22rem;
+    gap: 0;
+    padding: 0;
+  }
+  .work-rail-label {
+    border-right: 1px solid rgba(245,240,229,0.12);
+    padding: 2.5rem 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .work-rail-label__eyebrow {
+    font-family: var(--sc-font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(245,240,229,0.5);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    rotate: 180deg;
+  }
+  .work-rail-label__count {
+    font-family: var(--sc-font-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: rgba(245,240,229,0.35);
+  }
+  .work-main {
+    padding: clamp(2rem, 5vh, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    position: relative;
+  }
+  .work-main__kicker {
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sc-accent);
+    margin-bottom: 0.6rem;
+  }
+  .work-case {
+    position: absolute;
+    inset: clamp(2rem, 5vh, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .work-case h3 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .work-case__meta {
+    margin-top: 0.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .work-case__sector {
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(245,240,229,0.6);
+    border: 1px solid rgba(245,240,229,0.18);
+    padding: 0.22rem 0.5rem;
+  }
+  .work-case__scale {
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: rgba(245,240,229,0.5);
+  }
+  .work-case p {
+    margin: 0.85rem 0 0;
+    max-width: 36rem;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: rgba(245,240,229,0.72);
+    text-wrap: pretty;
+  }
+  .work-case__outcome {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(245,240,229,0.12);
+    max-width: 36rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: rgba(245,240,229,0.9);
+    font-weight: 600;
+  }
+  .work-case__link {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--sc-accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(239,179,78,0.35);
+    padding-bottom: 2px;
+    width: fit-content;
+  }
+  .work-case__link:hover { border-bottom-color: var(--sc-accent); }
+  .work-flow {
+    margin-top: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .work-flow span {
+    font-family: var(--sc-font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(245,240,229,0.55);
+    border: 1px solid rgba(245,240,229,0.14);
+    padding: 0.28rem 0.45rem;
+    background: rgba(245,240,229,0.04);
+  }
+  .work-flow i {
+    width: 0.9rem; height: 1px; background: rgba(245,240,229,0.22); flex-shrink: 0;
+  }
+  .work-aside {
+    border-left: 1px solid rgba(245,240,229,0.12);
+    padding: clamp(1.5rem, 4vh, 2.2rem) clamp(1.1rem, 2vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+  }
+  .work-aside__label {
+    font-family: var(--sc-font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(245,240,229,0.4);
+  }
+  .work-ledger-mini {
+    display: grid;
+    gap: 0;
+    border: 1px solid rgba(245,240,229,0.12);
+    background: rgba(245,240,229,0.04);
+  }
+  .work-ledger-mini__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid rgba(245,240,229,0.08);
+    opacity: 0.32;
+    transition: opacity 360ms var(--sc-ease-out), background 360ms;
+    font-size: 0.74rem;
+    line-height: 1.4;
+  }
+  .work-ledger-mini__row:last-child { border-bottom: none; }
+  .work-ledger-mini__row.is-active { opacity: 1; background: rgba(239,179,78,0.08); }
+  .work-ledger-mini__row strong { font-weight: 600; color: #f5f0e5; }
+  .work-ledger-mini__row span { color: rgba(245,240,229,0.55); font-family: var(--sc-font-mono); font-size: 0.62rem; }
+  .work-progress {
+    margin-top: auto;
+    height: 1px;
+    background: rgba(245,240,229,0.14);
+    position: relative;
+  }
+  .work-progress__fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 100%;
+    background: var(--sc-accent);
+    transform-origin: left;
+    scale: var(--work-p, 0) 1;
+  }
+  @media (max-width: 860px) {
+    .work-inner { grid-template-columns: 1fr; }
+    .work-rail-label, .work-aside { display: none; }
+    .work-main { padding-inline: var(--sc-gutter); }
+    .work-case { inset-inline: var(--sc-gutter); }
+  }
+
+  /* ---- testimonials — warm paper cards ---------------------------------- */
+  .voices {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4rem) var(--sc-gutter) clamp(3rem, 7vw, 5rem);
+    border-bottom: 1px solid var(--ledger-rule);
+  }
+  .voices__head {
+    max-width: 42rem;
+    margin-bottom: 2rem;
+  }
+  .voices__head h2 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(1.9rem, 3.5vw, 2.7rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .voices__head p { margin-top: 0.7rem; color: var(--sc-ink-soft); max-width: 36rem; text-wrap: pretty; }
+  .voice-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 1px;
+    background: var(--ledger-rule);
+    border: 1px solid var(--ledger-rule);
+  }
+  .voice-card {
+    background: var(--sc-surface);
+    padding: 1.6rem 1.5rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+  }
+  .voice-card::before {
+    content: "“";
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--sc-accent);
+    opacity: 0.9;
+    margin-bottom: -0.6rem;
+  }
+  .voice-card--feature { background: var(--sc-canvas); }
+  .voice-card blockquote { margin: 0; font-size: 0.92rem; line-height: 1.62; color: var(--sc-ink); text-wrap: pretty; }
+  .voice-card--feature blockquote { font-size: 0.98rem; }
+  .voice-card cite {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--ledger-rule);
+    font-style: normal;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--sc-ink-soft);
+  }
+  .voice-card cite strong { color: var(--sc-ink); font-weight: 700; }
+  .voice-card cite a { color: inherit; text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); text-underline-offset: 0.2em; }
+  .voice-card cite a:hover { text-decoration-color: var(--sc-accent); }
+  @media (max-width: 860px) {
+    .voice-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---- independent work rail (pan) -------------------------------------- */
+  .indie {
+    border-bottom: 1px solid var(--ledger-rule);
+    overflow: clip;
+  }
+  .indie__head {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 3rem) var(--sc-gutter) 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .indie__head h2 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .indie__head p { margin: 0; color: var(--sc-ink-soft); font-size: 0.88rem; }
+  .indie .sc-stage { height: auto; min-height: 0; overflow: visible; position: relative; }
+  .indie-rail {
+    display: flex;
+    gap: 1px;
+    background: var(--ledger-rule);
+    border-top: 1px solid var(--ledger-rule);
+    border-bottom: 1px solid var(--ledger-rule);
+    will-change: transform;
+  }
+  .indie-card {
+    flex: 0 0 clamp(18rem, 28vw, 24rem);
+    background: var(--sc-canvas);
+    padding: 1.5rem 1.35rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-height: 14rem;
+  }
+  .indie-card--lead {
+    flex-basis: clamp(16rem, 24vw, 20rem);
+    background: var(--sc-surface);
+    justify-content: center;
+  }
+  .indie-card h3 { font-family: var(--sc-font-display); font-size: 1.05rem; line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; margin: 0; }
+  .indie-card h3 a { color: var(--sc-ink); text-decoration: none; border-bottom: 1px solid var(--ledger-rule-strong); padding-bottom: 1px; }
+  .indie-card h3 a:hover { border-bottom-color: var(--sc-accent); }
+  .indie-card p { margin: 0; font-size: 0.84rem; line-height: 1.58; color: var(--sc-ink-soft); }
+  .indie-card__meta {
+    margin-top: auto;
+    font-family: var(--sc-font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sc-ink-soft);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--ledger-rule);
+  }
+
+  /* ---- about / colophon close ------------------------------------------- */
+  .about {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4rem) var(--sc-gutter) 0;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    border-bottom: 1px solid var(--ledger-rule);
+  }
+  .about h2 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .about p { color: var(--sc-ink-soft); text-wrap: pretty; }
+  .about__tech {
+    margin-top: 1rem;
+    padding: 0.9rem 0;
+    border-top: 1px solid var(--ledger-rule);
+    border-bottom: 1px solid var(--ledger-rule);
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+  .about__tech strong { color: var(--sc-ink); }
+  .about__side {
+    border-left: 1px solid var(--ledger-rule);
+    padding-left: clamp(1.25rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .about__side h3 {
+    font-family: var(--sc-font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sc-ink-soft);
+    margin: 0;
+  }
+  .about__links { display: grid; gap: 0; }
+  .about__links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--ledger-rule);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--sc-ink);
+  }
+  .about__links a span:last-child { color: var(--sc-ink-soft); font-weight: 400; font-family: var(--sc-font-mono); font-size: 0.7rem; letter-spacing: 0.06em; }
+  .about__links a:hover { color: var(--sc-ink); }
+  .about__note { font-size: 0.78rem; line-height: 1.6; color: var(--sc-ink-soft); }
+  @media (max-width: 860px) {
+    .about { grid-template-columns: 1fr; }
+    .about__side { border-left: none; border-top: 1px solid var(--ledger-rule); padding-left: 0; padding-top: 1.5rem; }
+  }
+
+  .colophon {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4rem) var(--sc-gutter) clamp(3rem, 6vw, 5rem);
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  .colophon h2 {
+    font-family: var(--sc-font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .colophon__cta {
+    margin-top: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 44px;
+    padding: 0.7rem 1.2rem;
+    background: var(--sc-accent);
+    color: var(--sc-accent-ink);
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 160ms var(--sc-ease-out), background 160ms;
+  }
+  .colophon__cta:hover { transform: translateY(-1px); background: #f0bc66; text-decoration: none; }
+  .colophon__cta:active { transform: scale(0.98); }
+  .colophon__meta {
+    border-top: 1px solid var(--ledger-rule);
+    padding-top: 1.25rem;
+  }
+  .colophon__meta p { font-size: 0.82rem; line-height: 1.6; color: var(--sc-ink-soft); margin: 0 0 0.6rem; }
+  .colophon__links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 1rem; }
+  .colophon__links a { font-size: 0.78rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); text-underline-offset: 0.2em; }
+  .colophon__links a:hover { text-decoration-color: var(--sc-accent); }
+  .colophon__fine { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--ledger-rule); font-size: 0.72rem; line-height: 1.6; color: var(--sc-ink-soft); }
+  @media (max-width: 860px) {
+    .colophon { grid-template-columns: 1fr; }
+  }
+
+  /* ---- insights teaser (flow) ------------------------------------------- */
+  .insights-teaser {
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4rem) var(--sc-gutter);
+    border-bottom: 1px solid var(--ledger-rule);
+  }
+  .insights-teaser__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+  .insights-teaser__head h2 { font-family: var(--sc-font-display); font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em; font-weight: 600; margin: 0; }
+  .insights-teaser__head a { font-size: 0.82rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); }
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--ledger-rule); border: 1px solid var(--ledger-rule); }
+  .insight-card {
+    background: var(--sc-surface);
+    padding: 1.5rem 1.4rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .insight-card__meta { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .insight-card h3 { font-family: var(--sc-font-display); font-size: 1.15rem; line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; margin: 0; }
+  .insight-card h3 a { color: var(--sc-ink); text-decoration: none; border-bottom: 1px solid transparent; }
+  .insight-card h3 a:hover { border-bottom-color: var(--sc-accent); }
+  .insight-card p { margin: 0; font-size: 0.84rem; line-height: 1.6; color: var(--sc-ink-soft); }
+  .insight-card__link { margin-top: auto; font-size: 0.78rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); width: fit-content; }
+  @media (max-width: 640px) { .insight-grid { grid-template-columns: 1fr; } }
+
+  /* ---- reveal helpers ---------------------------------------------------- */
+  [data-sc-reveal] { --reveal-p: 0; }
+  .reveal-up { clip-path: inset(calc((1 - var(--reveal-p)) * 100%) 0 0 0); }
+  @media (prefers-reduced-motion: reduce) { .reveal-up { clip-path: none !important; } }
+
+  /* ---- site bar (minimal, not sticky) ----------------------------------- */
+  .site-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem var(--sc-gutter);
+    max-width: var(--sc-maxw);
+    margin: 0 auto;
+  }
+  .site-bar__mark { font-family: var(--sc-font-display); font-size: 0.95rem; font-weight: 700; letter-spacing: -0.02em; color: var(--sc-ink); text-decoration: none; }
+  .site-bar__nav { display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
+  .site-bar__nav a { font-size: 0.78rem; font-weight: 600; color: var(--sc-ink-soft); text-decoration: none; padding: 0.4rem 0.6rem; min-height: 32px; display: inline-flex; align-items: center; }
+  .site-bar__nav a:hover { color: var(--sc-ink); }
+  .site-bar__nav a.is-cta { background: var(--sc-accent); color: var(--sc-accent-ink); padding-inline: 0.85rem; }
+  @media (max-width: 640px) { .site-bar__nav a:not(.is-cta) { display: none; } }
+</style>
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<!-- folio index -->
+<nav class="folio" aria-label="Chapters">
+  <a href="#title" data-folio="0"><span class="folio__num">I</span><span class="folio__bar"></span><span class="folio__title">Promise</span></a>
+  <a href="#proof" data-folio="1"><span class="folio__num">II</span><span class="folio__bar"></span><span class="folio__title">Proof</span></a>
+  <a href="#capabilities" data-folio="2"><span class="folio__num">III</span><span class="folio__bar"></span><span class="folio__title">Capabilities</span></a>
+  <a href="#work" data-folio="3"><span class="folio__num">IV</span><span class="folio__bar"></span><span class="folio__title">Work</span></a>
+  <a href="#voices" data-folio="4"><span class="folio__num">V</span><span class="folio__bar"></span><span class="folio__title">Voices</span></a>
+  <a href="#close" data-folio="5"><span class="folio__num">VI</span><span class="folio__bar"></span><span class="folio__title">Close</span></a>
+</nav>
+
+<!-- trace rail — signature move -->
+<div class="trace" aria-hidden="true">
+  <span class="trace__label">Reading trace</span>
+  <div class="trace__line">
+    <div class="trace__fill" id="traceFill"></div>
+    <div class="trace__marks" id="traceMarks">
+      <div class="trace__mark" style="left: 8%" data-trace="0"><div class="trace__dot"></div><span>Promise</span></div>
+      <div class="trace__mark" style="left: 22%" data-trace="1"><div class="trace__dot"></div><span>Proof</span></div>
+      <div class="trace__mark" style="left: 38%" data-trace="2"><div class="trace__dot"></div><span>Capabilities</span></div>
+      <div class="trace__mark" style="left: 58%" data-trace="3"><div class="trace__dot"></div><span>Work</span></div>
+      <div class="trace__mark" style="left: 76%" data-trace="4"><div class="trace__dot"></div><span>Voices</span></div>
+      <div class="trace__mark" style="left: 92%" data-trace="5"><div class="trace__dot"></div><span>Close</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- site bar -->
+<header class="site-bar">
+  <a class="site-bar__mark" href="#">Gaurav Gurjar</a>
+  <nav class="site-bar__nav" aria-label="Primary">
+    <a href="#capabilities">Services</a>
+    <a href="#work">Work</a>
+    <a href="#voices">Voices</a>
+    <a href="https://dataengineergaurav.github.io/insights/">Insights</a>
+    <a class="is-cta" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- I · TITLE PAGE (flow, no scrub) -->
+  <section id="title" class="title-page" data-chapter="0">
+    <div>
+      <p class="title-kicker">Senior data engineer &amp; AI data platform architect · Dubai</p>
+      <h1 data-sc-in>Reliable data<br>and <em>governed</em> AI<br>systems.</h1>
+      <p class="title-lede" data-sc-in style="transition-delay: 80ms">From architecture through production. I help teams modernize data platforms, automate high-value workflows, and build policy-aware AI systems that remain reliable in production.</p>
+      <a class="title-cta" href="https://calendly.com/gauravgurjar/15min" data-sc-in style="transition-delay: 140ms">Discuss your data challenge →</a>
+    </div>
+    <div class="title-meta" data-sc-stagger="60">
+      <p><strong>300+</strong><span>production pipelines built and operated</span></p>
+      <p><strong>2M+</strong><span>people reached by a public-health application</span></p>
+      <p><strong>7+ years</strong><span>across data engineering and AI</span></p>
+    </div>
+  </section>
+
+  <!-- II · PROOF (count + in) -->
+  <div class="intertitle" aria-hidden="true"><span class="intertitle__num">II</span><span class="intertitle__rule"></span><span class="intertitle__name">Proof at a glance</span></div>
+  <section id="proof" class="proof-strip" data-chapter="1">
+    <div class="proof-cell" data-sc-in>
+      <span class="proof-num"><span data-sc-count="0 300" data-sc-count-at="0.08 0.5">0</span>+</span>
+      <p class="proof-label">production pipelines built and operated across regulated, geospatial, API and PDF sources</p>
+    </div>
+    <div class="proof-cell" data-sc-in style="transition-delay: 90ms">
+      <span class="proof-num"><span data-sc-count="0 2" data-sc-count-at="0.12 0.55">0</span>M+</span>
+      <p class="proof-label">people reached by a public-health risk application with serverless data services</p>
+    </div>
+    <div class="proof-cell" data-sc-in style="transition-delay: 180ms">
+      <span class="proof-num"><span data-sc-count="0 7" data-sc-count-at="0.16 0.6">0</span>+ years</span>
+      <p class="proof-label">across data engineering and AI, insurance, public health, capital markets, government research</p>
+    </div>
+  </section>
+
+  <!-- III · CAPABILITIES (flow + reveal + parallax) -->
+  <div class="intertitle" aria-hidden="true"><span class="intertitle__num">III</span><span class="intertitle__rule"></span><span class="intertitle__name">Capabilities</span></div>
+  <section id="capabilities" class="cap-section" data-chapter="2">
+    <div class="cap-head" data-sc-in>
+      <h2>Make complex systems dependable.</h2>
+      <p>Three capabilities, one standard: what gets built stays governable, testable, and operable after handoff.</p>
+    </div>
+    <div class="cap-grid" data-sc-stagger="70">
+      <article class="cap-card">
+        <span class="cap-card__idx">01 Data platforms</span>
+        <h3>Ingestion to warehouse, with discipline.</h3>
+        <p>Cloud ingestion, dimensional modeling, data quality, incremental processing, and production operations. Tested fact and dimension models, not just pipelines that run.</p>
+        <span class="cap-card__tools">Python · SQL · AWS · Redshift · dbt · PySpark · Kafka</span>
+      </article>
+      <article class="cap-card">
+        <span class="cap-card__idx">02 Governed AI systems</span>
+        <h3>Policy before orchestration.</h3>
+        <p>Knowledge ingestion, policy processing, grounding, routing, provenance, PII controls, and runtime telemetry. The system's decisions live in one place and its actions in another.</p>
+        <span class="cap-card__tools">FastAPI · Dagster · Vector stores · Grounding · Provenance</span>
+      </article>
+      <article class="cap-card">
+        <span class="cap-card__idx">03 Delivery leadership</span>
+        <h3>Architecture through implementation.</h3>
+        <p>Stakeholder communication, testing, release discipline, and team guidance. Guidance of junior engineers where the platform demands it.</p>
+        <span class="cap-card__tools">Architecture · Reviews · Mentorship · Release discipline</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- IV · WORK — pinned ledger (THE PEAK) -->
+  <div class="intertitle" aria-hidden="true"><span class="intertitle__num">IV</span><span class="intertitle__rule"></span><span class="intertitle__name">Systems that held up</span></div>
+  <section id="work" class="work-pin" data-sc-act="pin" data-sc-span="3.1" data-chapter="3">
+    <div data-sc-stage>
+      <div class="work-inner">
+        <div class="work-rail-label" aria-hidden="true">
+          <span class="work-rail-label__eyebrow">Selected work / ledger</span>
+          <span class="work-rail-label__count">06 engagements</span>
+        </div>
+        <div class="work-main">
+          <p class="work-main__kicker">Featured / the ledger rows</p>
+          <!-- Case 1 -->
+          <div class="work-case" data-sc-cue="0.02 0.30">
+            <h3>Regulated-industry analytics platform</h3>
+            <div class="work-case__meta"><span class="work-case__sector">Regulated analytics</span><span class="work-case__scale">300+ production pipelines</span></div>
+            <p>Cloud ingestion and transformation across regulated-business, geospatial, API, and PDF sources.</p>
+            <p class="work-case__outcome">Built and operated analytics-ready ingestion across all four source families.</p>
+            <div class="work-flow" aria-hidden="true"><span>APIs</span><i></i><span>Geospatial</span><i></i><span>Regulated</span><i></i><span>PDFs</span><i></i><span>Warehouse</span></div>
+          </div>
+          <!-- Case 2 -->
+          <div class="work-case" data-sc-cue="0.28 0.52">
+            <h3>Public-health risk data services</h3>
+            <div class="work-case__meta"><span class="work-case__sector">Public health</span><span class="work-case__scale">2M+ people reached</span></div>
+            <p>Statistical components, pipelines, and backend data services for a public risk application.</p>
+            <p class="work-case__outcome">Supported a public risk application with statistical components, pipelines, and serverless data services.</p>
+            <div class="work-flow" aria-hidden="true"><span>R</span><i></i><span>Python</span><i></i><span>Lambda</span><i></i><span>RDS</span></div>
+          </div>
+          <!-- Case 3 -->
+          <div class="work-case" data-sc-cue="0.50 0.74">
+            <h3>Insurance analytics data platform</h3>
+            <div class="work-case__meta"><span class="work-case__sector">Insurance</span><span class="work-case__scale">Daily &amp; monthly snapshots</span></div>
+            <p>Tested warehouse models, compliance datasets, analytical marts, and scheduled snapshots.</p>
+            <p class="work-case__outcome">Delivered tested fact and dimension models, compliance datasets, analytical marts, and scheduled snapshots.</p>
+            <div class="work-flow" aria-hidden="true"><span>Redshift</span><i></i><span>dbt</span><i></i><span>SQL</span><i></i><span>Snapshots</span></div>
+          </div>
+          <!-- Case 4 -->
+          <div class="work-case" data-sc-cue="0.72">
+            <h3>More in the ledger</h3>
+            <div class="work-case__meta"><span class="work-case__sector">Capital markets · Veterinary · Government research</span></div>
+            <p>Batch and streaming signals in capital markets, validated ETL across 46 veterinary clinics, and a 2–20 PB genetics-data blueprint for precision-medicine research.</p>
+            <p class="work-case__outcome">Each with the same standard: tested, documented, handed off operable.</p>
+            <a class="work-case__link" href="https://dataengineergaurav.github.io/work/">View all case studies →</a>
+          </div>
+        </div>
+        <aside class="work-aside" aria-label="Ledger index">
+          <span class="work-aside__label">Ledger index</span>
+          <div class="work-ledger-mini" id="ledgerMini">
+            <div class="work-ledger-mini__row is-active" data-ledger="0"><strong>Regulated analytics</strong><span>300+ pipes</span></div>
+            <div class="work-ledger-mini__row" data-ledger="1"><strong>Public health</strong><span>2M+ reached</span></div>
+            <div class="work-ledger-mini__row" data-ledger="2"><strong>Insurance</strong><span>daily snapshots</span></div>
+            <div class="work-ledger-mini__row" data-ledger="3"><strong>Capital · Vet · Genetics</strong><span>further work</span></div>
+          </div>
+          <span class="work-aside__label" style="margin-top: 0.25rem">Chapter progress</span>
+          <div class="work-progress" aria-hidden="true"><div class="work-progress__fill" id="workProgress"></div></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Independent work — pan rail -->
+  <section class="indie" data-sc-act="pan" data-sc-span="2.4" data-chapter="3">
+    <div class="indie__head" data-sc-in>
+      <h2>Maintained projects</h2>
+      <p>Independent work, shipped and maintained.</p>
+    </div>
+    <div data-sc-stage>
+      <div class="indie-rail" data-sc-pan="0.04">
+        <div class="indie-card indie-card--lead">
+          <h3>Independent work</h3>
+          <p>Maintained projects live outside client engagements. Same standard, public by default.</p>
+        </div>
+        <article class="indie-card">
+          <h3><a href="https://github.com/dataengineergaurav/setu">Setu</a></h3>
+          <p>A Rust data-activation engine that reacts to PostgreSQL change streams and delivers matching events to webhooks, Slack, or Telegram without polling or middleware.</p>
+          <span class="indie-card__meta">Rust · PostgreSQL · Webhooks</span>
+        </article>
+        <article class="indie-card">
+          <h3><a href="https://github.com/dataengineergaurav/rental-market-dynamics-dubai">Rental Market Dynamics Dubai</a></h3>
+          <p>An automated pipeline for extracting Dubai rent-contract data, transforming it to Parquet, and publishing analysis-ready releases and property-usage reports.</p>
+          <span class="indie-card__meta">Python · Parquet · Automated releases</span>
+        </article>
+        <article class="indie-card">
+          <h3><a href="https://github.com/dataengineergaurav/hermes-gsheets">Hermes Google Sheets</a></h3>
+          <p>A maintained Hermes Agent plugin for reading, searching, and updating Google Sheets through focused spreadsheet tools.</p>
+          <span class="indie-card__meta">Hermes · Google Sheets API</span>
+        </article>
+        <article class="indie-card">
+          <h3>Open-source contributions</h3>
+          <p>PUDL and sportsdataverse-py: test modernization, AssetSpec migration, cache handling, and analysis examples. Reviewed upstream.</p>
+          <span class="indie-card__meta">PUDL · sportsdataverse-py</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- V · VOICES (flow + reveal) -->
+  <div class="intertitle" aria-hidden="true"><span class="intertitle__num">V</span><span class="intertitle__rule"></span><span class="intertitle__name">Trusted in the work</span></div>
+  <section id="voices" class="voices" data-chapter="4">
+    <div class="voices__head" data-sc-in>
+      <h2>Trusted in the work.</h2>
+      <p>Three voices, not mine. Each one names a different thing: technical range, collegiality, delivery under difficulty.</p>
+    </div>
+    <div class="voice-grid" data-sc-stagger="70">
+      <article class="voice-card voice-card--feature">
+        <blockquote>“I have worked with Gaurav for close to a year and he is a very well rounded, skilled, and innovative data scientist. He has helped me in the development of statistical methods, backend server infrastructure, and data science tasks. Gaurav is not only a great developer but also a great communicator. He has always been very prompt, responsive, and completes tasks on time. He goes above and beyond to ensure that the customer requirements and needs are met. I recommend him to anyone seeking expert level data science services.”</blockquote>
+        <cite><strong><a href="https://www.linkedin.com/in/benjaminsharvey/">Benjamin Harvey, Ph.D.</a></strong> · Founder of AI Squared</cite>
+      </article>
+      <div style="display: grid; gap: 1px; background: var(--ledger-rule);">
+        <article class="voice-card">
+          <blockquote>“Gaurav is a thoughtful person with a very creative mind. He is intellectually curious and looks for efficient solutions to any problems. I enjoyed my time working with him and appreciate the collegial relationship we developed.”</blockquote>
+          <cite><strong><a href="https://www.linkedin.com/in/ivette-basterrechea-a17ab23/">Ivette Basterrechea</a></strong> · Department of Justice</cite>
+        </article>
+        <article class="voice-card">
+          <blockquote>“I worked with Gaurav on several projects, he has strong technical skills and is also a good team player. He was able to deliver high-quality work and found solutions to difficult problems.”</blockquote>
+          <cite><strong><a href="https://www.linkedin.com/in/lzhang149/">Le Zhang</a></strong> · Google</cite>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Insights teaser (flow) -->
+  <section class="insights-teaser" data-chapter="4">
+    <div class="insights-teaser__head" data-sc-in>
+      <h2>Field notes</h2>
+      <a href="https://dataengineergaurav.github.io/insights/">View all insights →</a>
+    </div>
+    <div class="insight-grid" data-sc-stagger="60">
+      <article class="insight-card">
+        <span class="insight-card__meta">AI Governance · 24 Aug 2026</span>
+        <h3><a href="https://dataengineergaurav.github.io/2026/08/24/treat-the-rag-index-as-a-governed-data-product.html">Treat the RAG Index as a Governed Data Product</a></h3>
+        <p>A practical framework for deciding when to compile source-supported claims at ingest time instead of repeatedly interpreting raw text at query time.</p>
+        <a class="insight-card__link" href="https://dataengineergaurav.github.io/2026/08/24/treat-the-rag-index-as-a-governed-data-product.html">Read article →</a>
+      </article>
+      <article class="insight-card">
+        <span class="insight-card__meta">Leadership · 21 Mar 2026</span>
+        <h3><a href="https://dataengineergaurav.github.io/2026/03/21/never-mix-thinking-with-execution.html">Why Reliable AI Systems Separate Policy from Execution</a></h3>
+        <p>A practical architecture rule for keeping governed AI workflows understandable, testable, and safe to change.</p>
+        <a class="insight-card__link" href="https://dataengineergaurav.github.io/2026/03/21/never-mix-thinking-with-execution.html">Read article →</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- About (flow) -->
+  <section class="about" data-chapter="5" data-sc-in>
+    <div>
+      <h2>Technical depth, delivery focus.</h2>
+      <p style="margin-top: 0.85rem">Dubai-based senior data engineer and AI data platform architect with 7+ years across governed AI, insurance, public health, regulated analytics, veterinary healthcare, capital markets, and government research.</p>
+      <p>UAE Golden Visa holder, available for remote global consulting engagements.</p>
+      <p class="about__tech"><strong>Core technology:</strong> Python · SQL · AWS · Redshift · dbt · PySpark · Kafka · FastAPI · Dagster</p>
+    </div>
+    <div class="about__side">
+      <h3>Connect</h3>
+      <div class="about__links">
+        <a href="https://github.com/dataengineergaurav"><span>GitHub</span><span>dataengineergaurav</span></a>
+        <a href="https://www.linkedin.com/in/ggurjarsocl/"><span>LinkedIn</span><span>ggurjarsocl</span></a>
+        <a href="https://x.com/dubaidataguy"><span>X</span><span>@dubaidataguy</span></a>
+        <a href="https://gauravgurjar.medium.com/"><span>Medium</span><span>gauravgurjar</span></a>
+      </div>
+      <p class="about__note">Open to select strategic leadership roles. <a href="https://www.linkedin.com/in/ggurjarsocl/" style="color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-accent);">View profile →</a></p>
+    </div>
+  </section>
+
+  <!-- VI · CLOSE — colophon (no pin, no magnet) -->
+  <section id="close" class="colophon" data-chapter="5">
+    <div data-sc-in>
+      <p style="font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sc-ink-soft); margin: 0 0 0.75rem;">Start a conversation</p>
+      <h2>Have a data challenge that has outgrown quick fixes?</h2>
+      <a class="colophon__cta" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge →</a>
+      <p style="margin-top: 0.9rem; font-size: 0.78rem; color: var(--sc-ink-soft);">15 minutes, no pitch deck. Bring the messy source.</p>
+    </div>
+    <div class="colophon__meta" data-sc-in style="transition-delay: 100ms">
+      <p><strong style="color: var(--sc-ink);">Gaurav Gurjar</strong> · Senior data engineering and governed AI consulting, from architecture through production.</p>
+      <div class="colophon__links">
+        <a href="https://github.com/dataengineergaurav">GitHub</a>
+        <a href="https://www.linkedin.com/in/ggurjarsocl/">LinkedIn</a>
+        <a href="https://gauravgurjar.medium.com/">Medium</a>
+        <a href="https://x.com/dubaidataguy">X</a>
+      </div>
+      <p class="colophon__fine">© 2026 Gaurav Gurjar · Built on paper, shipped on the web. This page is a new build in the scrollcraft ledger, the first entry, so the trace starts here.</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script>
+ScrollCraft.mount(document.body);
+
+// ── folio + trace rail (signature move) ──
+(function () {
+  const chapters = document.querySelectorAll('[data-chapter]');
+  const folioLinks = document.querySelectorAll('[data-folio]');
+  const traceMarks = document.querySelectorAll('[data-trace]');
+  const traceFill = document.getElementById('traceFill');
+  const ledgerRows = document.querySelectorAll('[data-ledger]');
+  const workProgress = document.getElementById('workProgress');
+  const workStage = document.querySelector('.work-pin');
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  // overall page progress for trace fill
+  function onScroll() {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const p = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+    traceFill.style.setProperty('--trace-p', p);
+
+    // folio + trace marks: light up to current chapter
+    let current = 0;
+    chapters.forEach((ch, i) => {
+      const rect = ch.getBoundingClientRect();
+      if (rect.top <= innerHeight * 0.45) current = i;
+    });
+    // also consider distinct chapter values (pan indie is chapter 3 same as work, about is 5, etc.)
+    // map chapter index to folio index: chapters have values 0..5 but some repeat
+    const chapterToFolio = [0,1,2,3,3,4,4,5,5]; // index in DOM order
+    // simpler: use scroll position vs chapter elements
+    const folioIndex = (() => {
+      const els = [document.getElementById('title'), document.getElementById('proof'), document.getElementById('capabilities'), document.getElementById('work'), document.getElementById('voices'), document.getElementById('close')];
+      let idx = 0;
+      els.forEach((el, i) => { if (el && el.getBoundingClientRect().top <= 120) idx = i; });
+      return idx;
+    })();
+    folioLinks.forEach((a, i) => a.classList.toggle('is-active', i === folioIndex));
+    traceMarks.forEach((m, i) => m.classList.toggle('is-lit', i <= folioIndex));
+
+    // work ledger rows: drive from pin progress
+    if (workStage) {
+      const p2 = parseFloat(getComputedStyle(workStage).getPropertyValue('--sc-p')) || 0;
+      // work stage is pinned; --sc-p goes 0..1 across its span
+      workProgress.style.setProperty('--work-p', p2);
+      let activeLedger = 0;
+      if (p2 < 0.28) activeLedger = 0;
+      else if (p2 < 0.52) activeLedger = 1;
+      else if (p2 < 0.74) activeLedger = 2;
+      else activeLedger = 3;
+      ledgerRows.forEach((r, i) => r.classList.toggle('is-active', i === activeLedger));
+    }
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  onScroll();
+})();
+</script>
+</body>
+</html>

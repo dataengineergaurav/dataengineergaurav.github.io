@@ -10,3 +10,4 @@ vendor/
 .worktrees/
 .article-generator/
 __pycache__/
+index.md.bak
