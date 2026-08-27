@@ -334,7 +334,6 @@ layout: none
           <span class="work-rail-label__count">06 engagements</span>
         </div>
         <div class="work-main">
-          <p class="work-main__kicker">Featured / the ledger rows</p>
 {% assign featured_projects = site.projects | where: "featured", true | sort: "order" %}
 {% for project in featured_projects limit: 3 %}
           <div class="work-case" {% if forloop.first %}data-sc-cue="0.02 0.30"{% elsif forloop.index == 2 %}data-sc-cue="0.28 0.52"{% else %}data-sc-cue="0.50 0.74"{% endif %}>
