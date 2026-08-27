@@ -913,7 +913,9 @@
         // counters
         for (var ct = 0; ct < a.counts.length; ct++) {
           var K = a.counts[ct];
-          var kt = smooth((a.p - K.from) / Math.max(K.to - K.from, 0.001));
+          var kt = (a.p - K.from) / Math.max(K.to - K.from, 0.001);
+          if (kt <= 0) continue;            // not in view yet: keep static value
+          kt = smooth(clamp01(kt));
           var val = lerp(K.a, K.b, kt);
           var out = formatNum(val, K.tpl);
           if (out !== K.last) { K.el.textContent = out; K.last = out; }
