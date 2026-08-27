@@ -714,7 +714,7 @@
     margin: 0;
   }
   .indie__head p { margin: 0; color: var(--sc-ink-soft); font-size: 0.88rem; }
-  .indie .sc-stage { height: auto; min-height: 0; overflow: visible; position: relative; }
+  .indie .sc-stage { /* keep sticky pinning: engine sets height via --sc-p, do not override */ }
   .indie-rail {
     display: flex;
     gap: 1px;
@@ -966,7 +966,7 @@
       <p class="title-lede" data-sc-in style="transition-delay: 80ms">From architecture through production. I help teams modernize data platforms, automate high-value workflows, and build policy-aware AI systems that remain reliable in production.</p>
       <a class="title-cta" href="https://calendly.com/gauravgurjar/15min" data-sc-in style="transition-delay: 140ms">Discuss your data challenge →</a>
     </div>
-    <div class="title-meta" data-sc-stagger="60">
+    <div class="title-meta" data-sc-in data-sc-stagger="60">
       <p><strong>300+</strong><span>production pipelines built and operated</span></p>
       <p><strong>2M+</strong><span>people reached by a public-health application</span></p>
       <p><strong>7+ years</strong><span>across data engineering and AI</span></p>
@@ -997,7 +997,7 @@
       <h2>Make complex systems dependable.</h2>
       <p>Three capabilities, one standard: what gets built stays governable, testable, and operable after handoff.</p>
     </div>
-    <div class="cap-grid" data-sc-stagger="70">
+    <div class="cap-grid" data-sc-in data-sc-stagger="70">
       <article class="cap-card">
         <span class="cap-card__idx">01 Data platforms</span>
         <h3>Ingestion to warehouse, with discipline.</h3>
@@ -1021,7 +1021,7 @@
 
   <!-- IV · WORK — pinned ledger (THE PEAK) -->
   <div class="intertitle" aria-hidden="true"><span class="intertitle__num">IV</span><span class="intertitle__rule"></span><span class="intertitle__name">Systems that held up</span></div>
-  <section id="work" class="work-pin" data-sc-act="pin" data-sc-span="3.1" data-chapter="3">
+  <section id="work" class="work-pin" data-sc-act="pin" data-sc-span="2.6" data-chapter="3">
     <div data-sc-stage>
       <div class="work-inner">
         <div class="work-rail-label" aria-hidden="true">
@@ -1121,7 +1121,7 @@
       <h2>Trusted in the work.</h2>
       <p>Three voices, not mine. Each one names a different thing: technical range, collegiality, delivery under difficulty.</p>
     </div>
-    <div class="voice-grid" data-sc-stagger="70">
+    <div class="voice-grid" data-sc-in data-sc-stagger="70">
       <article class="voice-card voice-card--feature">
         <blockquote>“I have worked with Gaurav for close to a year and he is a very well rounded, skilled, and innovative data scientist. He has helped me in the development of statistical methods, backend server infrastructure, and data science tasks. Gaurav is not only a great developer but also a great communicator. He has always been very prompt, responsive, and completes tasks on time. He goes above and beyond to ensure that the customer requirements and needs are met. I recommend him to anyone seeking expert level data science services.”</blockquote>
         <cite><strong><a href="https://www.linkedin.com/in/benjaminsharvey/">Benjamin Harvey, Ph.D.</a></strong> · Founder of AI Squared</cite>
@@ -1145,7 +1145,7 @@
       <h2>Field notes</h2>
       <a href="https://dataengineergaurav.github.io/insights/">View all insights →</a>
     </div>
-    <div class="insight-grid" data-sc-stagger="60">
+    <div class="insight-grid" data-sc-in data-sc-stagger="60">
       <article class="insight-card">
         <span class="insight-card__meta">AI Governance · 24 Aug 2026</span>
         <h3><a href="https://dataengineergaurav.github.io/2026/08/24/treat-the-rag-index-as-a-governed-data-product.html">Treat the RAG Index as a Governed Data Product</a></h3>
