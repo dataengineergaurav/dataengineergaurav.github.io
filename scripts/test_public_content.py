@@ -30,7 +30,7 @@ HOMEPAGE_PROOF = (
 
 RETIRED_CLAIMS = ("$3b+",)
 
-GOOGLE_SERVICE_HOSTS = {"www.googletagmanager.com", "maps.googleapis.com"}
+GOOGLE_SERVICE_HOSTS = {"www.googletagmanager.com", "maps.googleapis.com", "fonts.googleapis.com"}
 
 
 class RenderedTextParser(HTMLParser):
