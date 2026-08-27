@@ -8,7 +8,7 @@ tools: R, Python, AWS Lambda, RDS
 client_work: true
 featured: true
 order: 2
-outcome: Supported a public risk application with statistical components, pipelines, and serverless data services.
+outcome: Backs a public risk application serving 2M+ people, with serverless services that hold up under real public-load spikes.
 ---
 
 ## Context

@@ -8,7 +8,7 @@ tools: Redshift, dbt, SQL
 client_work: true
 featured: true
 order: 3
-outcome: Delivered tested fact and dimension models, compliance datasets, analytical marts, and scheduled snapshots.
+outcome: Gives compliance and actuarial teams reconciled, trusted marts on a fixed daily and monthly cadence instead of manual extracts.
 ---
 
 ## Context

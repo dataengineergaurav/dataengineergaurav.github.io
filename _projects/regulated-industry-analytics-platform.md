@@ -8,7 +8,7 @@ tools: Python, SQL, AWS Glue, PySpark, GCP
 client_work: true
 featured: true
 order: 1
-outcome: Built and operated analytics-ready ingestion across APIs, geospatial sources, regulated-business data, and PDFs.
+outcome: Runs as the governed ingestion standard behind 300+ production pipelines — auditable, reproducible, and no longer dependent on one-off scripts.
 ---
 
 ## Context
