@@ -24,7 +24,7 @@ from xml.etree import ElementTree
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_DIR = REPO_ROOT / ".article-generator"
 STATE_PATH = RUNTIME_DIR / "state.json"
-ARTICLE_MODEL = os.environ.get("ARTICLE_MODEL", "gpt-4o-mini")
+ARTICLE_MODEL = os.environ.get("ARTICLE_MODEL", "gpt-5.6-sol")
 # OpenAI API fallback for opencode provider openai-api (when Codex ChatGPT auth is rate-limited or model unsupported)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY") or (Path("/root/.hermes/.env").read_text(encoding="utf-8").split("OPENAI_API_KEY=")[1].splitlines()[0].strip().strip('"\'') if Path("/root/.hermes/.env").exists() and "OPENAI_API_KEY=" in Path("/root/.hermes/.env").read_text(encoding="utf-8") else None)
 OPENAI_CHAT_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1") + "/chat/completions"
@@ -412,12 +412,17 @@ def _run_openai_api(prompt, schema):
     except ImportError:
         raise RuntimeError("requests required for openai-api provider - pip install requests")
     headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+    # gpt-5 family only supports default temperature 1 - use max creativity for latest model
+    is_gpt5 = ARTICLE_MODEL.startswith("gpt-5")
     payload = {
         "model": ARTICLE_MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "response_format": {"type": "json_schema", "json_schema": {"name": "output", "strict": True, "schema": schema}},
-        "temperature": 0.7,
+        **({} if is_gpt5 else {"temperature": 0.7}),
     }
+    # Latest ChatGPT max level: use high max_tokens for creative editorial + diagram generation
+    if not is_gpt5:
+        payload["max_tokens"] = 16000
     import time
     for attempt in range(3):
         try:
@@ -440,7 +445,7 @@ def _run_openai_api(prompt, schema):
 
 def run_codex(prompt, schema):
     # Prefer opencode provider openai-api when available - respects OPENAI_API_KEY from /root/.hermes/.env
-    use_openai = bool(OPENAI_API_KEY and ARTICLE_MODEL in ("gpt-4o-mini", "gpt-4o", "gpt-5-mini", "gpt-4o-mini-2024-07-18", "gpt-3.5-turbo"))
+    use_openai = bool(OPENAI_API_KEY and ARTICLE_MODEL in ("gpt-4o-mini", "gpt-4o", "gpt-4o-2024-08-06", "gpt-5-mini", "gpt-5", "gpt-5.6-sol", "gpt-5.6-luna", "gpt-4o-mini-2024-07-18", "gpt-3.5-turbo", "gpt-4o-2024-11-20"))
     if use_openai:
         try:
             return _run_openai_api(prompt, schema)
