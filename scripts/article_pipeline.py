@@ -24,7 +24,10 @@ from xml.etree import ElementTree
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_DIR = REPO_ROOT / ".article-generator"
 STATE_PATH = RUNTIME_DIR / "state.json"
-ARTICLE_MODEL = os.environ.get("ARTICLE_MODEL", "gpt-5.6-sol")
+ARTICLE_MODEL = os.environ.get("ARTICLE_MODEL", "gpt-4o-mini")
+# OpenAI API fallback for opencode provider openai-api (when Codex ChatGPT auth is rate-limited or model unsupported)
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY") or (Path("/root/.hermes/.env").read_text(encoding="utf-8").split("OPENAI_API_KEY=")[1].splitlines()[0].strip().strip('"\'') if Path("/root/.hermes/.env").exists() and "OPENAI_API_KEY=" in Path("/root/.hermes/.env").read_text(encoding="utf-8") else None)
+OPENAI_CHAT_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1") + "/chat/completions"
 DECISION_RE = re.compile(r"^(APPROVE|REJECT) ([A-Za-z0-9_-]{6,64})$")
 LOGGER = logging.getLogger(__name__)
 ARXIV_CATEGORIES = ("cs.LG", "cs.AI", "cs.DB")
@@ -395,7 +398,50 @@ def fetch_paper_text(paper_id, state, state_path=STATE_PATH, persist=True):
     return paper_text
 
 
+def _run_openai_api(prompt, schema):
+    """Direct OpenAI API via opencode provider openai-api (OPENAI_API_KEY) - fallback when Codex ChatGPT auth fails."""
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OPENAI_API_KEY not set for openai-api provider")
+    # Lazy import to avoid hard dep
+    try:
+        import requests
+    except ImportError:
+        raise RuntimeError("requests required for openai-api provider - pip install requests")
+    headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+    payload = {
+        "model": ARTICLE_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "response_format": {"type": "json_schema", "json_schema": {"name": "output", "strict": True, "schema": schema}},
+        "temperature": 0.7,
+    }
+    import time
+    for attempt in range(3):
+        try:
+            resp = requests.post(OPENAI_CHAT_URL, headers=headers, json=payload, timeout=120)
+            if resp.status_code == 200:
+                data = resp.json()
+                content = data["choices"][0]["message"]["content"]
+                return json.loads(content)
+            elif resp.status_code in (429, 500, 502, 503, 504):
+                time.sleep(2 ** attempt)
+                continue
+            else:
+                raise RuntimeError(f"OpenAI API error {resp.status_code}: {resp.text[:500]}")
+        except Exception as e:
+            if attempt == 2:
+                raise
+            time.sleep(2 ** attempt)
+    raise RuntimeError("OpenAI API failed after retries")
+
+
 def run_codex(prompt, schema):
+    # Prefer opencode provider openai-api when available - respects OPENAI_API_KEY from /root/.hermes/.env
+    use_openai = bool(OPENAI_API_KEY and ARTICLE_MODEL in ("gpt-4o-mini", "gpt-4o", "gpt-5-mini", "gpt-4o-mini-2024-07-18", "gpt-3.5-turbo"))
+    if use_openai:
+        try:
+            return _run_openai_api(prompt, schema)
+        except Exception as e:
+            LOGGER.warning("OpenAI API failed, falling back to Codex: %s", e)
     with tempfile.TemporaryDirectory(prefix="authority-article-codex-", dir="/tmp") as directory:
         directory = Path(directory)
         schema_path, output_path, work_path = directory / "schema.json", directory / "output.json", directory / "work"
@@ -418,7 +464,12 @@ def run_codex(prompt, schema):
                     timeout=1800, check=True,
                     env={key: os.environ[key] for key in CODEX_ENV_KEYS if key in os.environ},
                 )
-            except subprocess.CalledProcessError:
+            except subprocess.CalledProcessError as ce:
+                # Auto-fallback to OpenAI API on ChatGPT model restriction
+                err = (ce.stderr or "") + (ce.stdout or "")
+                if "not supported when using Codex with a ChatGPT account" in err and OPENAI_API_KEY:
+                    LOGGER.warning("Codex ChatGPT model blocked, retrying via openai-api")
+                    return _run_openai_api(prompt, schema)
                 LOGGER.error("Codex execution failed")
                 raise
             return json.loads(output_path.read_text(encoding="utf-8"))
