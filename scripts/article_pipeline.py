@@ -402,6 +402,38 @@ def fetch_paper_text(paper_id, state, state_path=STATE_PATH, persist=True):
     return paper_text
 
 
+_OPENAI_MODELS_CACHE = Path("/tmp/openai_models_cache.json")
+_OPENAI_MODELS_TTL = 3600  # 1h
+
+
+def _fetch_openai_models():
+    """Fetch live model list from OpenAI API (opencode provider openai-api) - no hardcoding."""
+    if not OPENAI_API_KEY:
+        return set()
+    # Use cached list if fresh
+    try:
+        if _OPENAI_MODELS_CACHE.exists():
+            cached = json.loads(_OPENAI_MODELS_CACHE.read_text(encoding="utf-8"))
+            if cached.get("ts", 0) + _OPENAI_MODELS_TTL > datetime.now(timezone.utc).timestamp() and isinstance(cached.get("models"), list):
+                return set(cached["models"])
+    except Exception:
+        pass
+    try:
+        import requests
+        headers = {"Authorization": f"Bearer {OPENAI_API_KEY}"}
+        resp = requests.get("https://api.openai.com/v1/models", headers=headers, timeout=10)
+        if resp.status_code == 200:
+            models = {m["id"] for m in resp.json().get("data", []) if "id" in m}
+            try:
+                _OPENAI_MODELS_CACHE.write_text(json.dumps({"ts": datetime.now(timezone.utc).timestamp(), "models": sorted(models)}), encoding="utf-8")
+            except Exception:
+                pass
+            return models
+    except Exception as e:
+        LOGGER.warning("Failed to fetch OpenAI models list: %s", e)
+    return set()
+
+
 def _run_openai_api(prompt, schema):
     """Direct OpenAI API via opencode provider openai-api (OPENAI_API_KEY) - fallback when Codex ChatGPT auth fails."""
     if not OPENAI_API_KEY:
@@ -444,8 +476,12 @@ def _run_openai_api(prompt, schema):
 
 
 def run_codex(prompt, schema):
-    # Prefer opencode provider openai-api when available - respects OPENAI_API_KEY from /root/.hermes/.env
-    use_openai = bool(OPENAI_API_KEY and ARTICLE_MODEL in ("gpt-4o-mini", "gpt-4o", "gpt-4o-2024-08-06", "gpt-5-mini", "gpt-5", "gpt-5.6-sol", "gpt-5.6-luna", "gpt-4o-mini-2024-07-18", "gpt-3.5-turbo", "gpt-4o-2024-11-20"))
+    # Prefer opencode provider openai-api when model is live in OpenAI catalog - no hardcoding, respects OPENAI_API_KEY
+    live_models = _fetch_openai_models()
+    use_openai = bool(OPENAI_API_KEY and live_models and ARTICLE_MODEL in live_models)
+    # Fallback: if cache empty or fetch failed, try openai-api anyway when key exists (let API error surface)
+    if not live_models and OPENAI_API_KEY and ARTICLE_MODEL.startswith(("gpt-", "o1", "o3", "o4")):
+        use_openai = True
     if use_openai:
         try:
             return _run_openai_api(prompt, schema)
