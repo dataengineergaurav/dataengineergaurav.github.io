@@ -28,6 +28,8 @@ ARTICLE_MODEL = os.environ.get("ARTICLE_MODEL", "gpt-4o-mini")
 # OpenAI API fallback for opencode provider openai-api (when Codex ChatGPT auth is rate-limited or model unsupported)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY") or (Path("/root/.hermes/.env").read_text(encoding="utf-8").split("OPENAI_API_KEY=")[1].splitlines()[0].strip().strip('"\'') if Path("/root/.hermes/.env").exists() and "OPENAI_API_KEY=" in Path("/root/.hermes/.env").read_text(encoding="utf-8") else None)
 OPENAI_CHAT_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1") + "/chat/completions"
+# Daily auto-publish mode - when true, pipeline auto-approves without Telegram gate
+AUTO_PUBLISH = os.environ.get("ARTICLE_AUTO_PUBLISH", "false").lower() in ("1", "true", "yes")
 DECISION_RE = re.compile(r"^(APPROVE|REJECT) ([A-Za-z0-9_-]{6,64})$")
 LOGGER = logging.getLogger(__name__)
 ARXIV_CATEGORIES = ("cs.LG", "cs.AI", "cs.DB")
@@ -188,7 +190,9 @@ def is_due(state, now):
     if state.get("pending"):
         return False
     last = state.get("last_draft_at")
-    return not last or now >= datetime.fromisoformat(last) + timedelta(hours=168)
+    # Daily auto-publish: 24h cadence (was 168h weekly)
+    auto_days = int(os.environ.get("ARTICLE_CADENCE_HOURS", "24"))
+    return not last or now >= datetime.fromisoformat(last) + timedelta(hours=auto_days)
 
 
 def authority_context():
@@ -843,10 +847,18 @@ def generate(dry_run: bool = False, force: bool = False, now: datetime | None = 
         }
         save_state(STATE_PATH, state)
         _materialize_pending(state, state["pending"])
-        send_document(destination, caption)
-        _send_brief(brief)
+        # In auto-publish mode, still notify Telegram but auto-approve
+        try:
+            send_document(destination, caption)
+            _send_brief(brief)
+        except Exception as e:
+            LOGGER.warning("Telegram notify failed (auto-publish continues): %s", e)
         state["pending"]["telegram_delivered"] = True
         save_state(STATE_PATH, state)
+        if AUTO_PUBLISH and not dry_run:
+            LOGGER.info("Auto-publish enabled - approving %s", draft_id)
+            # Directly approve without waiting for Telegram gate
+            return _approve(draft_id, dry_run=False)
         return f"pending {draft_id}"
 
 

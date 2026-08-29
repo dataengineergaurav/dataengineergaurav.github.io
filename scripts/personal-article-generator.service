@@ -4,7 +4,9 @@ Description=Generate a personal authority article draft
 [Service]
 Type=oneshot
 WorkingDirectory=/root/dataengineergaurav.github.io
-Environment=ARTICLE_MODEL=gpt-5.6-sol
+Environment=ARTICLE_MODEL=gpt-4o-mini
+Environment=ARTICLE_AUTO_PUBLISH=true
+Environment=ARTICLE_CADENCE_HOURS=24
 ExecStart=/usr/bin/python3 /root/dataengineergaurav.github.io/scripts/article_pipeline.py generate
 StandardOutput=append:/root/dataengineergaurav.github.io/.article-generator/article_generator.log
 StandardError=append:/root/dataengineergaurav.github.io/.article-generator/article_generator.log
