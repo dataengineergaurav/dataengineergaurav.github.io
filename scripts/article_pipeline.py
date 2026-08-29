@@ -275,13 +275,16 @@ def _validate_diagram_html(diagram):
     # Anti-pattern checks - no shadows, no JetBrains Mono blanket
     if "box-shadow" in html_content or "drop-shadow" in html_content:
         raise ValueError("diagram must not use shadows")
-    # Allow SVG/HTML but block executable vectors
+    # Allow SVG/HTML but block executable vectors (check decoded, not compact, to avoid false positives on polygon points)
     decoded = html_content
     for _ in range(2):
         decoded = html.unescape(unquote(decoded))
+    lower = decoded.lower()
     compact = re.sub(r"[\x00-\x20\x7f\\]+", "", decoded).lower()
-    if re.search(r"(?:javascript|vbscript|data:text/html|on\w+\s*=|<script|<iframe|srcdoc)", compact):
+    if re.search(r"(?:javascript:|vbscript:|data:text/html|<script|<iframe|srcdoc)", compact):
         raise ValueError("diagram_html contains unsafe executable content")
+    if re.search(r"\bon(?:load|click|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=", lower):
+        raise ValueError("diagram_html contains unsafe event handler")
     if diagram.get("diagram_type") not in DIAGRAM_TYPES:
         raise ValueError(f"diagram_type must be one of {', '.join(DIAGRAM_TYPES[:5])}...")
     # Complexity budget - rough node count via <rect and <g
