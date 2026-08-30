@@ -11,3 +11,4 @@ vendor/
 .article-generator/
 __pycache__/
 index.md.bak
+assets/diagrams/

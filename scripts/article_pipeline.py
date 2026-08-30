@@ -860,6 +860,11 @@ def generate(dry_run: bool = False, force: bool = False, now: datetime | None = 
         brief = _review_brief(article, selection, paper, draft_id)
         if dry_run:
             destination.write_text(rendered_markdown, encoding="utf-8")
+            # track diagram artifact created by render_markdown so dry-run stays clean
+            _dry_diagram = None
+            _dg = article.get("diagram", {})
+            if _dg.get("include_diagram") and _dg.get("diagram_html"):
+                _dry_diagram = REPO_ROOT / "assets" / "diagrams" / f"{now.date().isoformat()}-{slugify(article['title'])}.html"
             try:
                 _build_site()
                 send_document(destination, "DRY RUN\n" + caption)
@@ -867,6 +872,13 @@ def generate(dry_run: bool = False, force: bool = False, now: datetime | None = 
                 return "dry run"
             finally:
                 destination.unlink(missing_ok=True)
+                if _dry_diagram is not None:
+                    try:
+                        _dry_diagram.unlink(missing_ok=True)
+                        if _dry_diagram.parent.exists() and not any(_dry_diagram.parent.iterdir()):
+                            _dry_diagram.parent.rmdir()
+                    except Exception:
+                        pass
         relative_path = destination.relative_to(REPO_ROOT).as_posix()
         state["last_draft_at"] = now.isoformat()
         if paper["id"] not in state["used_papers"]:
