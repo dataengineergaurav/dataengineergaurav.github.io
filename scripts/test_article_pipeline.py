@@ -12,6 +12,7 @@ from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
+from email.message import Message
 from urllib.error import HTTPError, URLError
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -783,6 +784,18 @@ class ResearchGenerationTests(unittest.TestCase):
             candidates = pipeline.fetch_candidates(
                 datetime(2026, 8, 11, tzinfo=timezone.utc), {"2608.00001v1"})
         self.assertEqual(candidates, [])
+
+    def test_fetch_candidates_skips_http_errors_and_continues(self):
+        response = mock.MagicMock()
+        response.read.return_value = self.atom
+        response.__enter__.return_value = response
+        http_error = HTTPError("https://export.arxiv.org/api/query", 503, "Service Unavailable", Message(), None)
+        with mock.patch.object(pipeline, "urlopen", side_effect=[http_error, response, response]) as urlopen:
+            candidates = pipeline.fetch_candidates(
+                datetime(2026, 8, 11, tzinfo=timezone.utc), set())
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["id"], "2608.00001v2")
+        self.assertEqual(urlopen.call_count, 3)
 
     def test_extract_arxiv_html_excludes_nonpaper_content(self):
         text = pipeline.extract_arxiv_html(b'''<html><body><nav>nav noise</nav><h1>Paper title</h1>

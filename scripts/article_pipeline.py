@@ -349,8 +349,15 @@ def fetch_candidates(now, excluded):
                            "sortBy": "submittedDate", "sortOrder": "descending"})
         request = Request("https://export.arxiv.org/api/query?" + query,
                           headers={"User-Agent": "GauravAuthorityArticleGenerator/1.0"})
-        with urlopen(request, timeout=30) as response:
-            feed = ElementTree.fromstring(response.read())
+        try:
+            with urlopen(request, timeout=30) as response:
+                feed = ElementTree.fromstring(response.read())
+        except HTTPError as error:
+            LOGGER.warning("arXiv candidate feed HTTP error for %s: %s", category, error)
+            continue
+        except (URLError, TimeoutError, OSError) as error:
+            LOGGER.warning("arXiv candidate feed transport failed for %s: %s", category, error)
+            continue
         for entry in feed.findall("{http://www.w3.org/2005/Atom}entry"):
             source_id = _atom_text(entry, "id").rsplit("/", 1)[-1]
             published = _atom_text(entry, "published")
