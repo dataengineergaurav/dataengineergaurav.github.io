@@ -151,6 +151,3 @@ The strongest model may still be the correct choice when maximum accuracy domina
 <figcaption style="font:400 0.82rem Geist,sans-serif;color:#51665b;margin-top:0.9rem;text-align:center">A cost-aware path for configuring a text-to-SQL pipeline — A decision flow derived from Lin and co-authors’ tiered guideline. Teams begin with direct single-pass generation, add execution-feedback refinement, diagnose residual errors, and condition richer pipeline modules on the backbone and candidate-pool evidence before passing a production control gate.</figcaption>
 </figure>
 
-
-*Diagram: [A cost-aware path for configuring a text-to-SQL pipeline](/assets/diagrams/2026-08-31-before-upgrading-the-model-fix-the-text-to-sql-pipeline.html) — standalone HTML/SVG*
-

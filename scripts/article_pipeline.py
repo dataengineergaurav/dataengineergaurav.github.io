@@ -647,7 +647,8 @@ def render_markdown(article, selection, date):
         tmp.replace(diagram_path)
         # Embed inline SVG in article via figure (allowed HTML after markdown, Jekyll renders)
         body += f"\n\n<figure class=\"article-diagram\" style=\"margin:2.5rem 0;padding:1.5rem;background:#f5f0e5;border:1px solid rgba(24,55,42,0.12);border-radius:8px\">\n{diagram['diagram_html']}\n<figcaption style=\"font:400 0.82rem Geist,sans-serif;color:#51665b;margin-top:0.9rem;text-align:center\">{html.escape(diagram.get('diagram_title',''))} — {html.escape(diagram.get('diagram_description',''))}</figcaption>\n</figure>\n"
-        body += f"\n\n*Diagram: [{html.escape(diagram.get('diagram_title',''))}](/assets/diagrams/{date_str}-{slug}.html) — standalone HTML/SVG*\n"
+        # ponytail: no standalone-link emission — assets/diagrams/ is gitignored so the
+        # file is never committed and CI's htmlproofer fails on the dead link.
     return "\n".join(frontmatter) + "\n\n" + body + "\n"
 
 
