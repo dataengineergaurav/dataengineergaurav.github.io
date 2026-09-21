@@ -92,6 +92,8 @@ layout: none
   .title-cta { margin-top: 2rem; display: inline-flex; align-items: center; gap: 0.6rem; min-height: 44px; padding: 0.65rem 1.15rem; background: var(--sc-accent); color: var(--sc-accent-ink); font-size: 0.84rem; font-weight: 700; letter-spacing: 0.02em; text-decoration: none; border: 1px solid transparent; transition: transform 160ms var(--sc-ease-out), background 160ms, border-color 160ms; }
   .title-cta:hover { transform: translateY(-1px); background: #f0bc66; text-decoration: none; }
   .title-cta:active { transform: translateY(0) scale(0.98); }
+  .title-cta--ghost { background: transparent; color: var(--sc-ink); border-color: var(--sc-hairline-strong); }
+  .title-cta--ghost:hover { background: var(--sc-surface); }
   .title-meta { border-top: 3px solid var(--sc-accent); padding-top: 1rem; align-self: end; }
   .title-meta p { margin: 0; padding: 0.7rem 0; border-bottom: 1px solid var(--ledger-rule); font-size: 0.82rem; line-height: 1.5; }
   .title-meta strong { font-family: var(--sc-font-display); font-weight: 700; color: var(--sc-ink); }
@@ -275,6 +277,7 @@ layout: none
       <h1 data-sc-in>Reliable data<br>and <em>governed</em> AI<br>systems.</h1>
       <p class="title-lede" data-sc-in style="transition-delay: 80ms">From architecture through production. I help teams modernize data platforms, automate high-value workflows, and build policy-aware AI systems that remain reliable in production.</p>
       <a class="title-cta" href="https://calendly.com/gauravgurjar/15min" data-sc-in style="transition-delay: 140ms">Discuss your data challenge →</a>
+      <a class="title-cta title-cta--ghost" href="{{ '/Gaurav_Gurjar_CV_AI-Data-Engineer.pdf' | relative_url }}" download data-sc-in style="transition-delay: 200ms; margin-left: 0.6rem;">Download CV ↓</a>
     </div>
     <div class="title-meta" data-sc-in data-sc-stagger="60">
       <p><strong>300+</strong><span>production pipelines built and operated</span></p>
