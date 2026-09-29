@@ -1,6 +1,6 @@
 ---
 title: Public-health risk data services
-summary: Statistical components, pipelines, and backend data services for a public risk application.
+summary: Statistical components, data pipelines, and serverless backend services behind a public COVID-19 mortality-risk application used by 2M+ people.
 sector: Public health
 scale: 2M+ people reached
 role: Data science and backend data delivery
@@ -13,24 +13,22 @@ outcome: Backs a public risk application serving 2M+ people, with serverless ser
 
 ## Context
 
-The work supported a public application that presented risk information.
+An enterprise-AI company whose products embed machine learning inside existing business applications. One of those products was a COVID-19 mortality-risk tool — a public web application where anyone could enter their inputs and see an individual risk estimate.
+
+The substance behind it was an academic mortality model, published as an R package called iCARE. Solid peer-reviewed statistics, delivered as a library that expects a statistician with a local R installation.
 
 ## Challenge
 
-Statistical components, pipelines, and backend services needed to work together reliably.
+Turning a research package into a public service meant building three things that did not exist: the data pipelines that fed it, a statistical component that could run inside a web request, and a backend that would survive traffic from the general public rather than from a handful of researchers.
 
-## Role
+The core difficulty was that the model was not the product. The product was a number a stranger would act on, and every layer between the R package and that number had to hold up under conditions the research code was never built for.
 
-Delivered data science and backend data services for the application.
+## Approach
 
-## Architecture And Delivery
+The iCARE R functions were wrapped in Python so the statistical component could be called from a web service instead of an interactive session. Data pipelines were built to feed the model its inputs and keep them current.
 
-Built statistical components and data pipelines with R, Python, AWS Lambda, and RDS.
+The API itself ran serverless on AWS Lambda against an RDS-backed store, so it scaled to demand without standing up capacity for a worst case that would mostly never arrive.
 
-## Validation
+## Result
 
-Wrapped iCARE R functions in Python and supported the application's backend data services.
-
-## Outcome
-
-Supported a public risk application with statistical components, pipelines, and serverless data services.
+A public application serving 2M+ people in the United States, backed by serverless data services that held up under real public-load spikes — during a period when demand for the information was both enormous and unpredictable.

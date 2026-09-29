@@ -132,3 +132,35 @@ Keep Jekyll, Liquid, Markdown, the existing projects collection, and the existin
 - Assert forbidden organization names are absent from generated public HTML except inside the three approved testimonial attribution blocks.
 - Verify the three headline metrics and strategic-role text in generated homepage HTML.
 - Check the desktop and mobile page hierarchy against the selected Superdesign draft.
+
+---
+
+## Amendment — 2026-09-29 (supersedes the above where they conflict)
+
+The CV was rewritten. Every public claim must now trace to the **current** CV only.
+The following items above are withdrawn and must not be reintroduced:
+
+- **Capital-markets signals platform** — case study removed. The current CV does not
+  mention it.
+- **Genetics-data infrastructure blueprint** — case study removed, along with the
+  `2–20 PB` claim. The current CV does not mention it.
+- **`Guided three junior data engineers`** — withdrawn. The current CV contains no
+  mentoring or team-guidance claim. The "Delivery leadership" capability card and the
+  homepage ledger no longer reference it.
+- **`Kafka` and `Aurora`** — withdrawn from all tool lists. Neither appears in the
+  current CV.
+- **`Dagster` as a production tool** — withdrawn; it survives only as the Dagster Labs
+  certification on `/credentials/`.
+- **Industries `Capital Markets` and `Government Research`** — withdrawn. The current CV
+  industries are: AI Governance, Insurance, Public Health, Veterinary Healthcare,
+  Regulated Market Data, and LegalTech / Regulated eDiscovery.
+- **`catastrophe-exposed`, `SQL integration tests`, and `FastAPI` on the insurance
+  engagement** — withdrawn as old-CV-only wording. Keep the current-CV phrasing.
+
+The Work index now lists **four** anonymized engagements, and the homepage engagement
+count reads `04 engagements`.
+
+Case study body structure is `Context / Challenge / Approach / Result`. The seven-section
+structure described above was reduced because `Role` and `Outcome` are already rendered
+in the page header's metadata list. See the `S-T-O-R-I-F-Y` framework in the
+`article-writing` skill for the narrative slot mapping.

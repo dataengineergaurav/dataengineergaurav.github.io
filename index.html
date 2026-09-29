@@ -188,6 +188,7 @@ layout: none
   .about h2 { font-family: var(--sc-font-display); font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 0.98; letter-spacing: -0.03em; font-weight: 600; margin: 0; }
   .about p { color: var(--sc-ink-soft); text-wrap: pretty; }
   .about__tech { margin-top: 1rem; padding: 0.9rem 0; border-top: 1px solid var(--ledger-rule); border-bottom: 1px solid var(--ledger-rule); font-size: 0.84rem; line-height: 1.6; }
+  .about__tech + .about__tech { margin-top: 0; border-top: none; }
   .about__tech strong { color: var(--sc-ink); }
   .about__side { border-left: 1px solid var(--ledger-rule); padding-left: clamp(1.25rem, 3vw, 2rem); display: flex; flex-direction: column; gap: 1rem; }
   .about__side h3 { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sc-ink-soft); margin: 0; }
@@ -297,7 +298,7 @@ layout: none
     </div>
     <div class="proof-cell" data-sc-in style="transition-delay: 180ms">
       <span class="proof-num"><span data-sc-count="0 7" data-sc-count-at="0.16 0.6">7</span>+ years</span>
-      <p class="proof-label">across data engineering and AI, insurance, public health, capital markets, government research</p>
+      <p class="proof-label">across data engineering, data science, and AI, in regulated eDiscovery, insurance, public health, veterinary healthcare, and AI governance</p>
     </div>
   </section>
   <div class="intertitle" aria-hidden="true"><span class="intertitle__num">III</span><span class="intertitle__rule"></span><span class="intertitle__name">Capabilities</span></div>
@@ -312,19 +313,19 @@ layout: none
         <span class="cap-card__idx">01 Data platforms</span>
         <h3>Ingestion to warehouse, with discipline.</h3>
         <p>Cloud ingestion, dimensional modeling, data quality, incremental processing, and production operations. Tested fact and dimension models, not just pipelines that run.</p>
-        <span class="cap-card__tools">Python · SQL · AWS · Redshift · dbt · PySpark · Kafka</span>
+        <span class="cap-card__tools">Python · SQL · AWS · Redshift · dbt · PySpark</span>
       </article>
       <article class="cap-card">
         <span class="cap-card__idx">02 Governed AI systems</span>
         <h3>Policy before orchestration.</h3>
-        <p>Knowledge ingestion, policy processing, grounding, routing, provenance, PII controls, and runtime telemetry. The system's decisions live in one place and its actions in another.</p>
-        <span class="cap-card__tools">FastAPI · Dagster · Vector stores · Grounding · Provenance</span>
+        <p>Knowledge ingestion, policy processing, grounding, routing, provenance, PII controls, and runtime telemetry—including on-device execution, where answers ground to a verified knowledge base and the data never leaves the device. The system's decisions live in one place and its actions in another.</p>
+        <span class="cap-card__tools">JavaScript · TypeScript · Python · FastAPI · Grounding · Provenance</span>
       </article>
       <article class="cap-card">
         <span class="cap-card__idx">03 Delivery leadership</span>
         <h3>Architecture through implementation.</h3>
-        <p>Stakeholder communication, testing, release discipline, and team guidance. Guidance of junior engineers where the platform demands it.</p>
-        <span class="cap-card__tools">Architecture · Reviews · Mentorship · Release discipline</span>
+        <p>Stakeholder communication, testing, release discipline, and end-to-end delivery ownership—the reusable packages and modules underneath, not only the pipeline on top.</p>
+        <span class="cap-card__tools">Architecture · Reviews · Release discipline · Delivery ownership</span>
       </article>
     </div>
   </section>
@@ -334,7 +335,7 @@ layout: none
       <div class="work-inner">
         <div class="work-rail-label" aria-hidden="true">
           <span class="work-rail-label__eyebrow">Selected work / ledger</span>
-          <span class="work-rail-label__count">06 engagements</span>
+          <span class="work-rail-label__count">05 engagements</span>
         </div>
         <div class="work-main">
 {% assign featured_projects = site.projects | where: "featured", true | sort: "order" %}
@@ -348,10 +349,10 @@ layout: none
           </div>
 {% endfor %}
           <div class="work-case" data-sc-cue="0.72">
-            <h3>More in the ledger</h3>
-            <div class="work-case__meta"><span class="work-case__sector">Capital markets · Veterinary · Government research</span></div>
-            <p>Batch and streaming signals in capital markets, validated ETL across 46 veterinary clinics, and a 2 to 20 PB genetics-data blueprint for precision-medicine research.</p>
-            <p class="work-case__outcome">Each with the same standard: tested, documented, handed off operable.</p>
+            <h3>Multi-location veterinary inventory ETL</h3>
+            <div class="work-case__meta"><span class="work-case__sector">Veterinary healthcare</span><span class="work-case__scale">46 clinic locations</span></div>
+            <p>A modular inventory-adjustment package with typed validation at the API boundary and a weekly schedule, proving location coverage before anything is published.</p>
+            <p class="work-case__outcome">Same standard as the platforms above: coverage checked at publish time, exceptions handled rather than dropped, releases reproducible run to run.</p>
             <a class="work-case__link" href="{{ '/work/' | relative_url }}">View all case studies →</a>
           </div>
         </div>
@@ -361,7 +362,7 @@ layout: none
 {% for project in featured_projects limit: 3 %}
             <div class="work-ledger-mini__row{% if forloop.first %} is-active{% endif %}" data-ledger="{{ forloop.index0 }}"><strong>{{ project.sector }}</strong><span>{{ project.scale }}</span></div>
 {% endfor %}
-            <div class="work-ledger-mini__row" data-ledger="3"><strong>Capital · Vet · Genetics</strong><span>further work</span></div>
+            <div class="work-ledger-mini__row" data-ledger="3"><strong>Veterinary</strong><span>further work</span></div>
           </div>
           <span class="work-aside__label" style="margin-top: 0.25rem">Chapter progress</span>
           <div class="work-progress" aria-hidden="true"><div class="work-progress__fill" id="workProgress"></div></div>
@@ -445,9 +446,11 @@ layout: none
   <section id="about" class="about" data-chapter="5" data-sc-in>
     <div>
       <h2>Technical depth, delivery focus.</h2>
-      <p style="margin-top: 0.85rem">Dubai-based senior data engineer and AI data platform architect with 7+ years across governed AI, insurance, public health, regulated analytics, veterinary healthcare, capital markets, and government research.</p>
-      <p>UAE Golden Visa holder, available for remote global consulting engagements.</p>
-      <p class="about__tech"><strong>Core technology:</strong> Python · SQL · AWS · Redshift · dbt · PySpark · Kafka · FastAPI · Dagster</p>
+      <p style="margin-top: 0.85rem">7+ years, in three acts. Regulated eDiscovery ingestion at a FedRAMP-authorized legal platform, where every dataset had to be defensible downstream. Public-health data science used by 2M+ people. Then five years of governed cloud data platforms in insurance and regulated markets: 300+ production pipelines, dimensional models, and compliance datasets.</p>
+      <p>Most recently, on-device AI—policy-aware routing, grounded retrieval, and provenance controls for a browser agent that keeps data on the device.</p>
+      <p>Dubai-based. UAE Golden Visa holder. Available for remote global consulting engagements.</p>
+      <p class="about__tech"><strong>Core technology:</strong> Python · SQL · TypeScript · AWS · Redshift · dbt · Airflow · PySpark · FastAPI · Pydantic</p></p>
+      <p class="about__tech"><strong>Certified:</strong> IBM Data Engineer · IBM Data Warehouse Engineer · dbt Fundamentals · Dagster &amp; dbt · Coursera Data Engineering Professional · UAE AI Camp · <a href="{{ '/credentials/' | relative_url }}" style="color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-accent);">Full credentials →</a></p>
     </div>
     <div class="about__side">
       <h3>Connect</h3>

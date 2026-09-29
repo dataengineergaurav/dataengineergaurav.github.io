@@ -42,4 +42,7 @@ exclude:
   - Gemfile
   - README.md
   - index.md.bak
+  - node_modules
+  - package.json
+  - package-lock.json
   - scrollcraft

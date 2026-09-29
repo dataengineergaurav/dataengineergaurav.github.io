@@ -1,10 +1,10 @@
 ---
 title: Insurance analytics data platform
-summary: Tested warehouse models, compliance datasets, analytical marts, and scheduled snapshots.
+summary: Tested warehouse models, compliance datasets, and analytical marts on a fixed daily and monthly cadence, replacing manual extracts behind regulatory filings.
 sector: Insurance
 scale: Daily and monthly incremental snapshots
 role: Senior data engineering
-tools: Redshift, dbt, SQL
+tools: Redshift, dbt, SQL, AWS, pytest
 client_work: true
 featured: true
 order: 3
@@ -13,24 +13,29 @@ outcome: Gives compliance and actuarial teams reconciled, trusted marts on a fix
 
 ## Context
 
-The platform supported insurance analytics and compliance data needs.
+A residential-property managing general underwriter. Insurance underwriting means premium, exposure, and loss data assembled to regulatory standards, and the numbers land in state filings and internal reporting that both need to survive scrutiny.
+
+The insurance data function had grown one extract at a time. Someone needed the loss triangle, someone else needed the exposure rollup, and each request was assembled by hand from whatever was current that morning. Two analysts asking the same question on the same day could get two answers.
 
 ## Challenge
 
-Warehouse models and scheduled datasets had to remain dependable for recurring analysis.
+There was no shared model layer underneath those extracts. Compliance datasets were rebuilt per request. Full reloads were the only option, because nothing tracked what had already landed — so the data could not keep up with a daily reporting rhythm, let alone a monthly one.
 
-## Role
+The requirement was a tested warehouse layer, owned end to end, that produced the same numbers for everyone and could point to how any figure was derived.
 
-Provided senior data engineering for warehouse and analytics delivery.
+## Approach
 
-## Architecture And Delivery
+Amazon Redshift with dbt carried the modeling. Fact and dimension models were built first, then the compliance datasets and analytical marts that reporting actually consumed. dbt data-quality tests enforced correctness at the model boundary, with pytest covering the logic underneath.
 
-Built tested fact and dimension models, compliance datasets, analytical marts, and snapshots using Redshift, dbt, and SQL.
+Incremental snapshots ran on a daily and monthly cadence with scheduled Redshift automation, so a run processed only what had changed instead of rebuilding the warehouse. Reusable ETL packages and database modules were built beneath the models so the next dataset joined the platform without new bespoke plumbing.
 
-## Validation
+<div class="architecture-flow">
+  <span>Source<br>systems</span>
+  <span>dbt models<br>&amp; tests</span>
+  <span>Incremental<br>snapshots</span>
+  <span>Compliance<br>&amp; marts</span>
+</div>
 
-Used tested warehouse models to validate analytical and compliance datasets.
+## Result
 
-## Outcome
-
-Delivered tested fact and dimension models, compliance datasets, analytical marts, and scheduled snapshots.
+Fact and dimension models, compliance datasets, and analytical marts on a fixed daily and monthly cadence, delivered end to end. Compliance and actuarial teams read from reconciled marts instead of assembling manual extracts, and any figure can be traced to the model and test that produced it.
