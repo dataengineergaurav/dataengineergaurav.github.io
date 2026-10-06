@@ -1,11 +1,11 @@
 ---
 title: "Second Brain Wiki"
 layout: "wiki"
-tags: ["meta", "wiki", "hermes"]
+tags: ["automation", "cron", "hermes", "meta", "wiki"]
 visibility: "public"
 created: "2026-10-06"
 updated: "2026-10-06"
-summary: "How this wiki works: a private, LLM-maintained knowledge base synthesized from Hermes sessions and notes, with a curated public subset."
+summary: "Personal 'second brain' wiki whose daily ingest is scheduled and which folds inbox notes into the vault."
 ---
 
 A living knowledge base that summarizes what I work on, decisions made, and threads left
@@ -26,3 +26,16 @@ topics worth publishing.
 
 Most engineering knowledge is lost in chat scrollback. This keeps the useful residue —
 architecture choices, trade-offs, and open questions — in one searchable place.
+
+## 2026-10-06 — update
+
+Personal "second brain" wiki.
+
+### Ingest
+
+- Runs daily at **03:30 UTC** via the **Hermes gateway cron job** (decided at launch).
+- Personal notes dropped in `inbox/` are folded into the vault on the next ingest.
+
+### Log
+
+- 2026-10-06: seed note "second brain launch" captured.

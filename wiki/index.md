@@ -6,4 +6,4 @@ permalink: /wiki/
 
 ## Second Brain Wiki
 
-- [Second Brain Wiki](/wiki/second-brain/) — How this wiki works: a private, LLM-maintained knowledge base synthesized from Hermes sessions and notes, with a curated public subset.
+- [Second Brain Wiki](/wiki/second-brain/) — Personal 'second brain' wiki whose daily ingest is scheduled and which folds inbox notes into the vault.
