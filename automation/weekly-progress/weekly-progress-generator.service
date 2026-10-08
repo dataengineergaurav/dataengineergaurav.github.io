@@ -1,0 +1,10 @@
+[Unit]
+Description=Generate and publish the weekly progress blog draft as a pull request
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/dataengineergaurav.github.io
+Environment=PROGRESS_WINDOW_DAYS=7
+ExecStart=/root/dataengineergaurav.github.io/automation/weekly-progress/run.sh
+StandardOutput=append:/root/dataengineergaurav.github.io/.progress-generator/weekly_progress.log
+StandardError=append:/root/dataengineergaurav.github.io/.progress-generator/weekly_progress.log

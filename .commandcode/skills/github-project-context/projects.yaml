@@ -1,0 +1,45 @@
+# Project context catalog for the weekly Build Log.
+#
+# Schema per entry:
+#   <slug>:
+#     repo: owner/name            # GitHub full_name, if published
+#     purpose: What this project is for
+#     audience: Who it serves
+#     stack: [..]
+#     themes: [..]                # maps to site editorial topics
+#     private: true               # optional; framing only, never quoted publicly
+#     links: {site: "", docs: ""}
+#
+# These are starter entries inferred from repository names. Confirm and refine.
+
+setu:
+  repo: dataengineergaurav/setu
+  purpose: Data engineering tooling and platform utilities.  # TODO: confirm
+  audience: Data engineers
+  stack: [Python]
+  themes: [data platforms, data engineering]
+  links: {site: "https://dataengineergaurav.github.io/work/", docs: ""}
+
+rental-market-dynamics-dubai:
+  repo: dataengineergaurav/rental-market-dynamics-dubai
+  purpose: Analysis of Dubai rental market dynamics from public data.  # TODO: confirm
+  audience: Data engineers, analysts
+  stack: [Python]
+  themes: [analytics delivery, data platforms]
+  links: {site: "https://dataengineergaurav.github.io/work/", docs: ""}
+
+hermes-gsheets:
+  repo: dataengineergaurav/hermes-gsheets
+  purpose: Google Sheets integration used by the Hermes automation stack.  # TODO: confirm
+  audience: Automation/tooling users
+  stack: [Python, Google Sheets API]
+  themes: [data platforms, analytics delivery]
+  links: {site: "https://dataengineergaurav.github.io/work/", docs: ""}
+
+dataengineergaurav.github.io:
+  repo: dataengineergaurav/dataengineergaurav.github.io
+  purpose: This site — a Jekyll consulting site plus an article/wiki/progress automation stack.
+  audience: Technical and business leaders evaluating data engineering and governed AI work.
+  stack: [Jekyll, Ruby, Python, systemd]
+  themes: [data platforms, ai governance, analytics delivery, leadership]
+  links: {site: "https://dataengineergaurav.github.io", docs: ""}

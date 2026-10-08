@@ -11,6 +11,7 @@ vendor/
 .superdesign/tmp/
 .worktrees/
 .article-generator/
+.progress-generator/
 __pycache__/
 index.md.bak
 assets/diagrams/
