@@ -407,10 +407,12 @@ def _strip_leading_h1(text):
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 
 
-def _convert_wikilinks(text):
+def _convert_wikilinks(text, public_slugs=None):
     def repl(match):
         slug = _slugify(match.group(1))
         label = (match.group(2) or match.group(1)).strip()
+        if public_slugs is not None and slug not in public_slugs:
+            return label
         return f"[{label}](/wiki/{slug}/)"
 
     return WIKILINK_RE.sub(repl, text)
@@ -514,18 +516,21 @@ def publish(push=False, dry_run=False):
         PUBLISH_DIR.mkdir(parents=True, exist_ok=True)
     published = []
     sources = list(SUBJECTS_DIR.glob("*.md")) + list(DAILY_DIR.glob("*.md"))
+    pages = []
     for path in sources:
         meta, body = _read_page(path)
         if str(meta.get("visibility", "private")).lower() != "public":
             continue
+        pages.append((path, meta, body))
+    public_slugs = {path.stem for path, _, _ in pages}
+    for path, meta, body in pages:
         target = PUBLISH_DIR / path.name
         out_meta = dict(meta)
         out_meta["layout"] = "wiki"
         out_meta.pop("sources", None)
-        if dry_run:
-            published.append(path.name)
-            continue
-        _write_page(target, out_meta, _convert_wikilinks(_strip_leading_h1(body)))
+        if not dry_run:
+            _write_page(target, out_meta,
+                        _convert_wikilinks(_strip_leading_h1(body), public_slugs))
         published.append(path.name)
     if not dry_run:
         _rebuild_publish_index()

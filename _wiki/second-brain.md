@@ -49,4 +49,4 @@ Personal knowledge wiki ('second brain') built by ingesting agent sessions and p
 - Daily cron runs both in sequence: `python3 scripts/wiki_ingest.py ingest && python3 scripts/wiki_ingest.py publish --push`, then reports the new subject/daily counts.
 - Failure handling: report the last 20 lines of `/root/second-brain/.wiki/ingest.log`.
 
-See [blog-automation](/wiki/blog-automation/).
+See blog-automation.
