@@ -246,6 +246,18 @@ class PublishGuardTests(unittest.TestCase):
                 publish.only_change_guard(
                     ["_posts/2026-10-05-weekly-progress.md"], repo_root=root)
 
+    def test_changed_paths_do_not_truncate_the_first_entry(self):
+        """git() strips stdout; the first porcelain line's status column must survive."""
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._init_repo(root)
+            (root / "tracked.txt").write_text("a", encoding="utf-8")
+            subprocess.run(["/usr/bin/git", "add", "tracked.txt"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["/usr/bin/git", "commit", "-qm", "init"], cwd=root, check=True, capture_output=True)
+            (root / "tracked.txt").write_text("b", encoding="utf-8")
+
+            self.assertEqual(publish._changed_paths(root), ["tracked.txt"])
+
 
 class SkillContractTests(unittest.TestCase):
     def test_every_skill_has_frontmatter(self):

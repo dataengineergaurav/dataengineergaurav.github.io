@@ -45,11 +45,6 @@ def assert_only(expected, actual) -> None:
         raise SystemExit(f"cv guard failed: expected {want}, saw {seen}")
 
 
-def _changed_paths(repo_root: Path):
-    status = site.git("status", "--porcelain", "--untracked-files=all", cwd=repo_root)
-    return [line[3:].strip() for line in status.splitlines() if line.strip()]
-
-
 def publish(date, base="main", remote="origin", repo_root=CV_ROOT, body_file=None, push=True):
     root = Path(repo_root)
 
@@ -61,7 +56,7 @@ def publish(date, base="main", remote="origin", repo_root=CV_ROOT, body_file=Non
     if site.git("rev-parse", "HEAD", cwd=root) != base_head:
         raise SystemExit(f"HEAD is not synchronized with {remote}/{base}; sync before publishing")
 
-    assert_only(CV_FILES, _changed_paths(root))
+    assert_only(CV_FILES, site._changed_paths(root))
 
     branch = branch_for(date)
     if not push:

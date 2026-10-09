@@ -50,7 +50,10 @@ and the PR body to .progress-generator/$date_utc/pr-body.md. Do not run git add,
 cmd_flags=(-p --output-format json --no-session --skip-onboarding --no-auto-update
            --trust --yolo --max-turns 40)
 
-"$cmd_bin" "${cmd_flags[@]}" "$blog_prompt"
+# The blog stage is not fatal on its own: if the agent exits non-zero we still run the
+# CV stage and the guards, and report it at the end. set -e must not abort the run here.
+blog_status=0
+"$cmd_bin" "${cmd_flags[@]}" "$blog_prompt" || blog_status=1
 
 relative="_posts/$date_utc-weekly-progress.md"
 body_file="$run_dir/pr-body.md"
@@ -65,21 +68,33 @@ bullets cv-editor approves to $cv_root/data/experience.yaml: highlights lists on
 If nothing qualifies, change nothing and say so. \
 Do not run git add, commit, push, or gh."
 
+cv_status=0
+cv_changed=0
 if ! "$cmd_bin" "${cmd_flags[@]}" "$cv_prompt"; then
     cv_status=1
 elif ! $cv_python "$script_dir/cv_guard.py" --data "$cv_root/data/experience.yaml"; then
     cv_status=1
-elif ! (cd "$cv_root" && "$uv_bin" run --quiet pytest -q); then
-    cv_status=1
-elif ! $cv_python "$script_dir/cv_sync.py" --cv-root "$cv_root" --site-root "$repo_root"; then
-    cv_status=1
-elif ! $cv_python "$script_dir/cv_policy.py" \
-        --pdf "$cv_root/Gaurav_Gurjar_CV.pdf" \
-        --pdf "$cv_root/Gaurav_Gurjar_CV_extended.pdf"; then
-    cv_status=1
-elif ! $cv_python "$script_dir/cv_publish.py" --date "$date_utc" --repo-root "$cv_root" \
-        --body-file "$run_dir/cv-body.md" $no_push; then
-    cv_status=1
+elif "$git_bin" -C "$cv_root" diff --quiet -- data/experience.yaml; then
+    # Nothing qualified this week. Rendering would only churn the PDFs (weasyprint
+    # embeds a timestamp), so skip the pull request entirely.
+    printf 'no CV highlight changes for %s; skipping the CV pull request\n' "$date_utc"
+else
+    cv_changed=1
+fi
+
+if [ "$cv_status" -eq 0 ] && [ "$cv_changed" -eq 1 ]; then
+    if ! (cd "$cv_root" && "$uv_bin" run --quiet pytest -q); then
+        cv_status=1
+    elif ! $cv_python "$script_dir/cv_sync.py" --cv-root "$cv_root" --site-root "$repo_root"; then
+        cv_status=1
+    elif ! $cv_python "$script_dir/cv_policy.py" \
+            --pdf "$cv_root/Gaurav_Gurjar_CV.pdf" \
+            --pdf "$cv_root/Gaurav_Gurjar_CV_extended.pdf"; then
+        cv_status=1
+    elif ! $cv_python "$script_dir/cv_publish.py" --date "$date_utc" --repo-root "$cv_root" \
+            --body-file "$run_dir/cv-body.md" $no_push; then
+        cv_status=1
+    fi
 fi
 
 # 4. Site pull request: the post, plus the refreshed CV when the CV stage got that far.
@@ -93,7 +108,13 @@ else
     [ -f "$body_file" ] && cat "$body_file"
 fi
 
+status=0
+if [ "$blog_status" -ne 0 ]; then
+    printf 'blog agent exited non-zero; published whatever it produced\n' >&2
+    status=1
+fi
 if [ "$cv_status" -ne 0 ]; then
     printf 'CV stage failed; the site pull request is unaffected\n' >&2
+    status=1
 fi
-exit "$cv_status"
+exit "$status"

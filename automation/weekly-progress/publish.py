@@ -74,13 +74,15 @@ def post_path_for(date):
 
 
 def _changed_paths(repo_root=REPO_ROOT):
-    """Every path the worktree reports as changed, tracked or untracked."""
-    status = git("status", "--porcelain", "--untracked-files=all", cwd=repo_root)
-    paths = []
-    for line in status.splitlines():
-        if line.strip():
-            paths.append(line[3:].strip())
-    return paths
+    """Every path the worktree reports as changed, tracked or untracked.
+
+    Reads raw output on purpose: git() strips stdout, which eats the first
+    porcelain line's leading status column and truncates its path by one
+    character.
+    """
+    raw = git("status", "--porcelain", "--untracked-files=all", cwd=repo_root, raw=True)
+    text = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw
+    return [line[3:].strip() for line in text.splitlines() if line.strip()]
 
 
 def only_change_guard(relatives, repo_root=REPO_ROOT, required=None):
