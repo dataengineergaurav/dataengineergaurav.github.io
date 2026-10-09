@@ -128,7 +128,8 @@ automation/weekly-progress/setup.sh install
 ```
 
 Approve by reviewing the PR (`weekly-progress/<date>` → `master`); merging publishes the post.
-Requires `GITHUB_TOKEN` (`repo` + `read:user`) in the environment or `/root/.hermes/.env`.
+Requires a GitHub token: either `GITHUB_TOKEN` in the environment or `/root/.hermes/.env`, or an
+authenticated `gh` CLI, which `run.sh` uses as a fallback.
 
 Tests: `python3 -m unittest scripts.test_weekly_progress -v`.
 

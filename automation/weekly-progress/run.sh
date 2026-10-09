@@ -17,6 +17,13 @@ cmd_bin=$(command -v cmd) || { printf 'missing executable: cmd\n' >&2; exit 1; }
 git_bin=$(command -v git) || { printf 'missing executable: git\n' >&2; exit 1; }
 uv_bin=$(command -v uv) || { printf 'missing executable: uv\n' >&2; exit 1; }
 
+# Fall back to the gh CLI's stored token, so the pipeline never needs a second
+# copy of the secret in the environment or /root/.hermes/.env.
+if [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
+    GITHUB_TOKEN=$(gh auth token 2>/dev/null || true)
+    export GITHUB_TOKEN
+fi
+
 cv_root="${CV_ROOT:-/root/CV-Development}"
 # The CV scripts need PyYAML and pypdf, which CV-Development already declares.
 cv_python="$uv_bin run --project $cv_root --quiet python"
