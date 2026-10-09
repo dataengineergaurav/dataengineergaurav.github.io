@@ -36,6 +36,7 @@ permalink: /insights/
       <button type="button" data-topic-filter="{{ topic | slugify }}" aria-pressed="false">{{ topic }}</button>
     {% endfor %}
   </div>
+  <p class="archive-status" role="status">{{ posts.size }} insights</p>
   <div class="insights-archive">
   {% for post in posts %}
     <article class="archive-entry" data-topic="{{ post.topic | slugify }}">
@@ -48,13 +49,26 @@ permalink: /insights/
 </section>
 
 <script>
-  document.querySelectorAll('[data-topic-filter]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const topic = button.dataset.topicFilter;
-      document.querySelectorAll('[data-topic-filter]').forEach((item) =>
-        item.setAttribute('aria-pressed', String(item === button)));
-      document.querySelectorAll('.archive-entry').forEach((entry) =>
-        entry.hidden = topic !== 'all' && entry.dataset.topic !== topic);
+  (function () {
+    const filters = document.querySelectorAll('[data-topic-filter]');
+    const entries = document.querySelectorAll('.archive-entry');
+    const status = document.querySelector('.archive-status');
+    filters.forEach((button) => {
+      button.addEventListener('click', () => {
+        const topic = button.dataset.topicFilter;
+        filters.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        let shown = 0;
+        entries.forEach((entry) => {
+          const match = topic === 'all' || entry.dataset.topic === topic;
+          entry.hidden = !match;
+          if (match) shown += 1;
+        });
+        if (status) {
+          status.textContent = shown === entries.length
+            ? shown + ' insights'
+            : shown + ' of ' + entries.length + ' insights shown';
+        }
+      });
     });
-  });
+  })();
 </script>

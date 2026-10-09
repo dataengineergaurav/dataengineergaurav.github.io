@@ -47,14 +47,14 @@ layout: none
   }
   .folio a {
     display: grid; grid-template-columns: auto auto; gap: 0.55rem;
-    align-items: center; text-decoration: none; opacity: 0.35;
+    align-items: center; text-decoration: none; opacity: 0.72;
     transition: opacity 180ms var(--sc-ease-out), transform 180ms var(--sc-ease-out);
     padding: 0.2rem 0;
   }
   .folio a.is-active { opacity: 1; }
-  .folio a:hover { opacity: 0.85; }
-  .folio__num { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.14em; color: var(--sc-ink-soft); }
-  .folio__title { font-family: var(--sc-font-text); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink); }
+  .folio a:hover { opacity: 0.9; }
+  .folio__num { font-family: var(--sc-font-mono); font-size: 0.72rem; letter-spacing: 0.14em; color: var(--sc-ink-soft); }
+  .folio__title { font-family: var(--sc-font-text); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink); }
   .folio__bar { width: 1.5rem; height: 1px; background: var(--ledger-rule-strong); transform-origin: right; scale: 0.45 1; transition: scale 220ms var(--sc-ease-out), background 220ms; }
   .folio a.is-active .folio__bar { scale: 1 1; background: var(--sc-accent); height: 2px; }
   @media (max-width: 860px) { .folio { display: none; } }
@@ -120,7 +120,7 @@ layout: none
   .cap-card { background: var(--sc-canvas); padding: 1.6rem 1.5rem 1.4rem; display: flex; flex-direction: column; gap: 0.85rem; position: relative; }
   .cap-card::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--sc-accent); scale: 0 1; transform-origin: left; transition: scale 600ms var(--sc-ease-out); }
   .cap-card.sc-in::after { scale: 1 1; }
-  .cap-card__idx { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.14em; color: var(--sc-ink-soft); }
+  .cap-card__idx { font-family: var(--sc-font-mono); font-size: 0.72rem; letter-spacing: 0.14em; color: var(--sc-ink-soft); }
   .cap-card h3 { font-family: var(--sc-font-display); font-size: 1.18rem; line-height: 1.15; letter-spacing: -0.02em; font-weight: 600; margin: 0; }
   .cap-card p { margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--sc-ink-soft); }
   .cap-card__tools { margin-top: auto; padding-top: 0.9rem; border-top: 1px solid var(--ledger-rule); font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sc-ink-soft); line-height: 1.6; }
@@ -129,30 +129,30 @@ layout: none
   .work-pin .sc-stage::before { content: ""; position: absolute; inset: 0; opacity: 0.06; background-image: radial-gradient(rgba(245,240,229,0.9) 0.7px, transparent 0.7px); background-size: 14px 14px; pointer-events: none; }
   .work-inner { position: absolute; inset: 0; display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 22rem; gap: 0; padding: 0; }
   .work-rail-label { border-right: 1px solid rgba(245,240,229,0.12); padding: 2.5rem 1rem 2rem; display: flex; flex-direction: column; gap: 1.2rem; }
-  .work-rail-label__eyebrow { font-family: var(--sc-font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,240,229,0.5); writing-mode: vertical-rl; text-orientation: mixed; rotate: 180deg; }
-  .work-rail-label__count { font-family: var(--sc-font-display); font-size: 0.72rem; letter-spacing: 0.08em; color: rgba(245,240,229,0.35); }
+  .work-rail-label__eyebrow { font-family: var(--sc-font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,240,229,0.62); writing-mode: vertical-rl; text-orientation: mixed; rotate: 180deg; }
+  .work-rail-label__count { font-family: var(--sc-font-display); font-size: 0.72rem; letter-spacing: 0.08em; color: rgba(245,240,229,0.62); }
   .work-main { padding: clamp(2rem, 5vh, 3rem) clamp(1.5rem, 3vw, 2.5rem); display: flex; flex-direction: column; justify-content: center; min-width: 0; position: relative; }
-  .work-main__kicker { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sc-accent); margin-bottom: 0.6rem; }
+  .work-main__kicker { font-family: var(--sc-font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sc-accent); margin-bottom: 0.6rem; }
   .work-case { position: absolute; inset: clamp(2rem, 5vh, 3rem) clamp(1.5rem, 3vw, 2.5rem); display: flex; flex-direction: column; justify-content: center; }
   .work-case h3 { font-family: var(--sc-font-display); font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 0.98; letter-spacing: -0.03em; font-weight: 600; margin: 0; text-wrap: balance; }
   .work-case__meta { margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
   .work-case__sector { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,229,0.6); border: 1px solid rgba(245,240,229,0.18); padding: 0.22rem 0.5rem; }
-  .work-case__scale { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.08em; color: rgba(245,240,229,0.5); }
+  .work-case__scale { font-family: var(--sc-font-mono); font-size: 0.7rem; letter-spacing: 0.08em; color: rgba(245,240,229,0.62); }
   .work-case p { margin: 0.85rem 0 0; max-width: 36rem; font-size: 0.92rem; line-height: 1.6; color: rgba(245,240,229,0.72); text-wrap: pretty; }
   .work-case__outcome { margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid rgba(245,240,229,0.12); max-width: 36rem; font-size: 0.82rem; line-height: 1.55; color: rgba(245,240,229,0.9); font-weight: 600; }
   .work-case__link { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; color: var(--sc-accent); text-decoration: none; border-bottom: 1px solid rgba(239,179,78,0.35); padding-bottom: 2px; width: fit-content; }
   .work-case__link:hover { border-bottom-color: var(--sc-accent); }
   .work-flow { margin-top: 1.1rem; display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
-  .work-flow span { font-family: var(--sc-font-mono); font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,229,0.55); border: 1px solid rgba(245,240,229,0.14); padding: 0.28rem 0.45rem; background: rgba(245,240,229,0.04); }
+  .work-flow span { font-family: var(--sc-font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,229,0.68); border: 1px solid rgba(245,240,229,0.14); padding: 0.28rem 0.45rem; background: rgba(245,240,229,0.04); }
   .work-flow i { width: 0.9rem; height: 1px; background: rgba(245,240,229,0.22); flex-shrink: 0; }
   .work-aside { border-left: 1px solid rgba(245,240,229,0.12); padding: clamp(1.5rem, 4vh, 2.2rem) clamp(1.1rem, 2vw, 1.5rem); display: flex; flex-direction: column; gap: 1rem; overflow: hidden; }
-  .work-aside__label { font-family: var(--sc-font-mono); font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,240,229,0.4); }
+  .work-aside__label { font-family: var(--sc-font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,240,229,0.62); }
   .work-ledger-mini { display: grid; gap: 0; border: 1px solid rgba(245,240,229,0.12); background: rgba(245,240,229,0.04); }
-  .work-ledger-mini__row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: center; padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(245,240,229,0.08); opacity: 0.32; transition: opacity 360ms var(--sc-ease-out), background 360ms; font-size: 0.74rem; line-height: 1.4; }
+  .work-ledger-mini__row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: center; padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(245,240,229,0.08); opacity: 0.72; transition: opacity 360ms var(--sc-ease-out), background 360ms; font-size: 0.74rem; line-height: 1.4; }
   .work-ledger-mini__row:last-child { border-bottom: none; }
   .work-ledger-mini__row.is-active { opacity: 1; background: rgba(239,179,78,0.08); }
   .work-ledger-mini__row strong { font-weight: 600; color: #f5f0e5; }
-  .work-ledger-mini__row span { color: rgba(245,240,229,0.55); font-family: var(--sc-font-mono); font-size: 0.62rem; }
+  .work-ledger-mini__row span { color: rgba(245,240,229,0.9); font-family: var(--sc-font-mono); font-size: 0.7rem; }
   .work-progress { margin-top: auto; height: 1px; background: rgba(245,240,229,0.14); position: relative; }
   .work-progress__fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: var(--sc-accent); transform-origin: left; scale: var(--work-p, 0) 1; }
   @media (max-width: 860px) { .work-inner { grid-template-columns: 1fr; } .work-rail-label, .work-aside { display: none; } .work-main { padding-inline: var(--sc-gutter); } .work-case { inset-inline: var(--sc-gutter); } }
@@ -160,17 +160,17 @@ layout: none
   .voices__head { max-width: 42rem; margin-bottom: 2rem; }
   .voices__head h2 { font-family: var(--sc-font-display); font-size: clamp(1.9rem, 3.5vw, 2.7rem); line-height: 0.98; letter-spacing: -0.03em; font-weight: 600; margin: 0; }
   .voices__head p { margin-top: 0.7rem; color: var(--sc-ink-soft); max-width: 36rem; text-wrap: pretty; }
-  .voice-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 1px; background: var(--ledger-rule); border: 1px solid var(--ledger-rule); }
+  .voice-grid { display: grid; grid-template-columns: 1.15fr 1fr; grid-template-rows: 1fr 1fr; gap: 1px; background: var(--ledger-rule); border: 1px solid var(--ledger-rule); }
   .voice-card { background: var(--sc-surface); padding: 1.6rem 1.5rem 1.35rem; display: flex; flex-direction: column; gap: 1rem; position: relative; }
   .voice-card::before { content: "\201C"; font-family: "Newsreader", Georgia, serif; font-size: 3rem; line-height: 1; color: var(--sc-accent); opacity: 0.9; margin-bottom: -0.6rem; }
-  .voice-card--feature { background: var(--sc-canvas); }
+  .voice-card--feature { background: var(--sc-canvas); grid-row: span 2; }
   .voice-card blockquote { margin: 0; font-size: 0.92rem; line-height: 1.62; color: var(--sc-ink); text-wrap: pretty; }
   .voice-card--feature blockquote { font-size: 0.98rem; }
   .voice-card cite { margin-top: auto; padding-top: 0.9rem; border-top: 1px solid var(--ledger-rule); font-style: normal; font-size: 0.78rem; line-height: 1.5; color: var(--sc-ink-soft); }
   .voice-card cite strong { color: var(--sc-ink); font-weight: 700; }
-  .voice-card cite a { color: inherit; text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); text-underline-offset: 0.2em; }
+  .voice-card cite a { color: inherit; text-decoration: underline; text-decoration-color: var(--sc-ink-soft); text-underline-offset: 0.2em; }
   .voice-card cite a:hover { text-decoration-color: var(--sc-accent); }
-  @media (max-width: 860px) { .voice-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) { .voice-grid { grid-template-columns: 1fr; grid-template-rows: none; } .voice-card--feature { grid-row: auto; } }
   .indie { border-bottom: 1px solid var(--ledger-rule); overflow: clip; }
   .indie__head { max-width: var(--sc-maxw); margin: 0 auto; padding: clamp(2rem, 5vw, 3rem) var(--sc-gutter) 1.25rem; display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; }
   .indie__head h2 { font-family: var(--sc-font-display); font-size: clamp(1.5rem, 2.8vw, 2rem); letter-spacing: -0.03em; font-weight: 600; margin: 0; }
@@ -206,37 +206,101 @@ layout: none
   .colophon__meta { border-top: 1px solid var(--ledger-rule); padding-top: 1.25rem; }
   .colophon__meta p { font-size: 0.82rem; line-height: 1.6; color: var(--sc-ink-soft); margin: 0 0 0.6rem; }
   .colophon__links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 1rem; }
-  .colophon__links a { font-size: 0.78rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); text-underline-offset: 0.2em; }
+  .colophon__links a { font-size: 0.78rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-ink-soft); text-underline-offset: 0.2em; }
   .colophon__links a:hover { text-decoration-color: var(--sc-accent); }
   .colophon__fine { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--ledger-rule); font-size: 0.72rem; line-height: 1.6; color: var(--sc-ink-soft); }
   @media (max-width: 860px) { .colophon { grid-template-columns: 1fr; } }
   .insights-teaser { max-width: var(--sc-maxw); margin: 0 auto; padding: clamp(2.5rem, 6vw, 4rem) var(--sc-gutter); border-bottom: 1px solid var(--ledger-rule); }
   .insights-teaser__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
   .insights-teaser__head h2 { font-family: var(--sc-font-display); font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em; font-weight: 600; margin: 0; }
-  .insights-teaser__head a { font-size: 0.82rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); }
+  .insights-teaser__head a { font-size: 0.82rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-ink-soft); }
   .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--ledger-rule); border: 1px solid var(--ledger-rule); }
   .insight-card { background: var(--sc-surface); padding: 1.5rem 1.4rem 1.25rem; display: flex; flex-direction: column; gap: 0.65rem; }
-  .insight-card__meta { font-family: var(--sc-font-mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .insight-card__meta { font-family: var(--sc-font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sc-ink-soft); }
   .insight-card h3 { font-family: var(--sc-font-display); font-size: 1.15rem; line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; margin: 0; }
   .insight-card h3 a { color: var(--sc-ink); text-decoration: none; border-bottom: 1px solid transparent; }
   .insight-card h3 a:hover { border-bottom-color: var(--sc-accent); }
   .insight-card p { margin: 0; font-size: 0.84rem; line-height: 1.6; color: var(--sc-ink-soft); }
-  .insight-card__link { margin-top: auto; font-size: 0.78rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--ledger-rule-strong); width: fit-content; }
+  .insight-card__link { margin-top: auto; font-size: 0.78rem; font-weight: 600; color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-ink-soft); width: fit-content; }
   @media (max-width: 640px) { .insight-grid { grid-template-columns: 1fr; } }
   [data-sc-reveal] { --reveal-p: 0; }
   .reveal-up { clip-path: inset(calc((1 - var(--reveal-p)) * 100%) 0 0 0); }
   @media (prefers-reduced-motion: reduce) { .reveal-up { clip-path: none !important; } }
   .site-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem var(--sc-gutter); max-width: var(--sc-maxw); margin: 0 auto; }
   .site-bar__mark { font-family: var(--sc-font-display); font-size: 0.95rem; font-weight: 700; letter-spacing: -0.02em; color: var(--sc-ink); text-decoration: none; }
+  .site-bar__actions { display: flex; align-items: center; gap: 0.4rem; }
   .site-bar__nav { display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
-  .site-bar__nav a { font-size: 0.78rem; font-weight: 600; color: var(--sc-ink-soft); text-decoration: none; padding: 0.4rem 0.6rem; min-height: 32px; display: inline-flex; align-items: center; }
+  .site-bar__nav a { font-size: 0.82rem; font-weight: 600; color: var(--sc-ink-soft); text-decoration: none; padding: 0.4rem 0.6rem; min-height: 44px; display: inline-flex; align-items: center; }
   .site-bar__nav a:hover { color: var(--sc-ink); }
   .site-bar__nav a.is-cta { background: var(--sc-accent); color: var(--sc-accent-ink); padding-inline: 0.85rem; }
   @media (max-width: 640px) { .site-bar__nav a:not(.is-cta) { display: none; } }
+
+  /* Focus. The token pair flips with the stage, so the same rule reads on paper
+     (dark ring, light halo) and on the dark Work chapter (light ring). */
+  :where(a, button, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--sc-ink);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--sc-canvas);
+    border-radius: 2px;
+  }
+
+  .skip-link {
+    position: absolute; left: -9999px; top: 0; z-index: 100;
+    padding: 0.75rem 1rem; background: var(--sc-accent); color: var(--sc-accent-ink);
+    font-size: 0.85rem; font-weight: 700; text-decoration: none;
+  }
+  .skip-link:focus { left: 0; }
+
+  /* Narrow screens lose the inline chapter links, so the nav has to live
+     somewhere: a native <details> disclosure, no JS required. */
+  .site-menu { display: none; position: relative; }
+  @media (max-width: 640px) {
+    .site-menu { display: block; }
+    .site-menu > summary {
+      list-style: none; cursor: pointer; display: inline-flex; align-items: center;
+      min-height: 44px; padding: 0.4rem 0.7rem; font-size: 0.82rem; font-weight: 600;
+      color: var(--sc-ink); border: 1px solid var(--sc-hairline-strong);
+    }
+    .site-menu > summary::-webkit-details-marker { display: none; }
+    .site-menu[open] > summary { background: var(--sc-surface); }
+    .site-menu__nav {
+      position: absolute; right: 0; top: calc(100% + 0.4rem); z-index: 30;
+      display: grid; min-width: 12rem; background: var(--sc-canvas);
+      border: 1px solid var(--sc-hairline-strong);
+      box-shadow: 0 10px 28px -10px rgba(24,55,42,0.3);
+    }
+    .site-menu__nav a {
+      display: flex; align-items: center; min-height: 44px; padding: 0 1rem;
+      font-size: 0.85rem; font-weight: 600; color: var(--sc-ink); text-decoration: none;
+      border-bottom: 1px solid var(--ledger-rule);
+    }
+    .site-menu__nav a:last-child { border-bottom: none; }
+  }
+
+  /* No-JS floor. The engine adds .sc-ready to <html> at mount; until then every
+     reveal, cue and pinned act is laid out as ordinary flow, so the page reads
+     without the runtime. */
+  html:not(.sc-ready) [data-sc-in],
+  html:not(.sc-ready) [data-sc-stagger] > *,
+  html:not(.sc-ready) [data-sc-cue] { opacity: 1 !important; transform: none !important; }
+  html:not(.sc-ready) [data-sc-act] { height: auto !important; }
+  html:not(.sc-ready) [data-sc-stage] { position: static !important; height: auto !important; overflow: visible !important; }
+  html:not(.sc-ready) .work-pin [data-sc-stage] {
+    background: #0f1f18; color: #f5f0e5; --sc-ink: #f5f0e5; --sc-ink-soft: #a8b8ae;
+    padding-block: clamp(2rem, 6vw, 4rem);
+  }
+  html:not(.sc-ready) .work-inner { position: static; display: block; }
+  html:not(.sc-ready) .work-main { position: static; padding-inline: var(--sc-gutter); }
+  html:not(.sc-ready) .work-case { position: static; inset: auto; display: block; padding-block: 1.75rem; border-bottom: 1px solid rgba(245,240,229,0.14); }
+  html:not(.sc-ready) .work-rail-label,
+  html:not(.sc-ready) .work-aside,
+  html:not(.sc-ready) .work-flow { display: none; }
+  html:not(.sc-ready) .indie-rail { transform: none !important; flex-wrap: wrap; }
 </style>
 {% include head-custom.html %}
 </head>
 <body>
+<a class="skip-link" href="#top">Skip to content</a>
 <span data-sc-progress></span>
 <div class="sc-grain" aria-hidden="true"></div>
 <nav class="folio" aria-label="Chapters">
@@ -263,15 +327,26 @@ layout: none
 </div>
 <header class="site-bar">
   <a class="site-bar__mark" href="{{ '/' | relative_url }}">Gaurav Gurjar</a>
-  <nav class="site-bar__nav" aria-label="Primary">
-    <a href="{{ '/#capabilities' | relative_url }}">Services</a>
-    <a href="{{ '/work/' | relative_url }}">Work</a>
-    <a href="{{ '/insights/' | relative_url }}">Insights</a>
-    <a href="{{ '/#voices' | relative_url }}">About</a>
-    <a class="is-cta" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge</a>
-  </nav>
+  <div class="site-bar__actions">
+    <nav class="site-bar__nav" aria-label="Primary">
+      <a href="{{ '/#capabilities' | relative_url }}">Services</a>
+      <a href="{{ '/work/' | relative_url }}">Work</a>
+      <a href="{{ '/insights/' | relative_url }}">Insights</a>
+      <a href="{{ '/#about' | relative_url }}">About</a>
+      <a class="is-cta" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge</a>
+    </nav>
+    <details class="site-menu">
+      <summary>Menu</summary>
+      <nav class="site-menu__nav" aria-label="Sections">
+        <a href="{{ '/#capabilities' | relative_url }}">Services</a>
+        <a href="{{ '/work/' | relative_url }}">Work</a>
+        <a href="{{ '/insights/' | relative_url }}">Insights</a>
+        <a href="{{ '/#about' | relative_url }}">About</a>
+      </nav>
+    </details>
+  </div>
 </header>
-<main id="top">
+<main id="top" tabindex="-1">
   <section id="title" class="title-page" data-chapter="0">
     <div>
       <p class="title-kicker">Senior data engineer &amp; AI data platform architect · Dubai</p>
@@ -340,7 +415,7 @@ layout: none
         <div class="work-main">
 {% assign featured_projects = site.projects | where: "featured", true | sort: "order" %}
 {% for project in featured_projects limit: 3 %}
-          <div class="work-case" {% if forloop.first %}data-sc-cue="0.02 0.30"{% elsif forloop.index == 2 %}data-sc-cue="0.28 0.52"{% else %}data-sc-cue="0.50 0.74"{% endif %}>
+          <div class="work-case" {% if forloop.first %}data-sc-cue="0 0.30 0 0.133"{% elsif forloop.index == 2 %}data-sc-cue="0.30 0.58 0.143 0.143"{% else %}data-sc-cue="0.58 0.86 0.143 0.143"{% endif %}>
             <h3>{{ project.title }}</h3>
             <div class="work-case__meta"><span class="work-case__sector">{{ project.sector }}</span><span class="work-case__scale">{{ project.scale }}</span></div>
             <p>{{ project.summary }}</p>
@@ -348,7 +423,7 @@ layout: none
             <a class="work-case__link" href="{{ project.url | relative_url }}">View case study →</a>
           </div>
 {% endfor %}
-          <div class="work-case" data-sc-cue="0.72">
+          <div class="work-case" data-sc-cue="0.86 1 0.286 0">
             <h3>Multi-location veterinary inventory ETL</h3>
             <div class="work-case__meta"><span class="work-case__sector">Veterinary healthcare</span><span class="work-case__scale">46 clinic locations</span></div>
             <p>A modular inventory-adjustment package with typed validation at the API boundary and a weekly schedule, proving location coverage before anything is published.</p>
@@ -415,16 +490,14 @@ layout: none
         <blockquote>“I have worked with Gaurav for close to a year and he is a very well rounded, skilled, and innovative data scientist. He has helped me in the development of statistical methods, backend server infrastructure, and data science tasks. Gaurav is not only a great developer but also a great communicator. He has always been very prompt, responsive, and completes tasks on time. He goes above and beyond to ensure that the customer requirements and needs are met. I recommend him to anyone seeking expert level data science services.”</blockquote>
         <cite><strong><a href="https://www.linkedin.com/in/benjaminsharvey/">Benjamin Harvey, Ph.D.</a></strong> · Founder of AI Squared</cite>
       </article>
-      <div style="display: grid; gap: 1px; background: var(--ledger-rule);">
-        <article class="voice-card">
-          <blockquote>“Gaurav is a thoughtful person with a very creative mind. He is intellectually curious and looks for efficient solutions to any problems. I enjoyed my time working with him and appreciate the collegial relationship we developed.”</blockquote>
-          <cite><strong><a href="https://www.linkedin.com/in/ivette-basterrechea-a17ab23/">Ivette Basterrechea</a></strong> · Department of Justice</cite>
-        </article>
-        <article class="voice-card">
-          <blockquote>“I worked with Gaurav on several projects, he has strong technical skills and is also a good team player. He was able to deliver high-quality work and found solutions to difficult problems.”</blockquote>
-          <cite><strong><a href="https://www.linkedin.com/in/lzhang149/">Le Zhang</a></strong> · Google</cite>
-        </article>
-      </div>
+      <article class="voice-card">
+        <blockquote>“Gaurav is a thoughtful person with a very creative mind. He is intellectually curious and looks for efficient solutions to any problems. I enjoyed my time working with him and appreciate the collegial relationship we developed.”</blockquote>
+        <cite><strong><a href="https://www.linkedin.com/in/ivette-basterrechea-a17ab23/">Ivette Basterrechea</a></strong> · Department of Justice</cite>
+      </article>
+      <article class="voice-card">
+        <blockquote>“I worked with Gaurav on several projects, he has strong technical skills and is also a good team player. He was able to deliver high-quality work and found solutions to difficult problems.”</blockquote>
+        <cite><strong><a href="https://www.linkedin.com/in/lzhang149/">Le Zhang</a></strong> · Google</cite>
+      </article>
     </div>
   </section>
   <section class="insights-teaser" data-chapter="4">
@@ -450,7 +523,7 @@ layout: none
       <p>Most recently, on-device AI—policy-aware routing, grounded retrieval, and provenance controls for a browser agent that keeps data on the device.</p>
       <p>Dubai-based. UAE Golden Visa holder. Available for remote global consulting engagements.</p>
       <p class="about__tech"><strong>Core technology:</strong> Python · SQL · TypeScript · AWS · Redshift · dbt · Airflow · PySpark · FastAPI · Pydantic</p></p>
-      <p class="about__tech"><strong>Certified:</strong> IBM Data Engineer · IBM Data Warehouse Engineer · dbt Fundamentals · Dagster &amp; dbt · Coursera Data Engineering Professional · UAE AI Camp · <a href="{{ '/credentials/' | relative_url }}" style="color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-accent);">Full credentials →</a></p>
+      <p class="about__tech"><strong>Certified:</strong> IBM Data Engineer · IBM Data Warehouse Engineer · dbt Fundamentals · Dagster &amp; dbt · Coursera Data Engineering Professional · UAE AI Camp · <a href="{{ '/credentials/' | relative_url }}" style="color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-ink-soft);">Full credentials →</a></p>
     </div>
     <div class="about__side">
       <h3>Connect</h3>
@@ -460,7 +533,7 @@ layout: none
         <a href="https://x.com/dubaidataguy"><span>X</span><span>@dubaidataguy</span></a>
         <a href="https://gauravgurjar.medium.com/"><span>Medium</span><span>gauravgurjar</span></a>
       </div>
-      <p class="about__note">Open to select strategic leadership roles. <a href="https://www.linkedin.com/in/ggurjarsocl/" style="color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-accent);">View profile →</a></p>
+      <p class="about__note">Open to select strategic leadership roles. <a href="https://www.linkedin.com/in/ggurjarsocl/" style="color: var(--sc-ink); text-decoration: underline; text-decoration-color: var(--sc-ink-soft);">View profile →</a></p>
     </div>
   </section>
   <section id="close" class="colophon" data-chapter="5">
@@ -509,9 +582,9 @@ layout: none
       const p2 = parseFloat(getComputedStyle(workStage).getPropertyValue('--sc-p')) || 0;
       if (workProgress) workProgress.style.setProperty('--work-p', p2);
       let activeLedger = 0;
-      if (p2 < 0.28) activeLedger = 0;
-      else if (p2 < 0.52) activeLedger = 1;
-      else if (p2 < 0.74) activeLedger = 2;
+      if (p2 < 0.30) activeLedger = 0;
+      else if (p2 < 0.58) activeLedger = 1;
+      else if (p2 < 0.86) activeLedger = 2;
       else activeLedger = 3;
       ledgerRows.forEach(function (r, i) { r.classList.toggle('is-active', i === activeLedger); });
     }

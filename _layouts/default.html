@@ -20,15 +20,15 @@
         <a class="brand" href="{{ '/' | relative_url }}">Gaurav Gurjar</a>
         <nav class="nav-links" aria-label="Primary">
           <a href="{{ '/' | relative_url }}#services">Services</a>
-          <a href="{{ '/work/' | relative_url }}">Work</a>
-          <a href="{{ '/insights/' | relative_url }}">Insights</a>
-          <a href="{{ '/credentials/' | relative_url }}">Credentials</a>
+          <a href="{{ '/work/' | relative_url }}"{% if page.url == '/work/' or page.layout == 'project' %} aria-current="page"{% endif %}>Work</a>
+          <a href="{{ '/insights/' | relative_url }}"{% if page.url == '/insights/' or page.layout == 'post' %} aria-current="page"{% endif %}>Insights</a>
+          <a href="{{ '/credentials/' | relative_url }}"{% if page.url == '/credentials/' %} aria-current="page"{% endif %}>Credentials</a>
           <a href="{{ '/' | relative_url }}#about">About</a>
           <a class="nav-cta" href="https://calendly.com/gauravgurjar/15min">Discuss your data challenge</a>
         </nav>
       </div>
     </header>
-    <main id="main" class="container">
+    <main id="main" class="container" tabindex="-1">
 
       {{ content }}
 
