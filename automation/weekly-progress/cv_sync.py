@@ -32,12 +32,15 @@ def sha256_file(path: Path) -> str:
 def render(cv_root: Path) -> None:
     """Render both documents in the project's own environment."""
     for extra in ([], ["--expanded"]):
-        result = subprocess.run(
-            ["uv", "run", "--quiet", "python", "render.py", *extra],
-            cwd=cv_root, capture_output=True, text=True, timeout=900, check=False,
-        )
+        label = "expanded" if extra else "one-pager"
+        try:
+            result = subprocess.run(
+                ["uv", "run", "--quiet", "python", "render.py", *extra],
+                cwd=cv_root, capture_output=True, text=True, timeout=900, check=False,
+            )
+        except OSError as exc:
+            raise SystemExit(f"render failed ({label}): cannot run uv: {exc}")
         if result.returncode != 0:
-            label = "expanded" if extra else "one-pager"
             raise SystemExit(f"render failed ({label}): {result.stderr.strip()}")
 
 

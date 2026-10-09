@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Weekly progress blog: collect -> agent (skills) -> guard -> build/test -> open PR.
+# Weekly progress: collect -> blog agent -> CV agent -> guards -> build/test -> two PRs.
 # Usage: run.sh [--no-push]
 set -euo pipefail
 
@@ -15,38 +15,71 @@ fi
 python3_bin=$(command -v python3) || { printf 'missing executable: python3\n' >&2; exit 1; }
 cmd_bin=$(command -v cmd) || { printf 'missing executable: cmd\n' >&2; exit 1; }
 git_bin=$(command -v git) || { printf 'missing executable: git\n' >&2; exit 1; }
+uv_bin=$(command -v uv) || { printf 'missing executable: uv\n' >&2; exit 1; }
 
+cv_root="${CV_ROOT:-/root/CV-Development}"
+# The CV scripts need PyYAML and pypdf, which CV-Development already declares.
+cv_python="$uv_bin run --project $cv_root --quiet python"
 date_utc=$(date -u +%F)
 run_dir="$repo_root/.progress-generator/$date_utc"
+activity="$repo_root/.progress-generator/activity/$date_utc.json"
 mkdir -p "$repo_root/.progress-generator/activity" "$run_dir"
 chmod 700 "$repo_root/.progress-generator"
 
-"$python3_bin" "$script_dir/collect.py" --out "$repo_root/.progress-generator/activity/$date_utc.json"
+# 1. Activity pack, shared by both stages.
+[ -f "$activity" ] || "$python3_bin" "$script_dir/collect.py" --out "$activity"
 
-prompt="Use the publish-weekly-progress skill for the reporting period ending $date_utc. \
+# 2. Blog stage: the post and the PR body.
+blog_prompt="Use the publish-weekly-progress skill for the reporting period ending $date_utc. \
 Follow the skill chain: github-progress-collector -> progress-analyzer -> github-project-context \
 -> technical-blog-writer -> blog-editor. Read the activity pack at \
 .progress-generator/activity/$date_utc.json. Write the post to _posts/$date_utc-weekly-progress.md \
 and the PR body to .progress-generator/$date_utc/pr-body.md. Do not run git add, commit, push, or gh."
 
-"$cmd_bin" -p "$prompt" --output-format json --no-session --skip-onboarding --no-auto-update --max-turns 40
+"$cmd_bin" -p "$blog_prompt" --output-format json --no-session --skip-onboarding --no-auto-update --max-turns 40
 
 relative="_posts/$date_utc-weekly-progress.md"
 body_file="$run_dir/pr-body.md"
 
-if [ ! -f "$relative" ]; then
+# 3. CV stage. Independent of the blog PR: any failure here is reported, not fatal to it.
+cv_status=0
+cv_prompt="Use the cv-highlight-writer skill, then the cv-editor skill, for the week ending $date_utc. \
+Read the activity pack at .progress-generator/activity/$date_utc.json and the analysis at \
+.progress-generator/$date_utc/analysis.json if it exists, otherwise run progress-analyzer first. \
+Write the proposed bullets to .progress-generator/$date_utc/cv-bullets.json, then apply only the \
+bullets cv-editor approves to $cv_root/data/experience.yaml: highlights lists only and nothing else. \
+If nothing qualifies, change nothing and say so. \
+Do not run git add, commit, push, or gh."
+
+if ! "$cmd_bin" -p "$cv_prompt" --output-format json --no-session --skip-onboarding --no-auto-update --max-turns 40; then
+    cv_status=1
+elif ! $cv_python "$script_dir/cv_guard.py" --data "$cv_root/data/experience.yaml"; then
+    cv_status=1
+elif ! (cd "$cv_root" && "$uv_bin" run --quiet pytest -q); then
+    cv_status=1
+elif ! $cv_python "$script_dir/cv_sync.py" --cv-root "$cv_root" --site-root "$repo_root"; then
+    cv_status=1
+elif ! $cv_python "$script_dir/cv_policy.py" \
+        --pdf "$cv_root/Gaurav_Gurjar_CV.pdf" \
+        --pdf "$cv_root/Gaurav_Gurjar_CV_extended.pdf"; then
+    cv_status=1
+elif ! $cv_python "$script_dir/cv_publish.py" --date "$date_utc" --repo-root "$cv_root" \
+        --body-file "$run_dir/cv-body.md" $no_push; then
+    cv_status=1
+fi
+
+# 4. Site pull request: the post, plus the refreshed CV when the CV stage got that far.
+if [ -f "$relative" ]; then
+    script/cibuild
+    "$python3_bin" -m unittest scripts.test_weekly_progress scripts.test_cv_refresh -q
+
+    "$python3_bin" "$script_dir/publish.py" --date "$date_utc" --body-file "$body_file" $no_push
+else
     printf 'no post produced for %s (quiet week or editor block)\n' "$date_utc"
     [ -f "$body_file" ] && cat "$body_file"
-    exit 0
 fi
 
-status=$("$git_bin" status --porcelain --untracked-files=all)
-if [ "$status" != "?? $relative" ]; then
-    printf 'publish guard failed: expected only "?? %s", saw:\n%s\n' "$relative" "${status:-<clean>}" >&2
-    exit 1
+if [ "$cv_status" -ne 0 ]; then
+    printf 'CV stage failed; the site pull request is unaffected\n' >&2
 fi
-
-script/cibuild
-"$python3_bin" -m unittest scripts.test_weekly_progress -q
-
-"$python3_bin" "$script_dir/publish.py" --date "$date_utc" --body-file "$body_file" $no_push
+exit "$cv_status"

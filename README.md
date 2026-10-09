@@ -132,6 +132,33 @@ Requires `GITHUB_TOKEN` (`repo` + `read:user`) in the environment or `/root/.her
 
 Tests: `python3 -m unittest scripts.test_weekly_progress -v`.
 
+### Weekly CV refresh
+
+The same run also refreshes the CV. A second agent stage reads the same activity pack, proposes
+`highlights` bullets (`cv-highlight-writer`), has them gated (`cv-editor`), and applies only the
+approved bullets to `CV-Development/data/experience.yaml`. Deterministic scripts do the rest:
+
+```
+automation/weekly-progress/
+├── cv_guard.py      # rejects any experience.yaml edit outside a highlights list
+├── cv_policy.py     # scans the rendered PDFs against the client-scoped denylist
+├── cv_sync.py       # renders in CV-Development, copies the one-pager, writes the version marker
+└── cv_publish.py    # opens the CV-Development PR (never the base branch)
+```
+
+That stage opens a second PR against `CV-Development` (`cv-refresh/<date>` → `main`). The site PR
+also carries the regenerated `Gaurav_Gurjar_CV_AI-Data-Engineer.pdf` and its `.version.json`;
+`script/cibuild` runs `scripts/check_cv_marker.py`, so a PDF that no longer matches its marker
+fails CI.
+
+The stages are independent: if the CV stage fails, the site PR still opens with the post alone.
+
+Requirements: `uv` on `PATH` — the CV renders in CV-Development's environment, and the CV scripts
+run through it so they have `PyYAML` and `pypdf`. The site's own PDF policy scan installs `pypdf`
+in CI; locally use a venv or `python3 -m pip install --user pypdf`.
+
+Tests: `python3 -m unittest scripts.test_cv_refresh -v`.
+
 ## CI
 
 
