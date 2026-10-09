@@ -196,11 +196,14 @@ Two layers, because the hole is in CI, not just this pipeline:
 ### Association and sync
 
 `cv_sync.py` (deterministic): in a clean, origin-synchronized `/root/CV-Development`,
-run `render.py` and `render.py --expanded`, then copy the **one-pager** render
-(`Gaurav_Gurjar_CV.pdf`, a single A4 page) into the site root under the site's existing
-name `Gaurav_Gurjar_CV_AI-Data-Engineer.pdf`, so `index.html` is untouched. The
-expanded render is committed to `CV-Development` only. Alongside the PDF, write
-`Gaurav_Gurjar_CV_AI-Data-Engineer.version.json`:
+run `render.py` and `render.py --expanded`, then copy the **extended** render
+(`Gaurav_Gurjar_CV_extended.pdf`) into the site root under the site's existing
+name `Gaurav_Gurjar_CV_AI-Data-Engineer.pdf`, so `index.html` is untouched. Alongside the PDF,
+write `Gaurav_Gurjar_CV_AI-Data-Engineer.version.json`:
+
+> Revised after implementation: this design first published the one-pager. The owner chose the
+> extended render instead, and accepts that its client-work index names the engagement roster —
+> names the denylist does not cover, so nothing in CI would flag them.
 
 ```json
 { "cv_commit": "<sha>", "rendered_at": "<iso8601>", "sha256": "<hash of the pdf>" }

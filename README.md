@@ -156,9 +156,14 @@ approved bullets to `CV-Development/data/experience.yaml`. Deterministic scripts
 automation/weekly-progress/
 ├── cv_guard.py      # rejects any experience.yaml edit outside a highlights list
 ├── cv_policy.py     # scans the rendered PDFs against the client-scoped denylist
-├── cv_sync.py       # renders in CV-Development, copies the one-pager, writes the version marker
+├── cv_sync.py       # renders in CV-Development, copies the extended CV, writes the version marker
 └── cv_publish.py    # opens the CV-Development PR (never the base branch)
 ```
+
+The published artifact is the **extended** render (`Gaurav_Gurjar_CV_extended.pdf`, multi-page: work
+history plus project highlights and the client-work index), copied to the site as
+`Gaurav_Gurjar_CV_AI-Data-Engineer.pdf`. It names its employers-of-record, and its client-work index
+names the engagement roster; that is deliberate.
 
 That stage opens a second PR against `CV-Development` (`cv-refresh/<date>` → `main`). The site PR
 also carries the regenerated `Gaurav_Gurjar_CV_AI-Data-Engineer.pdf` and its `.version.json`;

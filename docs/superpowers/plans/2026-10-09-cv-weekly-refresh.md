@@ -28,6 +28,9 @@ GitHub Actions is green. Where reality differed from this plan:
   PDFs (weasyprint embeds a timestamp), which otherwise produced false failures each quiet week.
 - The human guide for the persona lives beside its skill, not in `docs/persona.md`, because Jekyll
   publishes `docs/`.
+- After implementation the owner switched the published artifact from the one-pager to the
+  **extended** render, accepting that its client-work index names the engagement roster — names the
+  denylist does not cover, so nothing in CI would flag them.
 
 Six pre-existing defects surfaced while rehearsing: `fetch_repos` arity in `collect.py` (the
 collector had never run), headless writes being refused, porcelain path truncation in

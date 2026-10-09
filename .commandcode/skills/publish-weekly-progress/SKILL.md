@@ -51,7 +51,7 @@ only thing that creates a branch, commits, pushes, and opens the PR.
 
 `run.sh` then runs a second, independent stage from the same activity pack, which this skill does
 not drive: `cv-highlight-writer` → `cv-editor` → `cv_guard.py` (highlights-only, plus the cap) →
-CV-Development's own test suite → `cv_sync.py` (render, copy the one-pager, write the version
+CV-Development's own test suite → `cv_sync.py` (render, copy the extended render, write the version
 marker) → `cv_policy.py` (client-name scan of the rendered PDFs) → `cv_publish.py` (a PR against
 `CV-Development`). When no bullet qualifies, nothing is written and no CV pull request is opened.
 

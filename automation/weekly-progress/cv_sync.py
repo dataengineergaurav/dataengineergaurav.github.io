@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Render the CV and publish the one-pager into the site.
+"""Render the CV and publish the extended render into the site.
 
-Renders in CV-Development through its own environment, copies the one-pager to
-the site under the exact name the homepage links, and writes a version marker so
+Renders in CV-Development through its own environment, copies the extended render
+to the site under the exact name the homepage links, and writes a version marker so
 a stale or hand-swapped PDF fails CI. On any failure the site worktree is left
 untouched, because the copy and the marker are written together or not at all.
 
@@ -21,7 +21,9 @@ from pathlib import Path
 
 SITE_PDF = "Gaurav_Gurjar_CV_AI-Data-Engineer.pdf"
 SITE_VERSION = "Gaurav_Gurjar_CV_AI-Data-Engineer.version.json"
-CV_ONE_PAGER = "Gaurav_Gurjar_CV.pdf"
+# The published CV is the extended render (multi-page: work history plus the
+# project highlights and client-work index), not the one-page resume.
+CV_SOURCE = "Gaurav_Gurjar_CV_extended.pdf"
 DEFAULT_CV_ROOT = Path("/root/CV-Development")
 
 
@@ -53,8 +55,8 @@ def _current_commit(cv_root: Path) -> str:
 
 
 def sync(cv_root: Path, site_root: Path) -> dict:
-    """Copy the rendered one-pager into the site and write its marker."""
-    source = Path(cv_root) / CV_ONE_PAGER
+    """Copy the rendered extended CV into the site and write its marker."""
+    source = Path(cv_root) / CV_SOURCE
     if not source.is_file():
         raise SystemExit(f"missing rendered CV: {source}")
 
@@ -104,7 +106,7 @@ def marker_violations(site_root: Path) -> list[str]:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Render the CV and sync the one-pager into the site.")
+    parser = argparse.ArgumentParser(description="Render the CV and sync the extended render into the site.")
     parser.add_argument("--cv-root", default=str(DEFAULT_CV_ROOT))
     parser.add_argument("--site-root", default=".")
     parser.add_argument("--dry-run", action="store_true")
@@ -114,7 +116,7 @@ def main(argv=None) -> int:
     site_root = Path(args.site_root)
 
     if args.dry_run:
-        print(f"(dry-run) would render {cv_root} and copy {CV_ONE_PAGER} to {site_root / SITE_PDF}")
+        print(f"(dry-run) would render {cv_root} and copy {CV_SOURCE} to {site_root / SITE_PDF}")
         return 0
 
     render(cv_root)

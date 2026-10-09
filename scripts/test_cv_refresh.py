@@ -114,7 +114,7 @@ class CvSyncTests(unittest.TestCase):
         cv_root.mkdir()
         site_root.mkdir()
         if with_source:
-            (cv_root / cv_sync.CV_ONE_PAGER).write_bytes(b"rendered-pdf")
+            (cv_root / cv_sync.CV_SOURCE).write_bytes(b"rendered-pdf")
         return cv_root, site_root
 
     def test_writes_a_marker_that_matches_the_copied_pdf(self):

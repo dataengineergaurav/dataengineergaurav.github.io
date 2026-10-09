@@ -22,7 +22,8 @@ template, or style.
 - **Rules and constraints:**
   - **Never name a client or employer** in a filename, front matter, body, URL, image name, or
     alt text. Describe work through industry, scale, role, architecture and outcome. Named
-    testimonial attributions are the only exception.
+    testimonial attributions are the only exception — and the published CV, which names its
+    employers-of-record and its client-work index roster by the owner's decision.
   - CI enforces this: `scripts/test_public_content.py` scans the built site for forbidden
     organization names and retired claims, and requires the homepage proof points to remain.
   - No unsupported production, performance or scale claims. Prefer numbers already present in
@@ -96,7 +97,9 @@ Read these; do not restate them here.
 
 ## Guardrails
 
-- Never name a client or employer anywhere in this repository's public output.
+- Never name a client or employer in site prose, case studies, or posts. The one exception is the
+  published CV: its extended render names the employers-of-record and the client-work index roster
+  by the owner's decision, so do not "fix" those names.
 - Never edit `_site/` or `scrollcraft/`.
 - Run `script/cibuild` before declaring a content, template, or style change complete.
 - Keep the human-facing guide at
