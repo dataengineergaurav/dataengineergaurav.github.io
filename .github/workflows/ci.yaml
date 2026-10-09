@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     name: script/cibuild
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: content policy and pipeline test dependencies
