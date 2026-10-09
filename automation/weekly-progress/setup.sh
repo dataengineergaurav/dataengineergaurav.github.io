@@ -6,6 +6,16 @@ set -euo pipefail
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 repo_root=$(dirname -- "$(dirname -- "$script_dir")")
 
+# Validate the command before resolving any tool: an unknown argument must not depend
+# on binaries only the host has (the `cmd` CLI is absent on CI runners).
+case "${1:-}" in
+    check|install|remove) ;;
+    *)
+        printf 'usage: %s check|install|remove\n' "$0" >&2
+        exit 2
+        ;;
+esac
+
 case "${1:-}" in
     install|remove)
         if [ "$repo_root" != /root/dataengineergaurav.github.io ]; then
