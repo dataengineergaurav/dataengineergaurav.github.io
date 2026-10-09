@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: content policy dependency
-        run: python3 -m pip install --quiet pypdf
+      - name: content policy and pipeline test dependencies
+        run: python3 -m pip install --quiet pypdf pyyaml
       - name: build
         run: chmod +x script/cibuild && script/cibuild

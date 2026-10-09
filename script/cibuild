@@ -2,7 +2,14 @@
 
 set -e
 
+# Force a UTF-8 locale: without one, Ruby/Nokogiri parses as US-ASCII, fails on any
+# non-ASCII byte, and silently skips those files instead of checking their links —
+# html-proofer still exits 0, so the link check disappears without failing the build.
+export LANG="${LANG:-C.UTF-8}"
+export LC_ALL="${LC_ALL:-C.UTF-8}"
+
 bundle exec jekyll build
 bundle exec htmlproofer ./_site --checks Links,Images,Scripts --disable-external --ignore-empty-alt
 python3 scripts/test_public_content.py --root _site
 python3 scripts/check_cv_marker.py --root .
+python3 -m unittest scripts.test_public_content scripts.test_weekly_progress scripts.test_cv_refresh -q
