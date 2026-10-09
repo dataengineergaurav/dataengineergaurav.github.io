@@ -17,6 +17,8 @@ SKILL_NAMES = (
     "github-project-context",
     "blog-editor",
     "publish-weekly-progress",
+    "cv-highlight-writer",
+    "cv-editor",
 )
 
 
@@ -260,6 +262,17 @@ class SkillContractTests(unittest.TestCase):
         text = (SKILLS_DIR / "publish-weekly-progress" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("never commit", text.lower())
         self.assertIn("publish.py", text)
+
+    def test_cv_skills_state_their_guardrails(self):
+        writer = (SKILLS_DIR / "cv-highlight-writer" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("cv-bullets.json", writer)
+        self.assertIn("replaces", writer)
+        self.assertIn("em-dash", writer.lower())
+
+        editor = (SKILLS_DIR / "cv-editor" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("never run git", editor.lower())
+        self.assertIn("verdict", editor)
+        self.assertIn("public_policy.py", editor)
 
 
 class SetupScriptTests(unittest.TestCase):
