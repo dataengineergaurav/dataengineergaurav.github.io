@@ -49,3 +49,4 @@ exclude:
   - package.json
   - package-lock.json
   - scrollcraft
+  - Gaurav_Gurjar_CV_AI-Data-Engineer.version.json

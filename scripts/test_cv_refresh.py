@@ -4,7 +4,9 @@ Mirrors scripts/test_weekly_progress.py: the pipeline modules are loaded from
 automation/weekly-progress/ by path, so nothing needs to be installed.
 """
 import importlib.util
+import json
 import sys
+from tempfile import TemporaryDirectory
 import unittest
 from pathlib import Path
 
@@ -24,6 +26,7 @@ def load(name):
 cv_policy = load("cv_policy")
 cv_guard = load("cv_guard")
 cv_publish = load("cv_publish")
+cv_sync = load("cv_sync")
 
 
 class CvPolicyTests(unittest.TestCase):
@@ -102,6 +105,63 @@ class CvPublishTests(unittest.TestCase):
 
     def test_allow_list_names_the_source_of_truth(self):
         self.assertIn("data/experience.yaml", cv_publish.CV_FILES)
+
+
+class CvSyncTests(unittest.TestCase):
+    def _roots(self, temporary, with_source=True):
+        cv_root = Path(temporary) / "cv"
+        site_root = Path(temporary) / "site"
+        cv_root.mkdir()
+        site_root.mkdir()
+        if with_source:
+            (cv_root / cv_sync.CV_ONE_PAGER).write_bytes(b"rendered-pdf")
+        return cv_root, site_root
+
+    def test_writes_a_marker_that_matches_the_copied_pdf(self):
+        with TemporaryDirectory() as temporary:
+            cv_root, site_root = self._roots(temporary)
+            cv_sync.sync(cv_root, site_root)
+
+            marker = json.loads((site_root / cv_sync.SITE_VERSION).read_text(encoding="utf-8"))
+            self.assertEqual(marker["sha256"], cv_sync.sha256_file(site_root / cv_sync.SITE_PDF))
+            self.assertTrue(marker["cv_commit"])
+
+    def test_marker_check_passes_after_a_sync(self):
+        with TemporaryDirectory() as temporary:
+            cv_root, site_root = self._roots(temporary)
+            cv_sync.sync(cv_root, site_root)
+
+            self.assertEqual(cv_sync.marker_violations(site_root), [])
+
+    def test_marker_check_rejects_a_swapped_pdf(self):
+        with TemporaryDirectory() as temporary:
+            cv_root, site_root = self._roots(temporary)
+            cv_sync.sync(cv_root, site_root)
+            (site_root / cv_sync.SITE_PDF).write_bytes(b"tampered")
+
+            self.assertEqual(
+                cv_sync.marker_violations(site_root),
+                [f"{cv_sync.SITE_PDF}: sha256 does not match {cv_sync.SITE_VERSION}"],
+            )
+
+    def test_missing_marker_is_reported(self):
+        with TemporaryDirectory() as temporary:
+            _, site_root = self._roots(temporary)
+            (site_root / cv_sync.SITE_PDF).write_bytes(b"x")
+
+            self.assertEqual(
+                cv_sync.marker_violations(site_root), [f"missing {cv_sync.SITE_VERSION}"]
+            )
+
+    def test_failure_leaves_the_site_pdf_untouched(self):
+        with TemporaryDirectory() as temporary:
+            cv_root, site_root = self._roots(temporary, with_source=False)
+            (site_root / cv_sync.SITE_PDF).write_bytes(b"previous")
+
+            with self.assertRaises(SystemExit):
+                cv_sync.sync(cv_root, site_root)
+
+            self.assertEqual((site_root / cv_sync.SITE_PDF).read_bytes(), b"previous")
 
 
 if __name__ == "__main__":
