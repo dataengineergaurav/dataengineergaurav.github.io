@@ -2,6 +2,16 @@
 
 A Jekyll consulting site for senior data engineering, reliable platforms, governed AI, and production delivery.
 
+<!-- persona-builder:start -->
+## Working on this project with an agent
+
+Domain and technical context lives in the `persona-dataengineergaurav-github-io` skill in
+`.commandcode/skills/`. Its human-readable companion is
+`.commandcode/skills/persona-dataengineergaurav-github-io/README.md`.
+
+Regenerate it with `/persona-builder dataengineergaurav.github.io --update`.
+<!-- persona-builder:end -->
+
 ## Project Structure
 
 ```
