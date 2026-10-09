@@ -40,14 +40,15 @@ template, or style.
 - **Commands:**
   - install: `bundle install`
   - build and serve locally: `bundle exec jekyll serve` (`http://localhost:4000`)
-  - full verification: `script/cibuild` — Jekyll build + `htmlproofer` + the content policy
-  - unit tests: `python3 -m unittest scripts.test_public_content scripts.test_weekly_progress scripts.test_article_pipeline scripts.test_wiki_ingest`
+  - full verification: `script/cibuild` — Jekyll build + `htmlproofer` + the content policy + the CV
+    marker check + the pipeline test suites
+  - unit tests: `python3 -m unittest scripts.test_public_content scripts.test_weekly_progress scripts.test_cv_refresh scripts.test_article_pipeline scripts.test_wiki_ingest`
 - **Architecture:** static Jekyll site. Collections `projects` (`/work/:name/`) and `wiki`
   (`/wiki/:name/`). Templates in `_layouts/`, fragments in `_includes/`, styles in `_sass/` and
   `assets/`. `_site/` is generated build output. Two local pipelines produce content as pull
-  requests: `automation/weekly-progress/` (GitHub activity to a Build Log post, driven by six
-  skills in `.commandcode/skills/`) and `scripts/article_pipeline.py` (personal articles with a
-  Telegram approval gate).
+  requests: `automation/weekly-progress/` (GitHub activity to a Build Log post **and** a weekly CV
+  refresh, driven by eight skills in `.commandcode/skills/`) and `scripts/article_pipeline.py`
+  (personal articles with a Telegram approval gate).
 - **Entry points:** `index.html`, `_config.yml`, `work.md`, `insights.md`, `_layouts/`,
   `_sass/`, and the two pipeline directories.
 - **Conventions:**
@@ -66,8 +67,9 @@ template, or style.
   - `scrollcraft/` is design scratch, excluded from the build — leave it alone.
   - The `wiki/` collection is a copy ingested from the separate `second-brain` project via
     `scripts/wiki_ingest.py`. Edit upstream, not the copy.
-  - The committed CV PDF is a **derived artifact** — regenerate it from the `CV-Development`
-    project, never hand-edit it.
+  - The committed CV PDF is a **derived artifact** — `automation/weekly-progress/cv_sync.py`
+    regenerates it from the `CV-Development` project and writes its `.version.json` marker. Never
+    hand-edit either; `scripts/check_cv_marker.py` fails CI when the two disagree.
 
 ## Canonical sources
 
@@ -78,6 +80,8 @@ template, or style.
 | Site configuration and exclude list | `_config.yml` |
 | Content policy and forbidden names | `scripts/test_public_content.py` |
 | Verification gate | `script/cibuild` |
+| Headless permissions (shell denied) | `.commandcode/settings.json` |
+| Published CV + version marker | `Gaurav_Gurjar_CV_AI-Data-Engineer.{pdf,version.json}` |
 | Weekly content pipeline | `automation/weekly-progress/` |
 | Agent skills | `.commandcode/skills/` |
 

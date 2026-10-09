@@ -16,16 +16,22 @@ Regenerate it with `/persona-builder dataengineergaurav.github.io --update`.
 
 ```
 .
-├── _config.yml              # Site configuration (SEO, social, plugins)
+├── _config.yml              # Site configuration (SEO, social, plugins, exclude list)
 ├── _layouts/                # Jekyll page templates
 ├── _includes/               # Reusable HTML fragments
 ├── _projects/               # Project case studies (YAML-front-matter files)
 ├── _posts/                  # Blog posts (YYYY-MM-DD-title.md)
+├── _wiki/                   # Wiki collection (ingested from the second-brain project)
 ├── _sass/                   # Stylesheet components
 ├── assets/                  # CSS, fonts, images
-├── index.md                 # Homepage
+├── automation/              # weekly-progress: the scheduled blog + CV pipeline
+├── scripts/                 # Content policy, tests, article and wiki pipelines
+├── .commandcode/            # Agent skills, persona, permissions
+├── index.html               # Homepage
+├── work.md / insights.md    # /work/ and /insights/ pages
+├── Gaurav_Gurjar_CV_AI-Data-Engineer.pdf  # Published CV (+ .version.json marker)
 ├── Gemfile                  # Ruby dependencies (github-pages)
-└── script/cibuild           # Build + link-check script
+└── script/cibuild           # Build + link check + content policy + marker + tests
 ```
 
 ## Quick Start
@@ -92,7 +98,7 @@ pipeline below; they appear in the same `/insights/` archive and topic filters.
 ## Weekly Progress Pipeline
 
 A scheduled agent run turns GitHub activity into a weekly "what I built" article and opens it as a
-pull request. Reasoning lives in six Command Code skills under `.commandcode/skills/`; the
+pull request. Reasoning lives in eight Command Code skills under `.commandcode/skills/`; the
 data-gathering and publishing are deterministic scripts so the agent never touches git.
 
 ```
@@ -105,9 +111,9 @@ automation/weekly-progress/
 └── weekly-progress-generator.{service,timer}
 ```
 
-Agent skills (in `.commandcode/skills/`): `github-progress-collector`, `progress-analyzer`,
-`technical-blog-writer`, `github-project-context`, `blog-editor`, `publish-weekly-progress`
-(the orchestrator).
+Agent skills (in `.commandcode/skills/`). Blog stage: `github-progress-collector`,
+`progress-analyzer`, `technical-blog-writer`, `github-project-context`, `blog-editor`,
+`publish-weekly-progress` (the orchestrator). CV stage: `cv-highlight-writer`, `cv-editor`.
 
 ```bash
 # one-off run (collect -> agent -> build/test -> open PR)
@@ -162,16 +168,26 @@ fails CI.
 The stages are independent: if the CV stage fails, the site PR still opens with the post alone.
 
 Requirements: `uv` on `PATH` — the CV renders in CV-Development's environment, and the CV scripts
-run through it so they have `PyYAML` and `pypdf`. The site's own PDF policy scan installs `pypdf`
-in CI; locally use a venv or `python3 -m pip install --user pypdf`.
+run through it so they have `PyYAML` and `pypdf`. The site's own PDF policy scan needs `pypdf` for
+whichever interpreter runs `script/cibuild`; CI installs it, and on Debian/Ubuntu the `python3-pypdf`
+package provides it.
 
 Tests: `python3 -m unittest scripts.test_cv_refresh -v`.
 
 ## CI
 
+Every push and pull request runs `script/cibuild` on GitHub Actions (`.github/workflows/ci.yaml`),
+which installs `pypdf` and `pyyaml`, then runs:
 
-Every push runs `script/cibuild` in GitHub Actions: Jekyll build + html-proofer
-link/image/script checks.
+1. `bundle exec jekyll build`
+2. `html-proofer` link, image, and script checks over `_site`
+3. `scripts/test_public_content.py --root _site` — the content policy, including a
+   decompressed-text scan of every committed PDF against a client-scoped denylist
+4. `scripts/check_cv_marker.py` — the published CV must match its version marker
+5. `python3 -m unittest scripts.test_public_content scripts.test_weekly_progress scripts.test_cv_refresh`
+
+The pipeline's own suites run in CI too, so a change to the collector or the CV guards fails the
+build rather than only surfacing on the scheduled run.
 
 ## Contact
 

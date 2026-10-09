@@ -10,6 +10,30 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-09-cv-weekly-refresh-design.md`
 
+## Outcome
+
+Implemented 2026-10-09. All nine tasks landed; the CV stage is wired into the Monday timer and
+GitHub Actions is green. Where reality differed from this plan:
+
+- Tasks 3 and 4 landed as one commit (they share `scripts/test_cv_refresh.py`).
+- The headless agent needs `--yolo` to write files at all — permission modes do not grant writes.
+  Least privilege is preserved by `.commandcode/settings.json`, whose `deny: ["Shell"]` outranks
+  `--yolo`, so the agent can write but never run a command. This is stronger than the plan's
+  prompt-level "never touches git".
+- The CV scripts run through CV-Development's environment (`uv run --project`), which already
+  declares `PyYAML` and `pypdf`, rather than adding two dependencies to this repo.
+- The plan did not say who applies `cv-bullets.json` to `experience.yaml`; the orchestrator does,
+  after `cv-editor` approves, and `cv_guard.py` verifies the result.
+- The CV stage skips render and publish when `experience.yaml` is unchanged. Rendering churns the
+  PDFs (weasyprint embeds a timestamp), which otherwise produced false failures each quiet week.
+- The human guide for the persona lives beside its skill, not in `docs/persona.md`, because Jekyll
+  publishes `docs/`.
+
+Six pre-existing defects surfaced while rehearsing: `fetch_repos` arity in `collect.py` (the
+collector had never run), headless writes being refused, porcelain path truncation in
+`publish._changed_paths`, doctor rejecting fine-grained PATs, `setup.sh` resolving tools before
+validating its command, and a US-ASCII locale silently disabling html-proofer's link checking.
+
 ## Global Constraints
 
 - **Edit boundary:** the agent may change only `highlights` lists in `data/experience.yaml`. Dates, roles, `organization_id`, `client_id`, `summary`, `technologies` and `meta` are immutable to automation.

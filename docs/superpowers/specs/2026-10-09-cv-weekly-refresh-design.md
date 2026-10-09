@@ -1,7 +1,7 @@
 # Weekly CV Refresh — Design
 
 **Date:** 2026-10-09
-**Status:** Approved for planning
+**Status:** Implemented (2026-10-09) — see the plan's Outcome section for the deviations found during execution.
 **Repos:** `dataengineergaurav.github.io` (pipeline host), `CV-Development` (source of truth)
 
 ## Problem
