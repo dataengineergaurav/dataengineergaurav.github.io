@@ -27,6 +27,10 @@ HERMES_ENV = Path("/root/.hermes/.env")
 GIT = "/usr/bin/git"
 USER_AGENT = "GauravWeeklyProgress/1.0"
 
+# The site pull request may also carry the CV refreshed by the CV stage.
+CV_PDF = "Gaurav_Gurjar_CV_AI-Data-Engineer.pdf"
+CV_VERSION = "Gaurav_Gurjar_CV_AI-Data-Engineer.version.json"
+
 
 def git(*args, check=True, raw=False, cwd=REPO_ROOT):
     result = subprocess.run(
@@ -69,13 +73,28 @@ def post_path_for(date):
     return REPO_ROOT / "_posts" / f"{date}-weekly-progress.md"
 
 
-def only_change_guard(relative, repo_root=REPO_ROOT):
+def _changed_paths(repo_root=REPO_ROOT):
+    """Every path the worktree reports as changed, tracked or untracked."""
     status = git("status", "--porcelain", "--untracked-files=all", cwd=repo_root)
-    lines = [line for line in status.splitlines() if line.strip()]
-    if lines != [f"?? {relative}"]:
-        shown = "\n".join(lines) if lines else "(clean worktree)"
+    paths = []
+    for line in status.splitlines():
+        if line.strip():
+            paths.append(line[3:].strip())
+    return paths
+
+
+def only_change_guard(relatives, repo_root=REPO_ROOT, required=None):
+    """The worktree may hold only `relatives`, and every path in `required`."""
+    allowed = sorted(set(relatives))
+    needed = sorted(set(required) if required is not None else set(relatives))
+    seen = sorted(_changed_paths(repo_root))
+    unexpected = [path for path in seen if path not in allowed]
+    missing = [path for path in needed if path not in seen]
+    if unexpected or missing:
         raise SystemExit(
-            f"publish guard failed: expected exactly '?? {relative}', saw:\n{shown}"
+            "publish guard failed: "
+            f"unexpected={unexpected or 'none'}, missing={missing or 'none'}, "
+            f"worktree={seen or ['(clean)']}"
         )
 
 
@@ -118,7 +137,12 @@ def publish(date, base="master", remote="origin", body_file=None, push=True):
     if git("rev-parse", "HEAD") != base_head:
         raise SystemExit(f"HEAD is not synchronized with {remote}/{base}; sync before publishing")
 
-    only_change_guard(relative)
+    changed_cv = set(_changed_paths()) & {CV_PDF, CV_VERSION}
+    if changed_cv and changed_cv != {CV_PDF, CV_VERSION}:
+        raise SystemExit(
+            "publish guard failed: the CV pdf and its version marker must change together"
+        )
+    only_change_guard([relative, CV_PDF, CV_VERSION], required=[relative])
 
     branch = f"weekly-progress/{date}"
 

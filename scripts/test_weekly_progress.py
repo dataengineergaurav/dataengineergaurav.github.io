@@ -199,7 +199,7 @@ class PublishGuardTests(unittest.TestCase):
             (root / "_posts").mkdir()
             (root / "_posts" / "2026-10-05-weekly-progress.md").write_text("x", encoding="utf-8")
             publish.only_change_guard(
-                "_posts/2026-10-05-weekly-progress.md", repo_root=root)
+                ["_posts/2026-10-05-weekly-progress.md"], repo_root=root)
 
     def test_guard_rejects_extra_path(self):
         with TemporaryDirectory() as temporary:
@@ -210,7 +210,7 @@ class PublishGuardTests(unittest.TestCase):
             (root / "stray.txt").write_text("x", encoding="utf-8")
             with self.assertRaises(SystemExit):
                 publish.only_change_guard(
-                    "_posts/2026-10-05-weekly-progress.md", repo_root=root)
+                    ["_posts/2026-10-05-weekly-progress.md"], repo_root=root)
 
     def test_guard_rejects_wrong_post_name(self):
         with TemporaryDirectory() as temporary:
@@ -219,7 +219,30 @@ class PublishGuardTests(unittest.TestCase):
             (root / "_posts").mkdir()
             (root / "_posts" / "2026-10-05-weekly-progress.md").write_text("x", encoding="utf-8")
             with self.assertRaises(SystemExit):
-                publish.only_change_guard("_posts/2026-10-05-other.md", repo_root=root)
+                publish.only_change_guard(["_posts/2026-10-05-other.md"], repo_root=root)
+
+    def test_guard_accepts_the_post_plus_the_synced_cv(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._init_repo(root)
+            (root / "_posts").mkdir()
+            (root / "_posts" / "2026-10-05-weekly-progress.md").write_text("x", encoding="utf-8")
+            (root / publish.CV_PDF).write_text("x", encoding="utf-8")
+            (root / publish.CV_VERSION).write_text("x", encoding="utf-8")
+
+            publish.only_change_guard(
+                ["_posts/2026-10-05-weekly-progress.md", publish.CV_PDF, publish.CV_VERSION],
+                required=["_posts/2026-10-05-weekly-progress.md"],
+                repo_root=root,
+            )
+
+    def test_guard_requires_the_post_to_be_present(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._init_repo(root)
+            with self.assertRaises(SystemExit):
+                publish.only_change_guard(
+                    ["_posts/2026-10-05-weekly-progress.md"], repo_root=root)
 
 
 class SkillContractTests(unittest.TestCase):
