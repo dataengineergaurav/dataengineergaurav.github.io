@@ -34,6 +34,14 @@ git_bin=$(resolve_executable git)
 systemctl_bin=$(resolve_executable systemctl)
 cmd_bin=$(resolve_executable cmd)
 
+# Same fallback as run.sh: use the gh CLI's stored token when neither the
+# environment nor /root/.hermes/.env provides one, so `check`/`install` agree
+# with what the scheduled run will do.
+if [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
+    GITHUB_TOKEN=$(gh auth token 2>/dev/null || true)
+    export GITHUB_TOKEN
+fi
+
 ensure_owned_unit() {
     local unit=$1 source=$2 fragment
     if fragment=$("$systemctl_bin" show --value --property=FragmentPath "$unit" 2>/dev/null); then

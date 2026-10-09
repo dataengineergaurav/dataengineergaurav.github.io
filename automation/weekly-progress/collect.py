@@ -436,11 +436,22 @@ def doctor():
     else:
         try:
             user, headers = _request(f"{API_ROOT}/user", token)
-            scopes = headers.get("X-OAuth-Scopes", "")
+            scopes = headers.get("X-OAuth-Scopes")
             login = user.get("login")
             if login and login != GITHUB_USER:
                 findings.append(f"token belongs to '{login}', expected '{GITHUB_USER}'")
-            if "repo" not in scopes and "public_repo" not in scopes:
+            if scopes is None:
+                # Fine-grained PATs do not report OAuth scopes at all, so prove the
+                # capability we actually need by reading the repository list.
+                try:
+                    _request(
+                        f"{API_ROOT}/user/repos?per_page=1"
+                        "&affiliation=owner,collaborator,organization_member",
+                        token,
+                    )
+                except SystemExit as error:
+                    findings.append(f"token cannot read repositories: {error}")
+            elif "repo" not in scopes and "public_repo" not in scopes:
                 findings.append(f"token scopes lack 'repo' (have: {scopes or 'none'})")
         except SystemExit as error:
             findings.append(str(error))
@@ -451,7 +462,7 @@ def doctor():
         for finding in findings:
             print(f"FAIL {finding}")
         return 1
-    print("OK token, scopes, and project catalog")
+    print("OK token, repository access, and project catalog")
     return 0
 
 
