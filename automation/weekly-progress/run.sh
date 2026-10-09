@@ -43,7 +43,14 @@ Follow the skill chain: github-progress-collector -> progress-analyzer -> github
 .progress-generator/activity/$date_utc.json. Write the post to _posts/$date_utc-weekly-progress.md \
 and the PR body to .progress-generator/$date_utc/pr-body.md. Do not run git add, commit, push, or gh."
 
-"$cmd_bin" -p "$blog_prompt" --output-format json --no-session --skip-onboarding --no-auto-update --max-turns 40
+# Headless runs refuse file writes unless --yolo is passed; permission modes do not
+# enable them. Least privilege is preserved by .commandcode/settings.json, because
+# deny rules outrank yolo: all Shell is blocked, so the agent can write the post, the
+# staging files and the CV highlights but can never run git or any other command.
+cmd_flags=(-p --output-format json --no-session --skip-onboarding --no-auto-update
+           --trust --yolo --max-turns 40)
+
+"$cmd_bin" "${cmd_flags[@]}" "$blog_prompt"
 
 relative="_posts/$date_utc-weekly-progress.md"
 body_file="$run_dir/pr-body.md"
@@ -58,7 +65,7 @@ bullets cv-editor approves to $cv_root/data/experience.yaml: highlights lists on
 If nothing qualifies, change nothing and say so. \
 Do not run git add, commit, push, or gh."
 
-if ! "$cmd_bin" -p "$cv_prompt" --output-format json --no-session --skip-onboarding --no-auto-update --max-turns 40; then
+if ! "$cmd_bin" "${cmd_flags[@]}" "$cv_prompt"; then
     cv_status=1
 elif ! $cv_python "$script_dir/cv_guard.py" --data "$cv_root/data/experience.yaml"; then
     cv_status=1

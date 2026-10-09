@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "additionalDirectories": ["/root/CV-Development"],
+    "deny": [
+      "Shell",
+      "Edit(.env*)",
+      "Edit(.git/**)",
+      "Edit(.commandcode/settings.json)"
+    ]
+  }
+}

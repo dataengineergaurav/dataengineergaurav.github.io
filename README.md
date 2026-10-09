@@ -133,6 +133,13 @@ authenticated `gh` CLI, which `run.sh` uses as a fallback.
 
 Tests: `python3 -m unittest scripts.test_weekly_progress -v`.
 
+**Agent permissions.** Headless runs refuse file writes unless `--yolo` is passed, so
+`run.sh` uses it. Least privilege comes from `.commandcode/settings.json` instead: its `deny`
+rules outrank `--yolo`, and `Shell` is denied outright. The agent can write files but can never
+run git or any other command — the "agent never touches git" rule is enforced by the engine, not
+just by the prompt. The settings also deny writes to `.git/`, `.env*`, and the settings file
+itself.
+
 ### Weekly CV refresh
 
 The same run also refreshes the CV. A second agent stage reads the same activity pack, proposes
