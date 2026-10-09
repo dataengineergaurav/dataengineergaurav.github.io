@@ -217,7 +217,7 @@ def fetch_events(token, user):
 
 
 def raw_snapshot(token, user, since, until):
-    repos = fetch_repos(token, user)
+    repos = fetch_repos(token)
     active = [
         repo for repo in repos
         if repo.get("pushed_at") and repo["pushed_at"] >= since
