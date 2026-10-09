@@ -1,16 +1,21 @@
 import argparse
 from html import unescape
 from html.parser import HTMLParser
+import os
 from pathlib import Path
 import re
+import sys
 from tempfile import TemporaryDirectory
 import unittest
 from urllib.parse import urlparse
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-FORBIDDEN_NAMES = (
-    "sagesure", "ishir", "cannasp yglass".replace(" ", ""), "petfolk",
-    "tradetips", "casepoint", "nhs", "archetypal ai", "6overn.ai",
+from public_policy import (  # noqa: E402
+    FORBIDDEN_NAMES,
+    RETIRED_CLAIMS,
+    TESTIMONIAL_NAMES,
+    cv_forbidden_names,
 )
 
 SOURCE_EXCLUDED_DIRS = {
@@ -18,17 +23,9 @@ SOURCE_EXCLUDED_DIRS = {
     "automation", "docs", "script", "scripts", "vendor",
 }
 
-TESTIMONIAL_NAMES = (
-    ("ai squared", "Benjamin Harvey, Ph.D.", "Founder of AI Squared"),
-    ("department of justice", "Ivette Basterrechea", "Department of Justice"),
-    ("google", "Le Zhang", ""),
-)
-
 HOMEPAGE_PROOF = (
     "300+", "2M+", "7+ years", "Open to select strategic leadership roles",
 )
-
-RETIRED_CLAIMS = ("$3b+",)
 
 GOOGLE_SERVICE_HOSTS = {"www.googletagmanager.com", "maps.googleapis.com", "fonts.googleapis.com"}
 
@@ -63,7 +60,7 @@ def mask_approved_google_service_host(match):
 
 def public_text_files(root: Path) -> list[Path]:
     if (root / "index.md").exists():
-        suffixes = {".md", ".html", ".yml", ".yaml"}
+        suffixes = {".md", ".html", ".yml", ".yaml", ".pdf"}
         return sorted(
             path for path in root.rglob("*")
             if path.suffix in suffixes
@@ -72,7 +69,7 @@ def public_text_files(root: Path) -> list[Path]:
         )
     else:
         paths = (Path("."),)
-        suffixes = {".html", ".xml", ".txt"}
+        suffixes = {".html", ".xml", ".txt", ".pdf"}
     files = []
     for relative in paths:
         candidate = root / relative
@@ -83,31 +80,56 @@ def public_text_files(root: Path) -> list[Path]:
     return sorted(files)
 
 
-def find_forbidden_names(root: Path) -> list[str]:
+def read_text(path: Path) -> str:
+    """Extract searchable text. PDFs are decompressed so their text is not a blind spot."""
+    if path.suffix == ".pdf":
+        import pypdf
+
+        reader = pypdf.PdfReader(str(path))
+        return "\n".join((page.extract_text() or "") for page in reader.pages)
+    return path.read_text(encoding="utf-8")
+
+
+def find_forbidden_names(root: Path, text_reader=read_text) -> list[str]:
     findings = []
     for path in public_text_files(root):
-        text = path.read_text(encoding="utf-8").casefold()
-        for name, author, attribution in TESTIMONIAL_NAMES:
-            text = re.sub(
-                rf"(<cite\b[^>]*>\s*<strong>\s*<a\b[^>]*>{re.escape(author.casefold())}</a>\s*</strong>\s*·\s*{re.escape(attribution.casefold()[:-len(name)])}){re.escape(name)}(?=\s*</cite>)",
-                lambda match: match.group(1),
-                text,
-                flags=re.DOTALL,
-            )
-        searchable_texts = (unescape(text).casefold(), rendered_text(text).casefold())
-        searchable_texts = tuple(
-            re.sub(
-                r"google[ _-](analytics|cloud|maps|sheets)",
-                r"\1",
+        try:
+            raw = text_reader(path)
+        except Exception:
+            raw = ""
+
+        if path.suffix == ".pdf":
+            # A PDF that yields no text cannot be verified, so it fails closed.
+            if not raw.strip():
+                findings.append(f"{path}: unreadable pdf")
+                continue
+            # A PDF carries the CV, where employers-of-record are public and clients are not.
+            searchable_texts = (unescape(raw).casefold(),)
+            forbidden = cv_forbidden_names()
+        else:
+            text = raw.casefold()
+            for name, author, attribution in TESTIMONIAL_NAMES:
+                text = re.sub(
+                    rf"(<cite\b[^>]*>\s*<strong>\s*<a\b[^>]*>{re.escape(author.casefold())}</a>\s*</strong>\s*·\s*{re.escape(attribution.casefold()[:-len(name)])}){re.escape(name)}(?=\s*</cite>)",
+                    lambda match: match.group(1),
+                    text,
+                    flags=re.DOTALL,
+                )
+            searchable_texts = (unescape(text).casefold(), rendered_text(text).casefold())
+            searchable_texts = tuple(
                 re.sub(
-                    r"https?://[^\s\"'<>]+",
-                    mask_approved_google_service_host,
-                    searchable,
-                ),
+                    r"google[ _-](analytics|cloud|maps|sheets)",
+                    r"\1",
+                    re.sub(
+                        r"https?://[^\s\"'<>]+",
+                        mask_approved_google_service_host,
+                        searchable,
+                    ),
+                )
+                for searchable in searchable_texts
             )
-            for searchable in searchable_texts
-        )
-        forbidden = FORBIDDEN_NAMES + tuple(name for name, _, _ in TESTIMONIAL_NAMES) + RETIRED_CLAIMS
+            forbidden = FORBIDDEN_NAMES + tuple(name for name, _, _ in TESTIMONIAL_NAMES) + RETIRED_CLAIMS
+
         for name in forbidden:
             if any(name in searchable for searchable in searchable_texts):
                 findings.append(f"{path}: {name}")
@@ -189,6 +211,39 @@ class PublicContentTests(unittest.TestCase):
             (root / "index.md").write_text("Independent data leader.", encoding="utf-8")
 
             self.assertEqual(find_forbidden_names(root), [])
+
+    def test_pdf_is_scanned_with_the_client_scoped_list(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "index.md").write_text("home", encoding="utf-8")
+            (root / "cv.pdf").write_bytes(b"")
+
+            def client_reader(path):
+                return "client at SageSure" if path.suffix == ".pdf" else "home"
+
+            self.assertEqual(
+                find_forbidden_names(root, text_reader=client_reader),
+                [f"{root / 'cv.pdf'}: sagesure"],
+            )
+
+            def employer_reader(path):
+                return "worked at ISHIR" if path.suffix == ".pdf" else "home"
+
+            self.assertEqual(find_forbidden_names(root, text_reader=employer_reader), [])
+
+    def test_empty_pdf_extraction_fails_closed(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "index.md").write_text("home", encoding="utf-8")
+            (root / "cv.pdf").write_bytes(b"")
+
+            def blank_reader(path):
+                return "" if path.suffix == ".pdf" else "home"
+
+            self.assertEqual(
+                find_forbidden_names(root, text_reader=blank_reader),
+                [f"{root / 'cv.pdf'}: unreadable pdf"],
+            )
 
     def test_allows_google_technology_references(self):
         with TemporaryDirectory() as temporary:
