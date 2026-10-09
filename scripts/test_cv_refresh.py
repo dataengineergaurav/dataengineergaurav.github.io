@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PIPELINE = ROOT / "automation" / "weekly-progress"
+sys.path.insert(0, str(PIPELINE))
 
 
 def load(name):
@@ -22,6 +23,7 @@ def load(name):
 
 cv_policy = load("cv_policy")
 cv_guard = load("cv_guard")
+cv_publish = load("cv_publish")
 
 
 class CvPolicyTests(unittest.TestCase):
@@ -81,6 +83,25 @@ class CvGuardTests(unittest.TestCase):
         old = {"engagements": [{"id": "a"}]}
         new = {"engagements": [{"id": "a"}, {"id": "b"}]}
         self.assertEqual(cv_guard.violations(old, new), ["engagements[b] added"])
+
+
+class CvPublishTests(unittest.TestCase):
+    def test_allow_list_accepts_the_expected_set(self):
+        cv_publish.assert_only(cv_publish.CV_FILES, cv_publish.CV_FILES)
+
+    def test_allow_list_rejects_an_unexpected_path(self):
+        with self.assertRaises(SystemExit):
+            cv_publish.assert_only(cv_publish.CV_FILES, cv_publish.CV_FILES + ["notes.txt"])
+
+    def test_allow_list_rejects_a_missing_artifact(self):
+        with self.assertRaises(SystemExit):
+            cv_publish.assert_only(cv_publish.CV_FILES, cv_publish.CV_FILES[:-1])
+
+    def test_branch_name_is_idempotent(self):
+        self.assertEqual(cv_publish.branch_for("2026-10-12"), "cv-refresh/2026-10-12")
+
+    def test_allow_list_names_the_source_of_truth(self):
+        self.assertIn("data/experience.yaml", cv_publish.CV_FILES)
 
 
 if __name__ == "__main__":
