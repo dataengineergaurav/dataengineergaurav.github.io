@@ -98,11 +98,14 @@ if [ "$cv_status" -eq 0 ] && [ "$cv_changed" -eq 1 ]; then
 fi
 
 # 4. Site pull request: the post, plus the refreshed CV when the CV stage got that far.
+site_status=0
 if [ -f "$relative" ]; then
     script/cibuild
     "$python3_bin" -m unittest scripts.test_weekly_progress scripts.test_cv_refresh -q
 
-    "$python3_bin" "$script_dir/publish.py" --date "$date_utc" --body-file "$body_file" $no_push
+    # Captured rather than fatal, so the run still reports every stage's outcome.
+    "$python3_bin" "$script_dir/publish.py" --date "$date_utc" --body-file "$body_file" $no_push \
+        || site_status=1
 else
     printf 'no post produced for %s (quiet week or editor block)\n' "$date_utc"
     [ -f "$body_file" ] && cat "$body_file"
@@ -115,6 +118,10 @@ if [ "$blog_status" -ne 0 ]; then
 fi
 if [ "$cv_status" -ne 0 ]; then
     printf 'CV stage failed; the site pull request is unaffected\n' >&2
+    status=1
+fi
+if [ "$site_status" -ne 0 ]; then
+    printf 'site pull request was not opened\n' >&2
     status=1
 fi
 exit "$status"
