@@ -21,8 +21,10 @@ Write only these paths; never touch git state:
 | `.progress-generator/<date>/pr-body.md` | you | PR description (summary + editor checklist) |
 | `_posts/<date>-weekly-progress.md` | you (writer) | the post the PR will contain |
 
-`_posts/<date>-weekly-progress.md` must be the **only** change to tracked files. `automation/weekly-progress/publish.py`
-enforces this and is the only thing allowed to create a branch, commit, push, and open the PR.
+Your stage must change **no** tracked file other than `_posts/<date>-weekly-progress.md`. The run as
+a whole may also carry the refreshed CV (see below), and
+`automation/weekly-progress/publish.py` enforces exactly which tracked paths are allowed; it is the
+only thing that creates a branch, commits, pushes, and opens the PR.
 
 ## Steps
 
@@ -42,8 +44,16 @@ enforces this and is the only thing allowed to create a branch, commit, push, an
 6. **PR body.** Write `.progress-generator/<date>/pr-body.md`: the analyzer headline + development
    list, the editor verdict/checklist, and the evidence links.
 7. **Hand off.** Do **not** run git. Return control to `automation/weekly-progress/run.sh`, which
-   builds the site, runs tests, guards that exactly one file changed, and calls
+   builds the site, runs the tests, verifies the changed paths, and calls
    `python3 automation/weekly-progress/publish.py --date <date> --body-file .progress-generator/<date>/pr-body.md`.
+
+## The CV stage
+
+`run.sh` then runs a second, independent stage from the same activity pack, which this skill does
+not drive: `cv-highlight-writer` → `cv-editor` → `cv_guard.py` (highlights-only, plus the cap) →
+CV-Development's own test suite → `cv_sync.py` (render, copy the one-pager, write the version
+marker) → `cv_policy.py` (client-name scan of the rendered PDFs) → `cv_publish.py` (a PR against
+`CV-Development`). When no bullet qualifies, nothing is written and no CV pull request is opened.
 
 ## Manual use
 
