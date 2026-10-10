@@ -34,9 +34,6 @@ collections:
   projects:
     output: true
     permalink: /work/:name/
-  wiki:
-    output: true
-    permalink: /wiki/:name/
 exclude:
   - vendor
   - .github

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""LLM Wiki (second brain) ingest, synthesis and publish pipeline.
+"""LLM Wiki (second brain) ingest, synthesis and backup pipeline.
 
-Reads new Hermes agent sessions and personal notes, summarizes them with an LLM
-into an Obsidian-style markdown vault, and publishes the public subset as a
-Jekyll `wiki` collection on the blog. Incremental and idempotent.
+Reads new Hermes agent sessions, personal notes and Hermes memories, summarizes them
+with an LLM into an Obsidian-style markdown vault, and backs the vault up to its own
+private remote. Incremental and idempotent. The vault is private and is not published.
 """
 
 import argparse
@@ -39,8 +39,6 @@ LOG_PATH = WIKI_ROOT / ".wiki" / "ingest.log"
 LOCK_PATH = WIKI_ROOT / ".wiki" / "ingest.lock"
 
 BLOG_REPO = Path(os.environ.get("WIKI_BLOG_REPO", "/root/dataengineergaurav.github.io"))
-PUBLISH_DIR = BLOG_REPO / "_wiki"
-PUBLISH_INDEX = BLOG_REPO / "wiki" / "index.md"
 
 WIKI_BACKEND = os.environ.get("WIKI_BACKEND", "command-code")
 WIKI_MODEL = os.environ.get("WIKI_MODEL", "gpt-5.6-sol")
@@ -138,11 +136,10 @@ def _slugify(value):
 def _load_state():
     if not STATE_PATH.exists():
         return {"version": 1, "processed_sessions": [], "processed_notes": {},
-                "last_run": None, "published_ids": []}
+                "last_run": None}
     data = json.loads(STATE_PATH.read_text(encoding="utf-8"))
     data.setdefault("processed_sessions", [])
     data.setdefault("processed_notes", {})
-    data.setdefault("published_ids", [])
     return data
 
 
@@ -418,20 +415,6 @@ def _strip_leading_h1(text):
     return "\n".join(lines).strip()
 
 
-WIKILINK_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
-
-
-def _convert_wikilinks(text, public_slugs=None):
-    def repl(match):
-        slug = _slugify(match.group(1))
-        label = (match.group(2) or match.group(1)).strip()
-        if public_slugs is not None and slug not in public_slugs:
-            return label
-        return f"[{label}](/wiki/{slug}/)"
-
-    return WIKILINK_RE.sub(repl, text)
-
-
 def _demote_headings(text):
     out = []
     for line in text.splitlines():
@@ -525,62 +508,11 @@ def _run_git(*args, cwd):
     return subprocess.run(["git", *args], cwd=str(cwd), capture_output=True, text=True)
 
 
-def publish(push=False, dry_run=False):
-    if not PUBLISH_DIR.exists():
-        PUBLISH_DIR.mkdir(parents=True, exist_ok=True)
-    pages = []
-    for path in list(SUBJECTS_DIR.glob("*.md")) + list(DAILY_DIR.glob("*.md")):
-        meta, body = _read_page(path)
-        if str(meta.get("visibility", "private")).lower() != "public":
-            continue
-        pages.append((path, meta, body))
-    public_slugs = {path.stem for path, _, _ in pages}
-    names = {path.name for path, _, _ in pages}
-    # A page that stops being public must stop being published: drop any copy in
-    # _wiki/ that no longer has a public source.
-    stale = sorted(p.name for p in PUBLISH_DIR.glob("*.md") if p.name not in names)
-    if dry_run:
-        detail = f"would publish {len(pages)} page(s)"
-        if stale:
-            detail += f" and remove {len(stale)} stale"
-        return f"publish (dry-run): {detail}"
-    for path, meta, body in pages:
-        target = PUBLISH_DIR / path.name
-        out_meta = dict(meta)
-        out_meta["layout"] = "wiki"
-        out_meta.pop("sources", None)
-        _write_page(target, out_meta, _convert_wikilinks(_strip_leading_h1(body), public_slugs))
-    for name in stale:
-        (PUBLISH_DIR / name).unlink()
-    if pages:
-        _rebuild_publish_index()
-    elif PUBLISH_INDEX.exists():
-        PUBLISH_INDEX.unlink()
-    if not pages and not stale:
-        return "publish: nothing marked public"
-    _run_git("add", "_wiki", "wiki", cwd=BLOG_REPO)
-    diff = _run_git("diff", "--cached", "--quiet", cwd=BLOG_REPO)
-    if diff.returncode == 1:
-        message = f"wiki: publish {len(pages)} page(s)"
-        if stale:
-            message += f"; remove {len(stale)}"
-        _run_git("commit", "-m", message, cwd=BLOG_REPO)
-    if push:
-        result = _run_git("push", cwd=BLOG_REPO)
-        if result.returncode != 0:
-            raise RuntimeError(f"git push failed: {result.stderr.strip()}")
-    summary = f"publish: {len(pages)} page(s) -> _wiki/"
-    if stale:
-        summary += f"; removed {len(stale)} stale"
-    return f"{summary} (push={push})"
-
-
 def backup(push=False, dry_run=False):
-    """Commit (and optionally push) the vault — the source of truth — to its own remote.
+    """Commit (and optionally push) the vault — the source of truth — to its private remote.
 
-    The vault is a separate git repository from the blog; the public subset is
-    published from it, but the vault itself holds private pages that never leave
-    this machine unless backed up here.
+    The vault is a separate git repository from the blog. It is private: pages never
+    leave this machine unless backed up here.
     """
     if not (WIKI_ROOT / ".git").exists():
         return "backup: vault is not a git repository"
@@ -600,22 +532,6 @@ def backup(push=False, dry_run=False):
     if result.returncode != 0:
         raise RuntimeError(f"vault push failed: {result.stderr.strip()}")
     return f"backup: {'committed' if committed else 'no changes'}, pushed"
-
-
-def _rebuild_publish_index():
-    PUBLISH_INDEX.parent.mkdir(parents=True, exist_ok=True)
-    entries = []
-    for path in sorted(PUBLISH_DIR.glob("*.md")):
-        meta, _ = _read_page(path)
-        entries.append((meta.get("title", path.stem), path.stem, meta.get("summary", "")))
-    entries.sort()
-    lines = ["---", "layout: default", "title: Wiki", "permalink: /wiki/", "---", "",
-             "## Second Brain Wiki", ""]
-    if not entries:
-        lines.append("_No public pages yet._")
-    for title, slug, summary in entries:
-        lines.append(f"- [{title}](/wiki/{slug}/) — {summary}")
-    _atomic_write(PUBLISH_INDEX, "\n".join(lines).rstrip() + "\n")
 
 
 def ingest(limit=None, dry_run=False):
@@ -713,14 +629,11 @@ def doctor():
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="LLM Wiki (second brain) ingest and publish")
+    parser = argparse.ArgumentParser(description="LLM Wiki (second brain) ingest and backup")
     commands = parser.add_subparsers(dest="command", required=True)
     ingest_parser = commands.add_parser("ingest")
     ingest_parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
     ingest_parser.add_argument("--dry-run", action="store_true")
-    publish_parser = commands.add_parser("publish")
-    publish_parser.add_argument("--push", action="store_true")
-    publish_parser.add_argument("--dry-run", action="store_true")
     backup_parser = commands.add_parser("backup")
     backup_parser.add_argument("--push", action="store_true")
     backup_parser.add_argument("--dry-run", action="store_true")
@@ -738,8 +651,6 @@ def main(argv=None):
     try:
         if args.command == "ingest":
             result = ingest(args.limit, args.dry_run)
-        elif args.command == "publish":
-            result = publish(args.push, args.dry_run)
         elif args.command == "backup":
             result = backup(args.push, args.dry_run)
         elif args.command == "status":

@@ -6,9 +6,8 @@ description: dataengineergaurav.github.io persona - the domain and technical con
 # dataengineergaurav.github.io — Persona
 
 A static Jekyll site that markets senior data engineering and governed-AI consulting. It is a
-lead-generation asset: anonymized case studies, capability and services messaging, a blog, an
-ingested wiki, and a downloadable CV. It is not an application; almost every change is content,
-template, or style.
+lead-generation asset: anonymized case studies, capability and services messaging, a blog, and a
+downloadable CV. It is not an application; almost every change is content, template, or style.
 
 ## Domain knowledge
 
@@ -44,8 +43,8 @@ template, or style.
   - full verification: `script/cibuild` — Jekyll build + `htmlproofer` + the content policy + the CV
     marker check + the pipeline test suites
   - unit tests: `python3 -m unittest scripts.test_public_content scripts.test_weekly_progress scripts.test_cv_refresh scripts.test_article_pipeline scripts.test_wiki_ingest`
-- **Architecture:** static Jekyll site. Collections `projects` (`/work/:name/`) and `wiki`
-  (`/wiki/:name/`). Templates in `_layouts/`, fragments in `_includes/`, styles in `_sass/` and
+- **Architecture:** static Jekyll site. Collection `projects` (`/work/:name/`). Templates in
+  `_layouts/`, fragments in `_includes/`, styles in `_sass/` and
   `assets/`. `_site/` is generated build output. Two local pipelines produce content as pull
   requests: `automation/weekly-progress/` (GitHub activity to a Build Log post **and** a weekly CV
   refresh, driven by eight skills in `.commandcode/skills/`) and `scripts/article_pipeline.py`
@@ -66,8 +65,6 @@ template, or style.
   - A root-level `.md` file, or any file under `docs/` outside `docs/superpowers`, is **published**
     unless excluded. `credentials.md`, `index.html` and the CV PDF are intentionally public.
   - `scrollcraft/` is design scratch, excluded from the build — leave it alone.
-  - The `wiki/` collection is a copy ingested from the separate `second-brain` project via
-    `scripts/wiki_ingest.py`. Edit upstream, not the copy.
   - The committed CV PDF is a **derived artifact** — `automation/weekly-progress/cv_sync.py`
     regenerates it from the `CV-Development` project and writes its `.version.json` marker. Never
     hand-edit either; `scripts/check_cv_marker.py` fails CI when the two disagree.
@@ -90,8 +87,6 @@ Read these; do not restate them here.
 
 ## Confirm before trusting
 
-- `TODO: confirm` — whether the site should ever link the `wiki/` collection from primary
-  navigation; it is currently reachable but not promoted.
 - `TODO: confirm` — the intended naming scheme if the CV PDF is ever renamed (the homepage links
   `Gaurav_Gurjar_CV_AI-Data-Engineer.pdf` by exact filename).
 

@@ -19,24 +19,6 @@ def load_module(name, path):
 wiki = load_module("wiki_ingest_under_test", REPO_ROOT / "scripts" / "wiki_ingest.py")
 
 
-class ConvertWikilinkTests(unittest.TestCase):
-    def test_links_public_targets(self):
-        out = wiki._convert_wikilinks("See [[hermes-runtime]].", {"hermes-runtime"})
-        self.assertEqual(out, "See [hermes-runtime](/wiki/hermes-runtime/).")
-
-    def test_private_target_is_unlinked(self):
-        out = wiki._convert_wikilinks("See [[blog-automation]].", {"hermes-runtime"})
-        self.assertEqual(out, "See blog-automation.")
-
-    def test_aliased_link_uses_label(self):
-        out = wiki._convert_wikilinks("See [[blog-automation|the notes]].", {"hermes-runtime"})
-        self.assertEqual(out, "See the notes.")
-
-    def test_no_allowlist_keeps_legacy_behaviour(self):
-        out = wiki._convert_wikilinks("See [[anything]].")
-        self.assertEqual(out, "See [anything](/wiki/anything/).")
-
-
 class CollectNotesTests(unittest.TestCase):
     def setUp(self):
         self._orig_inbox = wiki.INBOX_DIR
@@ -138,62 +120,6 @@ class BackupTests(unittest.TestCase):
             ["git", "--git-dir", str(bare), "rev-parse", "master"],
             capture_output=True, text=True).stdout.strip()
         self.assertEqual(local_head, remote_head)
-
-
-class PublishTests(unittest.TestCase):
-    _PATCHED = ("SUBJECTS_DIR", "DAILY_DIR", "PUBLISH_DIR", "PUBLISH_INDEX", "BLOG_REPO")
-
-    def setUp(self):
-        self._orig = {name: getattr(wiki, name) for name in self._PATCHED}
-        self.tmp = tempfile.TemporaryDirectory()
-        root = Path(self.tmp.name)
-        self.subjects = root / "vault" / "subjects"
-        self.daily = root / "vault" / "daily"
-        self.publish_dir = root / "blog" / "_wiki"
-        self.blog = root / "blog"
-        for d in (self.subjects, self.daily, self.publish_dir):
-            d.mkdir(parents=True)
-        subprocess.run(["git", "init", "-q", str(self.blog)], check=True)
-        for key, value in (("user.email", "test@example.com"), ("user.name", "Test")):
-            subprocess.run(["git", "-C", str(self.blog), "config", key, value], check=True)
-        self.index = self.blog / "wiki" / "index.md"
-        for name, value in (("SUBJECTS_DIR", self.subjects), ("DAILY_DIR", self.daily),
-                            ("PUBLISH_DIR", self.publish_dir), ("PUBLISH_INDEX", self.index),
-                            ("BLOG_REPO", self.blog)):
-            setattr(wiki, name, value)
-
-    def tearDown(self):
-        for name, value in self._orig.items():
-            setattr(wiki, name, value)
-        self.tmp.cleanup()
-
-    def _page(self, visibility):
-        (self.subjects / "topic.md").write_text(
-            '---\ntitle: "Topic"\nsummary: "s"\nvisibility: "%s"\n---\n\nBody.\n' % visibility)
-
-    def test_public_page_is_published(self):
-        self._page("public")
-        wiki.publish()
-        self.assertTrue((self.publish_dir / "topic.md").exists())
-        self.assertTrue(self.index.exists())
-
-    def test_private_page_is_not_published(self):
-        self._page("private")
-        wiki.publish()
-        self.assertEqual(list(self.publish_dir.glob("*.md")), [])
-
-    def test_unpublishing_removes_stale_page_and_index(self):
-        self._page("public")
-        wiki.publish()
-        self._page("private")
-        wiki.publish()
-        self.assertFalse((self.publish_dir / "topic.md").exists())
-        self.assertFalse(self.index.exists())
-
-    def test_dry_run_writes_nothing(self):
-        self._page("public")
-        wiki.publish(dry_run=True)
-        self.assertEqual(list(self.publish_dir.glob("*.md")), [])
 
 
 if __name__ == "__main__":

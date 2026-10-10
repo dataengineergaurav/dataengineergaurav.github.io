@@ -21,7 +21,6 @@ Regenerate it with `/persona-builder dataengineergaurav.github.io --update`.
 ├── _includes/               # Reusable HTML fragments
 ├── _projects/               # Project case studies (YAML-front-matter files)
 ├── _posts/                  # Blog posts (YYYY-MM-DD-title.md)
-├── _wiki/                   # Wiki collection output — dormant (public /wiki/ surface retired)
 ├── _sass/                   # Stylesheet components
 ├── assets/                  # CSS, fonts, images
 ├── automation/              # weekly-progress: the scheduled blog + CV pipeline

@@ -38,7 +38,7 @@ hermes-gsheets:
 
 dataengineergaurav.github.io:
   repo: dataengineergaurav/dataengineergaurav.github.io
-  purpose: This site — a Jekyll consulting site plus an article/wiki/progress automation stack.
+  purpose: This site — a Jekyll consulting site plus an article/progress automation stack.
   audience: Technical and business leaders evaluating data engineering and governed AI work.
   stack: [Jekyll, Ruby, Python, systemd]
   themes: [data platforms, ai governance, analytics delivery, leadership]
