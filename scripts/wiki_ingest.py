@@ -549,6 +549,33 @@ def publish(push=False, dry_run=False):
     return f"publish: {len(published)} page(s) -> _wiki/ (push={push})"
 
 
+def backup(push=False, dry_run=False):
+    """Commit (and optionally push) the vault — the source of truth — to its own remote.
+
+    The vault is a separate git repository from the blog; the public subset is
+    published from it, but the vault itself holds private pages that never leave
+    this machine unless backed up here.
+    """
+    if not (WIKI_ROOT / ".git").exists():
+        return "backup: vault is not a git repository"
+    dirty = bool(_run_git("status", "--porcelain", cwd=WIKI_ROOT).stdout.strip())
+    if dry_run:
+        return f"backup (dry-run): {'would commit' if dirty else 'no changes'}"
+    committed = False
+    if dirty:
+        _run_git("add", "-A", cwd=WIKI_ROOT)
+        _run_git("commit", "-m", "wiki: back up ingested subjects and daily logs", cwd=WIKI_ROOT)
+        committed = True
+    if not push:
+        return f"backup: {'committed' if committed else 'no changes'}"
+    if not _run_git("remote", cwd=WIKI_ROOT).stdout.split():
+        return f"backup: {'committed' if committed else 'no changes'}; vault has no remote to push to"
+    result = _run_git("push", cwd=WIKI_ROOT)
+    if result.returncode != 0:
+        raise RuntimeError(f"vault push failed: {result.stderr.strip()}")
+    return f"backup: {'committed' if committed else 'no changes'}, pushed"
+
+
 def _rebuild_publish_index():
     PUBLISH_INDEX.parent.mkdir(parents=True, exist_ok=True)
     entries = []
@@ -668,6 +695,9 @@ def main(argv=None):
     publish_parser = commands.add_parser("publish")
     publish_parser.add_argument("--push", action="store_true")
     publish_parser.add_argument("--dry-run", action="store_true")
+    backup_parser = commands.add_parser("backup")
+    backup_parser.add_argument("--push", action="store_true")
+    backup_parser.add_argument("--dry-run", action="store_true")
     commands.add_parser("status")
     commands.add_parser("doctor")
     args = parser.parse_args(argv)
@@ -684,6 +714,8 @@ def main(argv=None):
             result = ingest(args.limit, args.dry_run)
         elif args.command == "publish":
             result = publish(args.push, args.dry_run)
+        elif args.command == "backup":
+            result = backup(args.push, args.dry_run)
         elif args.command == "status":
             result = status()
         else:
