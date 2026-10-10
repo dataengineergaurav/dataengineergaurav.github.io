@@ -528,39 +528,51 @@ def _run_git(*args, cwd):
 def publish(push=False, dry_run=False):
     if not PUBLISH_DIR.exists():
         PUBLISH_DIR.mkdir(parents=True, exist_ok=True)
-    published = []
-    sources = list(SUBJECTS_DIR.glob("*.md")) + list(DAILY_DIR.glob("*.md"))
     pages = []
-    for path in sources:
+    for path in list(SUBJECTS_DIR.glob("*.md")) + list(DAILY_DIR.glob("*.md")):
         meta, body = _read_page(path)
         if str(meta.get("visibility", "private")).lower() != "public":
             continue
         pages.append((path, meta, body))
     public_slugs = {path.stem for path, _, _ in pages}
+    names = {path.name for path, _, _ in pages}
+    # A page that stops being public must stop being published: drop any copy in
+    # _wiki/ that no longer has a public source.
+    stale = sorted(p.name for p in PUBLISH_DIR.glob("*.md") if p.name not in names)
+    if dry_run:
+        detail = f"would publish {len(pages)} page(s)"
+        if stale:
+            detail += f" and remove {len(stale)} stale"
+        return f"publish (dry-run): {detail}"
     for path, meta, body in pages:
         target = PUBLISH_DIR / path.name
         out_meta = dict(meta)
         out_meta["layout"] = "wiki"
         out_meta.pop("sources", None)
-        if not dry_run:
-            _write_page(target, out_meta,
-                        _convert_wikilinks(_strip_leading_h1(body), public_slugs))
-        published.append(path.name)
-    if not dry_run:
+        _write_page(target, out_meta, _convert_wikilinks(_strip_leading_h1(body), public_slugs))
+    for name in stale:
+        (PUBLISH_DIR / name).unlink()
+    if pages:
         _rebuild_publish_index()
-    if not published:
+    elif PUBLISH_INDEX.exists():
+        PUBLISH_INDEX.unlink()
+    if not pages and not stale:
         return "publish: nothing marked public"
-    if dry_run:
-        return f"publish (dry-run): would publish {len(published)} page(s)"
     _run_git("add", "_wiki", "wiki", cwd=BLOG_REPO)
     diff = _run_git("diff", "--cached", "--quiet", cwd=BLOG_REPO)
     if diff.returncode == 1:
-        _run_git("commit", "-m", f"wiki: publish {len(published)} page(s)", cwd=BLOG_REPO)
+        message = f"wiki: publish {len(pages)} page(s)"
+        if stale:
+            message += f"; remove {len(stale)}"
+        _run_git("commit", "-m", message, cwd=BLOG_REPO)
     if push:
         result = _run_git("push", cwd=BLOG_REPO)
         if result.returncode != 0:
             raise RuntimeError(f"git push failed: {result.stderr.strip()}")
-    return f"publish: {len(published)} page(s) -> _wiki/ (push={push})"
+    summary = f"publish: {len(pages)} page(s) -> _wiki/"
+    if stale:
+        summary += f"; removed {len(stale)} stale"
+    return f"{summary} (push={push})"
 
 
 def backup(push=False, dry_run=False):
