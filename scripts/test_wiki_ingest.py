@@ -37,6 +37,53 @@ class ConvertWikilinkTests(unittest.TestCase):
         self.assertEqual(out, "See [anything](/wiki/anything/).")
 
 
+class CollectNotesTests(unittest.TestCase):
+    def setUp(self):
+        self._orig_inbox = wiki.INBOX_DIR
+        self._orig_memory = wiki.MEMORY_DIR
+        self.tmp = tempfile.TemporaryDirectory()
+        self.inbox = Path(self.tmp.name) / "inbox"
+        self.memory = Path(self.tmp.name) / "memories"
+        self.inbox.mkdir()
+        self.memory.mkdir()
+        wiki.INBOX_DIR = self.inbox
+        wiki.MEMORY_DIR = self.memory
+        self.state = {"processed_notes": {}}
+
+    def tearDown(self):
+        wiki.INBOX_DIR = self._orig_inbox
+        wiki.MEMORY_DIR = self._orig_memory
+        self.tmp.cleanup()
+
+    def test_collects_inbox_and_memories(self):
+        (self.inbox / "note.md").write_text("a personal note")
+        (self.memory / "USER.md").write_text("Prefers polished, formal English.")
+        names = {n["name"] for n in wiki._collect_notes(self.state)}
+        self.assertEqual(names, {"note.md", "memory:USER.md"})
+
+    def test_empty_memory_is_ignored(self):
+        (self.memory / "MEMORY.md").write_text("   \n")
+        self.assertEqual(wiki._collect_notes(self.state), [])
+
+    def test_unchanged_memory_is_skipped(self):
+        (self.memory / "MEMORY.md").write_text("a durable fact")
+        for note in wiki._collect_notes(self.state):
+            self.state["processed_notes"][note["name"]] = note["hash"]
+        self.assertEqual(wiki._collect_notes(self.state), [])
+
+    def test_changed_memory_is_recollected(self):
+        (self.memory / "USER.md").write_text("v1")
+        for note in wiki._collect_notes(self.state):
+            self.state["processed_notes"][note["name"]] = note["hash"]
+        (self.memory / "USER.md").write_text("v2")
+        self.assertEqual([n["name"] for n in wiki._collect_notes(self.state)], ["memory:USER.md"])
+
+    def test_missing_dirs_are_tolerated(self):
+        wiki.INBOX_DIR = self.inbox / "absent"
+        wiki.MEMORY_DIR = self.memory / "absent"
+        self.assertEqual(wiki._collect_notes(self.state), [])
+
+
 class BackupTests(unittest.TestCase):
     def setUp(self):
         self._orig_root = wiki.WIKI_ROOT

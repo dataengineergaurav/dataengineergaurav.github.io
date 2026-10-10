@@ -262,14 +262,28 @@ def _session_transcript(con, session_id):
 
 def _collect_notes(state):
     notes = []
-    if not INBOX_DIR.exists():
-        return notes
-    for path in sorted(INBOX_DIR.glob("*.md")):
-        text = path.read_text(encoding="utf-8", errors="replace")
-        digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
-        if state["processed_notes"].get(path.name) == digest:
-            continue
-        notes.append({"name": path.name, "text": text[:MAX_CHARS_PER_SESSION], "hash": digest})
+    if INBOX_DIR.exists():
+        for path in sorted(INBOX_DIR.glob("*.md")):
+            text = path.read_text(encoding="utf-8", errors="replace")
+            digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
+            if state["processed_notes"].get(path.name) == digest:
+                continue
+            notes.append({"name": path.name, "text": text[:MAX_CHARS_PER_SESSION], "hash": digest})
+    # Hermes memories (MEMORY.md / USER.md) are injected into every session's system
+    # prompt, so they never appear in the stored transcripts — ingest them directly.
+    if MEMORY_DIR.exists():
+        for name in ("MEMORY.md", "USER.md"):
+            path = MEMORY_DIR / name
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8", errors="replace").strip()
+            if not text:
+                continue
+            digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
+            key = f"memory:{name}"
+            if state["processed_notes"].get(key) == digest:
+                continue
+            notes.append({"name": key, "text": text[:MAX_CHARS_PER_SESSION], "hash": digest})
     return notes
 
 
