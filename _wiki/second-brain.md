@@ -1,11 +1,11 @@
 ---
 title: "Second Brain Wiki"
 layout: "wiki"
-tags: ["automation", "cron", "hermes", "knowledge-management", "meta", "publishing", "second-brain", "wiki"]
+tags: ["automation", "cron", "hermes", "ingest", "knowledge-management", "meta", "publishing", "second-brain", "wiki"]
 visibility: "public"
 created: "2026-10-06"
-updated: "2026-10-09"
-summary: "The ingest/publish pipeline that builds this personal wiki from the dataengineergaurav.github.io GitHub Pages repo."
+updated: "2026-10-10"
+summary: "The personal second-brain wiki and the script/cron pipeline that ingests sessions and publishes new subject and daily pages."
 ---
 
 A living knowledge base that summarizes what I work on, decisions made, and threads left
@@ -64,3 +64,22 @@ Personal 'second brain' wiki served from the `dataengineergaurav.github.io` GitH
 Run daily by an "LLM wiki daily ingest" cron job (job id prefix `cron_da4cb247aa1e`, ~03:30). The job reports new subject/daily counts on success and is silent when there is nothing new.
 
 Related: hermes-runtime.
+
+## 2026-10-10 — update
+
+### Repository
+- Wiki repo: `/root/dataengineergaurav.github.io`
+
+### Ingest/publish script
+- `scripts/wiki_ingest.py` with two subcommands:
+  - `ingest` — extract durable knowledge (subjects + daily logs) from sessions/notes.
+  - `publish --push` — publish the generated pages and push.
+- Typical full run: `cd /root/dataengineergaurav.github.io && python3 scripts/wiki_ingest.py ingest && python3 scripts/wiki_ingest.py publish --push`.
+
+### Logging
+- Ingest log: `/root/second-brain/.wiki/ingest.log` (last 20 lines are the expected failure report).
+
+### Scheduling
+- Cron job `cron_da4cb247aa1e` (seen 2026-10-10) runs the ingest-then-publish command and reports the **new subject and daily counts**; on failure it reports the last 20 lines of `ingest.log`.
+
+Related: hermes-runtime
